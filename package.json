@@ -21,6 +21,7 @@
   "homepage": "https://github.com/yvbbrjdr/athena#readme",
   "description": "",
   "dependencies": {
+    "openai": "^4.72.0",
     "yaml": "^2.6.0"
   },
   "devDependencies": {

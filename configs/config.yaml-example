@@ -1,2 +1,7 @@
 plugins:
   prompt-manager:
+    openai:
+      base_url: https://api.openai.com/v1
+      api_key: sk-proj-your-openai-api-key
+      model: gpt-4o
+      temperature: 0.5
