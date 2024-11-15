@@ -1,0 +1,30 @@
+{
+  "name": "athena",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "npm run build && npm run fast-start",
+    "fast-start": "node dist/main.js configs/config.yaml",
+    "build": "npm run clean && NODE_OPTIONS='--max-old-space-size=8192' tsc",
+    "clean": "rm -rf dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/yvbbrjdr/athena.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yvbbrjdr/athena/issues"
+  },
+  "homepage": "https://github.com/yvbbrjdr/athena#readme",
+  "description": "",
+  "dependencies": {
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3"
+  }
+}
