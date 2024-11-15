@@ -11,3 +11,5 @@ plugins:
     allowed_chat_ids:
       - 1234567890
       - 9876543210
+  clock:
+    tick_every_seconds: 60
