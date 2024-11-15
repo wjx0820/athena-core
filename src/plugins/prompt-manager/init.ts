@@ -23,7 +23,7 @@ export default class PromptManager extends PluginBase {
   busy: boolean;
   prompts: Array<ChatCompletionMessageParam>;
   eventQueue: Array<IEvent>;
-  boundAthenaEventHandler: (name: string, args: any) => Promise<void>;
+  boundAthenaEventHandler: (name: string, args: any) => void;
 
   constructor(config: any) {
     super(config);
@@ -50,7 +50,7 @@ export default class PromptManager extends PluginBase {
     this.athena.off("event", this.boundAthenaEventHandler);
   }
 
-  async athenaEventHandler(name: string, args: any) {
+  athenaEventHandler(name: string, args: any) {
     this.eventQueue.push({ tool_result: false, name, args });
     this.processEventQueue();
   }
@@ -144,17 +144,17 @@ ${JSON.stringify({
   }
 
   initialPrompt() {
-    const tools = Array.from(this.athena.tools.values()).map((tool) =>
+    const tools = Object.values(this.athena.tools).map((tool) =>
       this.toolTypeToPrompt(tool)
     );
-    const events = Array.from(this.athena.events.values()).map((event) =>
+    const events = Object.values(this.athena.events).map((event) =>
       this.eventTypeToPrompt(event)
     );
-    const descs = Array.from(this.athena.plugins.values())
+    const descs = Object.values(this.athena.plugins)
       .map((plugin) => plugin.desc())
       .filter((desc) => desc !== null);
 
-    return `You are Athena, a friendly human-level intelligence AI assistant. Your goal is to behave as human-like as possible while interacting with the world and responding to events. You will be given a set of tools to help you accomplish your goals and interact with the environment.
+    return `You are Athena, a human-level intelligence. Your goal is to behave as human-like as possible while interacting with the world and responding to events. You will be given a set of tools to help you accomplish your goals and interact with the environment.
 
 First, familiarize yourself with the available tools and possible events:
 
@@ -183,12 +183,12 @@ You will receive a series of events that represent things happening in the real 
 - Example:
 <tool_call>
 {
-"name": "some_tool",
-"id": "call_123456",
-"args": {
-"arg1": "value1",
-"arg2": "value2"
-}
+  "name": "some_tool",
+  "id": "call_123456",
+  "args": {
+    "arg1": "value1",
+    "arg2": "value2"
+  }
 }
 </tool_call>
 

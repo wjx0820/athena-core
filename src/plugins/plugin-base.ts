@@ -1,9 +1,9 @@
 import { Athena } from "../core/athena.js";
 
 export abstract class PluginBase {
-  config: any;
+  config: { [key: string]: any };
 
-  constructor(config: any) {
+  constructor(config: { [key: string]: any }) {
     this.config = config;
   }
 

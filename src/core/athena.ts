@@ -3,38 +3,38 @@ import { EventEmitter } from "events";
 import { PluginBase } from "../plugins/plugin-base.js";
 
 export interface IAthenaArgument {
-  desc: string;
   type: "string" | "number" | "boolean" | "object" | "array";
+  desc: string;
   required: boolean;
-  of?: Map<string, IAthenaArgument> | IAthenaArgument;
+  of?: { [key: string]: IAthenaArgument } | IAthenaArgument;
 }
 
 export interface IAthenaTool {
   name: string;
   desc: string;
-  args: Map<string, IAthenaArgument>;
-  retvals: Map<string, IAthenaArgument>;
-  fn: (args: any) => Promise<any>;
+  args: { [key: string]: IAthenaArgument };
+  retvals: { [key: string]: IAthenaArgument };
+  fn: (args: { [key: string]: any }) => Promise<{ [key: string]: any }>;
 }
 
 export interface IAthenaEvent {
   name: string;
   desc: string;
-  args: Map<string, IAthenaArgument>;
+  args: { [key: string]: IAthenaArgument };
 }
 
 export class Athena extends EventEmitter {
-  config: any;
-  plugins: Map<string, PluginBase>;
-  tools: Map<string, IAthenaTool>;
-  events: Map<string, IAthenaEvent>;
+  config: { [key: string]: any };
+  plugins: { [key: string]: PluginBase };
+  tools: { [key: string]: IAthenaTool };
+  events: { [key: string]: IAthenaEvent };
 
-  constructor(config: any) {
+  constructor(config: { [key: string]: any }) {
     super();
     this.config = config;
-    this.plugins = new Map();
-    this.tools = new Map();
-    this.events = new Map();
+    this.plugins = {};
+    this.tools = {};
+    this.events = {};
   }
 
   async loadPlugins() {
@@ -43,66 +43,67 @@ export class Athena extends EventEmitter {
       throw new Error("No plugins found in config");
     }
     for (const [name, args] of Object.entries(plugins)) {
-      await this.loadPlugin(name, args);
+      await this.loadPlugin(name, args as { [key: string]: any });
       console.log(`Plugin ${name} is loaded`);
     }
+    this.emit("plugins-loaded");
   }
 
-  async loadPlugin(name: string, args: any) {
-    if (this.plugins.has(name)) {
+  async loadPlugin(name: string, args: { [key: string]: any }) {
+    if (name in this.plugins) {
       throw new Error(`Plugin ${name} already loaded`);
     }
     const Plugin = (await import(`../plugins/${name}/init.js`)).default;
     const plugin = new Plugin(args) as PluginBase;
-    this.plugins.set(name, plugin);
+    this.plugins[name] = plugin;
     await plugin.load(this);
   }
 
   async unloadPlugin(name: string) {
-    if (!this.plugins.has(name)) {
+    if (!(name in this.plugins)) {
       throw new Error(`Plugin ${name} not loaded`);
     }
-    await this.plugins.get(name)!.unload();
-    this.plugins.delete(name);
+    await this.plugins[name].unload();
+    delete this.plugins[name];
   }
 
   registerTool(tool: IAthenaTool) {
-    if (this.tools.has(tool.name)) {
+    if (tool.name in this.tools) {
       throw new Error(`Tool ${tool.name} already registered`);
     }
-    this.tools.set(tool.name, tool);
+    this.tools[tool.name] = tool;
   }
 
   deregisterTool(name: string) {
-    if (!this.tools.has(name)) {
+    if (!(name in this.tools)) {
       throw new Error(`Tool ${name} not registered`);
     }
-    this.tools.delete(name);
+    delete this.tools[name];
   }
 
   registerEvent(event: IAthenaEvent) {
-    if (this.events.has(event.name)) {
+    if (event.name in this.events) {
       throw new Error(`Event ${event.name} already registered`);
     }
-    this.events.set(event.name, event);
+    this.events[event.name] = event;
   }
 
   deregisterEvent(name: string) {
-    if (!this.events.has(name)) {
+    if (!(name in this.events)) {
       throw new Error(`Event ${name} not registered`);
     }
-    this.events.delete(name);
+    delete this.events[name];
   }
 
-  async callTool(name: string, args: any) {
-    if (!this.tools.has(name)) {
+  async callTool(name: string, args: { [key: string]: any }) {
+    if (!(name in this.tools)) {
       throw new Error(`Tool ${name} not registered`);
     }
-    return await this.tools.get(name)!.fn(args);
+    return await this.tools[name].fn(args);
   }
 
-  emitEvent(name: string, args: any) {
-    if (!this.events.has(name)) {
+  emitEvent(name: string, args: { [key: string]: any }) {
+    if (!(name in this.events)) {
       throw new Error(`Event ${name} not registered`);
     }
     this.emit("event", name, args);
