@@ -82,6 +82,24 @@ export default class Clock extends PluginBase {
       },
     });
 
+    athena.registerTool({
+      name: "clock/get-current-time",
+      desc: "This tool is used to get the current time.",
+      args: {},
+      retvals: {
+        current_time: {
+          type: "string",
+          desc: "Current time in ISO 8601 format.",
+          required: true,
+        },
+      },
+      fn: async (args: { [key: string]: any }) => {
+        return {
+          current_time: new Date().toISOString(),
+        };
+      },
+    });
+
     athena.on("plugins-loaded", () => {
       this.interval = setInterval(() => {
         athena.emitEvent("clock/tick", {
