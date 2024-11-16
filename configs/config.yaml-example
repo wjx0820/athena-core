@@ -13,3 +13,4 @@ plugins:
       - 9876543210
   clock:
     timezone: -8
+  calculator:
