@@ -46,8 +46,8 @@ export default class PromptManager extends PluginBase {
     this.athena.on("event", this.boundAthenaEventHandler);
   }
 
-  async unload() {
-    this.athena.off("event", this.boundAthenaEventHandler);
+  async unload(athena: Athena) {
+    athena.off("event", this.boundAthenaEventHandler);
   }
 
   pushEvent(event: IEvent) {

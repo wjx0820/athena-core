@@ -13,7 +13,6 @@ interface ITimeout {
 }
 
 export default class Clock extends PluginBase {
-  athena!: Athena;
   timeouts: { [key: string]: ITimeout };
 
   constructor(config: { [key: string]: any }) {
@@ -26,7 +25,6 @@ export default class Clock extends PluginBase {
   }
 
   async load(athena: Athena) {
-    this.athena = athena;
     athena.registerEvent({
       name: "clock/timeout-triggered",
       desc: "This event is triggered when a timeout is reached.",
@@ -85,7 +83,7 @@ export default class Clock extends PluginBase {
         let timeout: NodeJS.Timeout;
         if (args.recurring) {
           timeout = setInterval(() => {
-            this.athena.emitEvent("clock/timeout-triggered", {
+            athena.emitEvent("clock/timeout-triggered", {
               timeout_id: id,
               reason: args.reason,
               recurring: args.recurring,
@@ -94,7 +92,7 @@ export default class Clock extends PluginBase {
           }, args.seconds * 1000);
         } else {
           timeout = setTimeout(() => {
-            this.athena.emitEvent("clock/timeout-triggered", {
+            athena.emitEvent("clock/timeout-triggered", {
               timeout_id: id,
               reason: args.reason,
               recurring: args.recurring,
@@ -226,7 +224,7 @@ export default class Clock extends PluginBase {
           throw new Error("Alarm time must be in the future.");
         }
         const timeout = setTimeout(() => {
-          this.athena.emitEvent("clock/timeout-triggered", {
+          athena.emitEvent("clock/timeout-triggered", {
             timeout_id: id,
             reason: args.reason,
             recurring: false,
@@ -247,11 +245,11 @@ export default class Clock extends PluginBase {
     });
   }
 
-  async unload() {
-    this.athena.deregisterTool("clock/set-timeout");
-    this.athena.deregisterTool("clock/list-timeouts");
-    this.athena.deregisterTool("clock/clear-timeout");
-    this.athena.deregisterTool("clock/set-alarm");
-    this.athena.deregisterEvent("clock/timeout-triggered");
+  async unload(athena: Athena) {
+    athena.deregisterTool("clock/set-timeout");
+    athena.deregisterTool("clock/list-timeouts");
+    athena.deregisterTool("clock/clear-timeout");
+    athena.deregisterTool("clock/set-alarm");
+    athena.deregisterEvent("clock/timeout-triggered");
   }
 }

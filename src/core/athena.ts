@@ -63,7 +63,7 @@ export class Athena extends EventEmitter {
     if (!(name in this.plugins)) {
       throw new Error(`Plugin ${name} not loaded`);
     }
-    await this.plugins[name].unload();
+    await this.plugins[name].unload(this);
     delete this.plugins[name];
   }
 

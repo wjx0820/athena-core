@@ -2,14 +2,11 @@ import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Http extends PluginBase {
-  athena!: Athena;
-
   desc() {
     return null;
   }
 
   async load(athena: Athena) {
-    this.athena = athena;
     athena.registerTool({
       name: "http/fetch",
       desc: "Fetches an HTTP/HTTPS URL.",
@@ -34,7 +31,7 @@ export default class Http extends PluginBase {
     });
   }
 
-  async unload() {
-    this.athena.deregisterTool("http/fetch");
+  async unload(athena: Athena) {
+    athena.deregisterTool("http/fetch");
   }
 }

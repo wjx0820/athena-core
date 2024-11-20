@@ -4,14 +4,11 @@ import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Calculator extends PluginBase {
-  athena!: Athena;
-
   desc() {
     return null;
   }
 
   async load(athena: Athena) {
-    this.athena = athena;
     athena.registerTool({
       name: "calculator/evaluate",
       desc: "Evaluates a mathematical expression.",
@@ -35,7 +32,7 @@ export default class Calculator extends PluginBase {
     });
   }
 
-  async unload() {
-    this.athena.deregisterTool("calculator/evaluate");
+  async unload(athena: Athena) {
+    athena.deregisterTool("calculator/evaluate");
   }
 }

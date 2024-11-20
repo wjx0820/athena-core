@@ -4,7 +4,6 @@ import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Telegram extends PluginBase {
-  athena!: Athena;
   bot!: TelegramBot;
 
   desc() {
@@ -12,7 +11,6 @@ export default class Telegram extends PluginBase {
   }
 
   async load(athena: Athena) {
-    this.athena = athena;
     this.bot = new TelegramBot(this.config.bot_token, { polling: true });
 
     athena.registerEvent({
@@ -217,9 +215,9 @@ export default class Telegram extends PluginBase {
     });
   }
 
-  async unload() {
+  async unload(athena: Athena) {
     await this.bot.stopPolling();
-    this.athena.deregisterTool("telegram/send-message");
-    this.athena.deregisterEvent("telegram/message-received");
+    athena.deregisterTool("telegram/send-message");
+    athena.deregisterEvent("telegram/message-received");
   }
 }

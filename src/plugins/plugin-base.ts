@@ -9,5 +9,5 @@ export abstract class PluginBase {
 
   abstract desc(): string | null;
   abstract load(athena: Athena): Promise<void>;
-  abstract unload(): Promise<void>;
+  abstract unload(athena: Athena): Promise<void>;
 }
