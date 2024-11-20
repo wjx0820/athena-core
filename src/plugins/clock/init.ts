@@ -13,12 +13,7 @@ interface ITimeout {
 }
 
 export default class Clock extends PluginBase {
-  timeouts: { [key: string]: ITimeout };
-
-  constructor(config: { [key: string]: any }) {
-    super(config);
-    this.timeouts = {};
-  }
+  timeouts: { [key: string]: ITimeout } = {};
 
   desc() {
     return `Current time is ${new Date().toString()}.`;

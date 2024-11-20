@@ -20,16 +20,13 @@ interface IEvent {
 export default class PromptManager extends PluginBase {
   athena!: Athena;
   openai!: OpenAIClient;
-  busy: boolean;
-  prompts: Array<ChatCompletionMessageParam>;
-  eventQueue: Array<IEvent>;
+  busy: boolean = false;
+  prompts: Array<ChatCompletionMessageParam> = [];
+  eventQueue: Array<IEvent> = [];
   boundAthenaEventHandler: (name: string, args: any) => void;
 
   constructor(config: any) {
     super(config);
-    this.busy = false;
-    this.prompts = [];
-    this.eventQueue = [];
     this.boundAthenaEventHandler = this.athenaEventHandler.bind(this);
   }
 
