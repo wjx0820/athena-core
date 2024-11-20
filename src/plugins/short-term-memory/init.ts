@@ -132,7 +132,7 @@ export default class ShortTermMemory extends PluginBase {
       if (this.eventCount % this.config.period === 0) {
         athena.emit("event", "short-term-memory/notification", {
           message:
-            'You should update your short-term memory. You should now add/remove/edit messages in your short-term memory using the "short-term-memory" tools as you see fit.',
+            'You should update your short-term memory. You should now add/remove/edit messages in your short-term memory using the "short-term-memory" tools as you see fit. Be proactive. You must do one of these actions.',
         });
       }
     });
