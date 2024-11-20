@@ -5,6 +5,7 @@ plugins:
       api_key: sk-proj-your-openai-api-key
       model: gpt-4o
       temperature: 0.5
+    max_prompts: 50
   telegram:
     bot_token: your-telegram-bot-token
     bot_name: your-telegram-bot-name
@@ -14,3 +15,7 @@ plugins:
   clock:
   calculator:
   http:
+  short-term-memory:
+    max_messages: 10
+    max_length: 140
+    period: 6

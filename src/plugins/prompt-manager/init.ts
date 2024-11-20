@@ -70,6 +70,12 @@ export default class PromptManager extends PluginBase {
         this.eventQueue = [];
         this.ensureInitialPrompt();
         this.prompts.push({ role: "user", content: events.join("\n\n") });
+        if (this.prompts.length > this.config.max_prompts) {
+          this.prompts = [
+            this.prompts[0],
+            ...this.prompts.slice(-(this.config.max_prompts - 1)),
+          ];
+        }
         const completion = await this.openai.chatCompletion(
           this.prompts,
           this.config.openai.model,
