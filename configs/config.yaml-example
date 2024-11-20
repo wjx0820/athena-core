@@ -14,3 +14,4 @@ plugins:
   clock:
     timezone: -8
   calculator:
+  http:
