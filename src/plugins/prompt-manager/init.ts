@@ -50,9 +50,14 @@ export default class PromptManager extends PluginBase {
     this.athena.off("event", this.boundAthenaEventHandler);
   }
 
-  athenaEventHandler(name: string, args: any) {
-    this.eventQueue.push({ tool_result: false, name, args });
+  pushEvent(event: IEvent) {
+    console.log(`Event:\n${this.eventToPrompt(event)}\n`);
+    this.eventQueue.push(event);
     this.processEventQueue();
+  }
+
+  athenaEventHandler(name: string, args: any) {
+    this.pushEvent({ tool_result: false, name, args });
   }
 
   async processEventQueue() {
@@ -76,6 +81,8 @@ export default class PromptManager extends PluginBase {
         this.prompts.push(completion.choices[0].message);
 
         const response = completion.choices[0].message.content as string;
+        console.log(`Model response:\n${response}\n`);
+
         const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
         let match;
         while ((match = toolCallRegex.exec(response)) !== null) {
@@ -87,22 +94,20 @@ export default class PromptManager extends PluginBase {
                 toolCall.name,
                 toolCall.args
               );
-              this.eventQueue.push({
+              this.pushEvent({
                 tool_result: true,
                 name: toolCall.name,
                 id: toolCall.id,
                 args: result,
               });
-              this.processEventQueue();
             } catch (error: any) {
-              this.eventQueue.push({
+              this.pushEvent({
                 tool_result: true,
                 name: "tool_error",
                 args: {
                   error: error.message,
                 },
               });
-              this.processEventQueue();
             }
           })(toolCallJson);
         }
