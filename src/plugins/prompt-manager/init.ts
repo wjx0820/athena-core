@@ -123,7 +123,7 @@ export default class PromptManager extends PluginBase {
       this.prompts.push({
         role: "assistant",
         content:
-          "Certainly! I'm ready to help you. I'm currently waiting for events...",
+          "<thinking>I'm ready to behave as a human. I'm currently waiting for events...</thinking>",
       });
       return;
     }
@@ -206,6 +206,7 @@ You will receive a series of events that represent things happening in the real 
 - Craft your responses to be as human-like as possible.
 - Use natural language and appropriate emotional responses when relevant.
 - If you're responding to an event, use relevant <tool_call> to do so.
+- Remember! Don't respond directly without the <tool_call> tags! Responding directly will not work. Respond to events with tools.
 
 6. Continuous Awareness:
 - Keep track of ongoing interactions and previous events.

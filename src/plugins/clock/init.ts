@@ -5,6 +5,7 @@ import { PluginBase } from "../plugin-base.js";
 
 interface ITimeout {
   id: string;
+  start_time: Date;
   seconds: number;
   reason: string;
   recurring: boolean;
@@ -21,7 +22,7 @@ export default class Clock extends PluginBase {
   }
 
   desc() {
-    return `Current time is ${this.currentTime().toISOString()}.`;
+    return `Current time is ${new Date().toString()}.`;
   }
 
   async load(athena: Athena) {
@@ -47,7 +48,7 @@ export default class Clock extends PluginBase {
         },
         current_time: {
           type: "string",
-          desc: "The current time in ISO 8601 format.",
+          desc: "The current time.",
           required: true,
         },
       },
@@ -88,7 +89,7 @@ export default class Clock extends PluginBase {
               timeout_id: id,
               reason: args.reason,
               recurring: args.recurring,
-              current_time: this.currentTime().toISOString(),
+              current_time: new Date().toString(),
             });
           }, args.seconds * 1000);
         } else {
@@ -97,13 +98,14 @@ export default class Clock extends PluginBase {
               timeout_id: id,
               reason: args.reason,
               recurring: args.recurring,
-              current_time: this.currentTime().toISOString(),
+              current_time: new Date().toString(),
             });
             delete this.timeouts[id];
           }, args.seconds * 1000);
         }
         this.timeouts[id] = {
           id,
+          start_time: new Date(),
           seconds: args.seconds,
           reason: args.reason,
           recurring: args.recurring,
@@ -131,6 +133,11 @@ export default class Clock extends PluginBase {
                 desc: "The id of the timeout.",
                 required: true,
               },
+              start_time: {
+                type: "string",
+                desc: "The start time of the timeout.",
+                required: true,
+              },
               seconds: {
                 type: "number",
                 desc: "The number of seconds to wait before triggering the timeout.",
@@ -154,6 +161,7 @@ export default class Clock extends PluginBase {
         return {
           timeouts: Object.values(this.timeouts).map((timeout) => ({
             id: timeout.id,
+            start_time: timeout.start_time.toString(),
             seconds: timeout.seconds,
             reason: timeout.reason,
             recurring: timeout.recurring,
@@ -193,7 +201,7 @@ export default class Clock extends PluginBase {
       args: {
         time: {
           type: "string",
-          desc: "The time to set the alarm in ISO 8601 format.",
+          desc: "The date and time to set the alarm.",
           required: true,
         },
         reason: {
@@ -212,7 +220,7 @@ export default class Clock extends PluginBase {
       fn: async (args: { [key: string]: any }) => {
         const id = uuidv4();
         const time = new Date(args.time);
-        const now = this.currentTime();
+        const now = new Date();
         const seconds = Math.floor((time.getTime() - now.getTime()) / 1000);
         if (seconds < 0) {
           throw new Error("Alarm time must be in the future.");
@@ -222,12 +230,13 @@ export default class Clock extends PluginBase {
             timeout_id: id,
             reason: args.reason,
             recurring: false,
-            current_time: this.currentTime().toISOString(),
+            current_time: new Date().toString(),
           });
           delete this.timeouts[id];
         }, seconds * 1000);
         this.timeouts[id] = {
           id,
+          start_time: new Date(),
           seconds,
           reason: args.reason,
           recurring: false,
@@ -244,11 +253,5 @@ export default class Clock extends PluginBase {
     this.athena.deregisterTool("clock/clear-timeout");
     this.athena.deregisterTool("clock/set-alarm");
     this.athena.deregisterEvent("clock/timeout-triggered");
-  }
-
-  currentTime() {
-    const date = new Date();
-    date.setHours(date.getHours() + this.config.timezone);
-    return date;
   }
 }

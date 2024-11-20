@@ -8,7 +8,7 @@ export default class Telegram extends PluginBase {
   bot!: TelegramBot;
 
   desc() {
-    return `You probably have noticed that you can receive and send messages from and to Telegram. Your name in Telegram is ${this.config.bot_name}. For group chats, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to.`;
+    return `You probably have noticed that you can send and receive messages to and from Telegram. Your name in Telegram is ${this.config.bot_name}. For group chats, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "telegram/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
   }
 
   async load(athena: Athena) {

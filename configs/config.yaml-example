@@ -12,6 +12,5 @@ plugins:
       - 1234567890
       - 9876543210
   clock:
-    timezone: -8
   calculator:
   http:

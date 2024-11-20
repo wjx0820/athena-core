@@ -12,7 +12,7 @@ export default class Http extends PluginBase {
     this.athena = athena;
     athena.registerTool({
       name: "http/fetch",
-      desc: "Fetches a URL.",
+      desc: "Fetches an HTTP/HTTPS URL.",
       args: {
         url: {
           type: "string",
