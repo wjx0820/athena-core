@@ -14,7 +14,7 @@ export class OpenAIClient {
   async chatCompletion(
     messages: Array<ChatCompletionMessageParam>,
     model: string,
-    temperature: number
+    temperature: number | null
   ) {
     return await this.client.chat.completions.create({
       messages: messages,

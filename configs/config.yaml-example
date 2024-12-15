@@ -19,3 +19,9 @@ plugins:
     max_messages: 10
     max_length: 140
     period: 6
+  llm:
+    base_url: https://api.openai.com/v1
+    api_key: sk-proj-your-openai-api-key
+    models:
+      - name: gpt-4o
+        desc: GPT-4o is good at general purpose tasks.
