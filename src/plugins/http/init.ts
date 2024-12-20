@@ -1,5 +1,3 @@
-import { convert } from "html-to-text";
-
 import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
@@ -27,8 +25,8 @@ export default class Http extends PluginBase {
         },
       },
       fn: async (args: { [key: string]: any }) => {
-        const response = await fetch(args.url);
-        return { result: convert(await response.text()) };
+        const response = await fetch(`https://r.jina.ai/${args.url}`);
+        return { result: await response.text() };
       },
     });
   }
