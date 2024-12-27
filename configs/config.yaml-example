@@ -25,3 +25,4 @@ plugins:
     models:
       - name: gpt-4o
         desc: GPT-4o is good at general purpose tasks.
+  file-system:
