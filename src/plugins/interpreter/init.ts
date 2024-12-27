@@ -11,7 +11,7 @@ export default class Interpreter extends PluginBase {
   async load(athena: Athena) {
     athena.registerTool({
       name: "interpreter/python",
-      desc: "Python interpreter. Whenever you need to run Python code, or the user's request requires running Python code, use this tool. Prints in the code will be captured and returned as a string.",
+      desc: "Python interpreter. Whenever you need to run Python code, or the user's request requires running Python code, use this tool. You must print the final result to get it. Otherwise it'll return empty.",
       args: {
         code: {
           desc: "Python code",
