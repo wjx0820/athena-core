@@ -46,7 +46,6 @@ export class Athena extends EventEmitter {
     }
     for (const [name, args] of Object.entries(plugins)) {
       await this.loadPlugin(name, args as { [key: string]: any });
-      console.log(`Plugin ${name} is loaded`);
     }
     this.emit("plugins-loaded");
   }
@@ -55,7 +54,6 @@ export class Athena extends EventEmitter {
     const plugins = Object.keys(this.plugins);
     for (const name of plugins) {
       await this.unloadPlugin(name);
-      console.log(`Plugin ${name} is unloaded`);
     }
   }
 
@@ -71,6 +69,7 @@ export class Athena extends EventEmitter {
     if (state) {
       plugin.setState(state);
     }
+    console.log(`Plugin ${name} is loaded`);
   }
 
   async unloadPlugin(name: string) {
@@ -83,6 +82,7 @@ export class Athena extends EventEmitter {
     }
     await this.plugins[name].unload(this);
     delete this.plugins[name];
+    console.log(`Plugin ${name} is unloaded`);
   }
 
   registerTool(tool: IAthenaTool) {
