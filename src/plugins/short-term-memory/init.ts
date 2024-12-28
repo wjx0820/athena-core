@@ -14,7 +14,7 @@ export default class ShortTermMemory extends PluginBase {
 
   async load(athena: Athena) {
     athena.registerTool({
-      name: "short-term-memory/add-message",
+      name: "short-term-memory/add",
       desc: "Adds a message to your short-term memory.",
       args: {
         message: {
@@ -46,7 +46,7 @@ export default class ShortTermMemory extends PluginBase {
       },
     });
     athena.registerTool({
-      name: "short-term-memory/remove-message",
+      name: "short-term-memory/remove",
       desc: "Removes a message from your short-term memory.",
       args: {
         index: {
@@ -74,7 +74,7 @@ export default class ShortTermMemory extends PluginBase {
       },
     });
     athena.registerTool({
-      name: "short-term-memory/edit-message",
+      name: "short-term-memory/edit",
       desc: "Edits a message in your short-term memory.",
       args: {
         index: {
@@ -114,9 +114,9 @@ export default class ShortTermMemory extends PluginBase {
   }
 
   async unload(athena: Athena) {
-    athena.deregisterTool("short-term-memory/add-message");
-    athena.deregisterTool("short-term-memory/remove-message");
-    athena.deregisterTool("short-term-memory/edit-message");
+    athena.deregisterTool("short-term-memory/add");
+    athena.deregisterTool("short-term-memory/remove");
+    athena.deregisterTool("short-term-memory/edit");
   }
 
   state() {
