@@ -6,27 +6,14 @@ export default class ShortTermMemory extends PluginBase {
   eventCount = 0;
 
   desc() {
-    return `You have a short-term memory. You must put whatever you think is the most important to remember in the current context in your short-term memory whenever you feel like it. It is crucial because the context and prompts for you, and even your own thinking can go away at any time. Use the "short-term-memory" tools to manipulate your short-term memory. The short-term memory content should be very specific. Try to include as much detail as possible. You can have a maximum of ${
-      this.config.max_messages
-    } messages in your short-term memory and each message can have a maximum of ${
-      this.config.max_length
-    } characters. Here are your current short-term memory messages: ${JSON.stringify(
-      this.messages
-    )}`;
+    return `You have a short-term memory. You must put whatever you think is the most important to remember in the current context in your short-term memory whenever you feel like it. It is crucial because the context and prompts for you, and even your own thinking can go away at any time. Use the "short-term-memory" tools to manipulate your short-term memory. The short-term memory content should be very specific. Try to include as much detail as possible. You can have a maximum of ${this.config.max_messages
+      } messages in your short-term memory and each message can have a maximum of ${this.config.max_length
+      } characters. Here are your current short-term memory messages: ${JSON.stringify(
+        this.messages
+      )}`;
   }
 
   async load(athena: Athena) {
-    athena.registerEvent({
-      name: "short-term-memory/notification",
-      desc: "You will be notified periodically to update your short-term memory.",
-      args: {
-        message: {
-          type: "string",
-          desc: "The notification message.",
-          required: true,
-        },
-      },
-    });
     athena.registerTool({
       name: "short-term-memory/add-message",
       desc: "Adds a message to your short-term memory.",
@@ -79,8 +66,7 @@ export default class ShortTermMemory extends PluginBase {
       fn: async (args: { [key: string]: any }) => {
         if (args.index < 0 || args.index >= this.messages.length) {
           throw new Error(
-            `Invalid index. The index must be between 0 and ${
-              this.messages.length - 1
+            `Invalid index. The index must be between 0 and ${this.messages.length - 1
             }.`
           );
         }
@@ -113,8 +99,7 @@ export default class ShortTermMemory extends PluginBase {
       fn: async (args: { [key: string]: any }) => {
         if (args.index < 0 || args.index >= this.messages.length) {
           throw new Error(
-            `Invalid index. The index must be between 0 and ${
-              this.messages.length - 1
+            `Invalid index. The index must be between 0 and ${this.messages.length - 1
             }.`
           );
         }
@@ -126,15 +111,6 @@ export default class ShortTermMemory extends PluginBase {
         this.messages[args.index] = args.message;
         return { status: "success" };
       },
-    });
-    athena.on("event", () => {
-      this.eventCount++;
-      if (this.eventCount % this.config.period === 0) {
-        athena.emit("event", "short-term-memory/notification", {
-          message:
-            'You should update your short-term memory. You should now add/remove/edit messages in your short-term memory using the "short-term-memory" tools as you see fit. Be proactive. You must do one of these actions.',
-        });
-      }
     });
   }
 

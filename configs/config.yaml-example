@@ -18,7 +18,6 @@ plugins:
   short-term-memory:
     max_messages: 10
     max_length: 140
-    period: 6
   llm:
     base_url: https://api.openai.com/v1
     api_key: sk-proj-your-openai-api-key
