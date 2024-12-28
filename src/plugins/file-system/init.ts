@@ -4,6 +4,10 @@ import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class FileSystem extends PluginBase {
+  desc() {
+    return `The home directory is ${process.env.HOME}`;
+  }
+
   async load(athena: Athena) {
     athena.registerTool({
       name: "fs/list",
