@@ -26,3 +26,4 @@ plugins:
         desc: GPT-4o is good at general purpose tasks.
   file-system:
   python:
+  long-term-memory:
