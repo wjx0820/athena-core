@@ -13,8 +13,22 @@ const main = async () => {
   const configFile = process.argv[2];
   const config = yaml.parse(await fs.readFile(configFile, "utf8"));
 
-  const athena = new Athena(config);
+  const statesFile = `${configFile}.states.yaml`;
+  let states = {};
+  try {
+    states = yaml.parse(await fs.readFile(statesFile, "utf8"));
+  } catch (e) { }
+
+  const athena = new Athena(config, states);
   await athena.loadPlugins();
+
+  process.on("SIGINT", async () => {
+    await athena.unloadPlugins();
+    await fs.writeFile(statesFile, yaml.stringify(athena.states));
+    console.log("Athena is unloaded");
+    process.exit(0);
+  });
+
   console.log("Athena is loaded");
 };
 

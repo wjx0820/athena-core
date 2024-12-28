@@ -25,13 +25,15 @@ export interface IAthenaEvent {
 
 export class Athena extends EventEmitter {
   config: { [key: string]: any };
+  states: { [key: string]: { [key: string]: any } };
   plugins: { [key: string]: PluginBase };
   tools: { [key: string]: IAthenaTool };
   events: { [key: string]: IAthenaEvent };
 
-  constructor(config: { [key: string]: any }) {
+  constructor(config: { [key: string]: any }, states: { [key: string]: { [key: string]: any } }) {
     super();
     this.config = config;
+    this.states = states;
     this.plugins = {};
     this.tools = {};
     this.events = {};
@@ -49,6 +51,14 @@ export class Athena extends EventEmitter {
     this.emit("plugins-loaded");
   }
 
+  async unloadPlugins() {
+    const plugins = Object.keys(this.plugins);
+    for (const name of plugins) {
+      await this.unloadPlugin(name);
+      console.log(`Plugin ${name} is unloaded`);
+    }
+  }
+
   async loadPlugin(name: string, args: { [key: string]: any }) {
     if (name in this.plugins) {
       throw new Error(`Plugin ${name} already loaded`);
@@ -57,11 +67,19 @@ export class Athena extends EventEmitter {
     const plugin = new Plugin(args) as PluginBase;
     this.plugins[name] = plugin;
     await plugin.load(this);
+    const state = this.states[name];
+    if (state) {
+      plugin.setState(state);
+    }
   }
 
   async unloadPlugin(name: string) {
     if (!(name in this.plugins)) {
       throw new Error(`Plugin ${name} not loaded`);
+    }
+    const state = this.plugins[name].state();
+    if (state) {
+      this.states[name] = state;
     }
     await this.plugins[name].unload(this);
     delete this.plugins[name];

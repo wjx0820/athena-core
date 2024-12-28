@@ -241,6 +241,9 @@ export default class Clock extends PluginBase {
   }
 
   async unload(athena: Athena) {
+    for (const timeout of Object.values(this.timeouts)) {
+      clearTimeout(timeout.timeout);
+    }
     athena.deregisterTool("clock/set-timeout");
     athena.deregisterTool("clock/list-timeouts");
     athena.deregisterTool("clock/clear-timeout");

@@ -14,4 +14,10 @@ export abstract class PluginBase {
   async load(athena: Athena): Promise<void> { }
 
   async unload(athena: Athena): Promise<void> { }
+
+  state(): { [key: string]: any } | null {
+    return null;
+  }
+
+  setState(state: { [key: string]: any }): void { }
 }

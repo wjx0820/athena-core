@@ -3,7 +3,6 @@ import { PluginBase } from "../plugin-base.js";
 
 export default class ShortTermMemory extends PluginBase {
   messages: string[] = [];
-  eventCount = 0;
 
   desc() {
     return `You have a short-term memory. You must put whatever you think is the most important to remember in the current context in your short-term memory whenever you feel like it. It is crucial because the context and prompts for you, and even your own thinking can go away at any time. Use the "short-term-memory" tools to manipulate your short-term memory. The short-term memory content should be very specific. Try to include as much detail as possible. You can have a maximum of ${this.config.max_messages
@@ -118,5 +117,13 @@ export default class ShortTermMemory extends PluginBase {
     athena.deregisterTool("short-term-memory/add-message");
     athena.deregisterTool("short-term-memory/remove-message");
     athena.deregisterTool("short-term-memory/edit-message");
+  }
+
+  state() {
+    return { messages: this.messages };
+  }
+
+  setState(state: { [key: string]: any }) {
+    this.messages = state.messages;
   }
 }
