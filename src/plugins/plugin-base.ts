@@ -7,7 +7,11 @@ export abstract class PluginBase {
     this.config = config;
   }
 
-  abstract desc(): string | null;
-  abstract load(athena: Athena): Promise<void>;
-  abstract unload(athena: Athena): Promise<void>;
+  desc(): string | null {
+    return null;
+  }
+
+  async load(athena: Athena): Promise<void> { }
+
+  async unload(athena: Athena): Promise<void> { }
 }

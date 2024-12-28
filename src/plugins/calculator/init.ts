@@ -4,10 +4,6 @@ import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Calculator extends PluginBase {
-  desc() {
-    return null;
-  }
-
   async load(athena: Athena) {
     athena.registerTool({
       name: "calculator/evaluate",

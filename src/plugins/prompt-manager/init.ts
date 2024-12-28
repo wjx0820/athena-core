@@ -30,10 +30,6 @@ export default class PromptManager extends PluginBase {
     this.boundAthenaEventHandler = this.athenaEventHandler.bind(this);
   }
 
-  desc() {
-    return null;
-  }
-
   async load(athena: Athena) {
     this.athena = athena;
     this.openai = new OpenAIClient(
@@ -137,17 +133,17 @@ export default class PromptManager extends PluginBase {
     if (event.tool_result) {
       return `<tool_result>
 ${JSON.stringify({
-  name: event.name,
-  id: event.id,
-  result: event.args,
-})}
+        name: event.name,
+        id: event.id,
+        result: event.args,
+      })}
 </tool_result>`;
     }
     return `<event>
 ${JSON.stringify({
-  name: event.name,
-  args: event.args,
-})}
+      name: event.name,
+      args: event.args,
+    })}
 </event>`;
   }
 

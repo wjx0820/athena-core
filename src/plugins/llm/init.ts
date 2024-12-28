@@ -5,10 +5,6 @@ import { OpenAIClient } from "../../utils/openai.js";
 export default class Llm extends PluginBase {
   openai!: OpenAIClient;
 
-  desc() {
-    return null;
-  }
-
   async load(athena: Athena) {
     this.openai = new OpenAIClient(this.config.base_url, this.config.api_key);
     athena.registerTool({
