@@ -1,3 +1,5 @@
+import { exec } from "child_process";
+
 import { PythonShell } from "python-shell";
 
 import { Athena } from "../../core/athena.js";
@@ -57,10 +59,40 @@ export default class Interpreter extends PluginBase {
         return { stdout: (await PythonShell.run(args.path, { args: args.args })).join("\n") };
       },
     });
+    athena.registerTool({
+      name: "python/pip-install",
+      desc: "Installs a Python package using pip. Whenever you need to use a package that is not installed, or the user's request requires installing a package, use this tool.",
+      args: {
+        package: {
+          type: "string",
+          desc: "Package name",
+          required: true
+        },
+      },
+      retvals: {
+        result: {
+          desc: "Result of the installation",
+          required: true,
+          type: "string",
+        },
+      },
+      fn: (args: { [key: string]: any }) => {
+        return new Promise((resolve, reject) => {
+          exec(`python -m pip install ${args.package}`, (error, stdout, stderr) => {
+            if (error) {
+              reject(Error(stderr));
+            } else {
+              resolve({ result: "success" });
+            }
+          });
+        });
+      },
+    });
   }
 
   async unload(athena: Athena) {
     athena.deregisterTool("python/exec");
     athena.deregisterTool("python/exec-file");
+    athena.deregisterTool("python/pip-install");
   }
 }
