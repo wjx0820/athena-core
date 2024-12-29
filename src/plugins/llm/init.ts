@@ -19,7 +19,7 @@ export default class Llm extends PluginBase {
         model: {
           type: "string",
           desc: `The model to use. Available models: ${JSON.stringify(
-            this.config.models
+            this.config.models.chat
           )}`,
           required: true,
         },
@@ -48,9 +48,46 @@ export default class Llm extends PluginBase {
         };
       },
     });
+    athena.registerTool({
+      name: "llm/generate-image",
+      desc: "Generate an image with an image generation model.",
+      args: {
+        prompt: {
+          type: "string",
+          desc: "The prompt to use for the image generation.",
+          required: true,
+        },
+        model: {
+          type: "string",
+          desc: `The model to use. Available models: ${JSON.stringify(
+            this.config.models.image
+          )}`,
+          required: true,
+        },
+      },
+      retvals: {
+        urls: {
+          type: "array",
+          desc: "The URLs of the generated images.",
+          required: true,
+          of: {
+            type: "string",
+            desc: "The URL of the generated image.",
+            required: true,
+          }
+        },
+      },
+      fn: async (args: any) => {
+        const response = await this.openai.generateImage(args.prompt, args.model);
+        return {
+          urls: response.data.map((image) => image.url),
+        };
+      },
+    });
   }
 
   async unload(athena: Athena) {
     athena.deregisterTool("llm/chat");
+    athena.deregisterTool("llm/generate-image");
   }
 }

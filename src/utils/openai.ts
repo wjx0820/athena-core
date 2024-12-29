@@ -22,4 +22,14 @@ export class OpenAIClient {
       temperature: temperature,
     });
   }
+
+  async generateImage(
+    prompt: string,
+    model: string,
+  ) {
+    return await this.client.images.generate({
+      prompt: prompt,
+      model: model,
+    });
+  }
 }
