@@ -4,7 +4,8 @@ import {
   Events,
   GatewayIntentBits,
   Partials,
-  SendableChannels
+  SendableChannels,
+  TextChannel
 } from 'discord.js';
 
 import { Athena } from "../../core/athena.js";
@@ -69,8 +70,35 @@ export default class Discord extends PluginBase {
               type: "string",
               desc: "The type of the channel.",
               required: true,
+            },
+            name: {
+              type: "string",
+              desc: "The name of the channel.",
+              required: false,
             }
           }
+        },
+        guild: {
+          type: "object",
+          desc: "The guild the message is sent to.",
+          required: false,
+          of: {
+            id: {
+              type: "string",
+              desc: "The ID of the guild.",
+              required: true,
+            },
+            name: {
+              type: "string",
+              desc: "The name of the guild.",
+              required: true,
+            },
+          }
+        },
+        reference_message_id: {
+          type: "string",
+          desc: "The ID of the message being replied to.",
+          required: false,
         },
         content: {
           type: "string",
@@ -94,6 +122,11 @@ export default class Discord extends PluginBase {
           desc: "The ID of the channel to send the message to.",
           required: true,
         },
+        reply_to_message_id: {
+          type: "string",
+          desc: "The ID of the message to reply to.",
+          required: false,
+        },
         content: {
           type: "string",
           desc: "The content of the message.",
@@ -115,8 +148,14 @@ export default class Discord extends PluginBase {
         if (!channel.isTextBased()) {
           throw new Error("The channel is not text-based.");
         }
-        const id = (await (channel as SendableChannels).send(args.content)).id;
-        return { id };
+        return {
+          id: (await (channel as SendableChannels).send({
+            content: args.content,
+            reply: args.reply_to_message_id ? {
+              messageReference: args.reply_to_message_id,
+            } : undefined,
+          })).id
+        };
       },
     });
 
@@ -141,7 +180,13 @@ export default class Discord extends PluginBase {
           channel: {
             id: message.channel.id,
             type: channel_type,
+            name: channel_type === "guild" ? (message.channel as TextChannel).name : undefined,
           },
+          guild: channel_type === "guild" ? {
+            id: message.guild?.id,
+            name: message.guild?.name,
+          } : undefined,
+          reference_message_id: message.reference?.messageId,
           content: message.content,
           timestamp: message.createdTimestamp,
         });
