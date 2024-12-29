@@ -105,6 +105,43 @@ export default class Discord extends PluginBase {
           desc: "The content of the message.",
           required: true,
         },
+        attachments: {
+          type: "array",
+          desc: "The attachments of the message.",
+          required: false,
+          of: {
+            type: "object",
+            desc: "The attachment.",
+            required: true,
+            of: {
+              id: {
+                type: "string",
+                desc: "The ID of the attachment.",
+                required: true,
+              },
+              name: {
+                type: "string",
+                desc: "The name of the attachment.",
+                required: true,
+              },
+              size: {
+                type: "number",
+                desc: "The size of the attachment in bytes.",
+                required: true,
+              },
+              content_type: {
+                type: "string",
+                desc: "The mime type of the attachment.",
+                required: true,
+              },
+              url: {
+                type: "string",
+                desc: "The URL of the attachment.",
+                required: true,
+              }
+            }
+          },
+        },
         timestamp: {
           type: "number",
           desc: "The timestamp of the message.",
@@ -188,6 +225,13 @@ export default class Discord extends PluginBase {
           } : undefined,
           reference_message_id: message.reference?.messageId,
           content: message.content,
+          attachments: message.attachments ? message.attachments.map((attachment) => ({
+            id: attachment.id,
+            name: attachment.name,
+            size: attachment.size,
+            content_type: attachment.contentType,
+            url: attachment.url,
+          })) : undefined,
           timestamp: message.createdTimestamp,
         });
       });
