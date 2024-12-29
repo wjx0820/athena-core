@@ -1,4 +1,4 @@
-import { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
+import { ChatCompletionContentPart, ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 
 import { Athena, IAthenaEvent, IAthenaTool } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
@@ -23,6 +23,7 @@ export default class PromptManager extends PluginBase {
   busy: boolean = false;
   prompts: Array<ChatCompletionMessageParam> = [];
   eventQueue: Array<IEvent> = [];
+  imageUrls: Array<string> = [];
   boundAthenaEventHandler: (name: string, args: any) => void;
 
   constructor(config: any) {
@@ -36,10 +37,33 @@ export default class PromptManager extends PluginBase {
       this.config.openai.base_url,
       this.config.openai.api_key
     );
-    this.athena.on("event", this.boundAthenaEventHandler);
+    athena.registerTool({
+      name: "image/check-out",
+      desc: "Check out an image. Whenever you see an image URL and want to check it out, or the user asks you to see an image, use this tool.",
+      args: {
+        url: {
+          type: "string",
+          desc: "The URL of the image to check out.",
+          required: true,
+        }
+      },
+      retvals: {
+        result: {
+          type: "string",
+          desc: "The result of checking out the image.",
+          required: true,
+        }
+      },
+      fn: async (args: any) => {
+        this.imageUrls.push(args.url);
+        return { result: "success" };
+      },
+    });
+    athena.on("event", this.boundAthenaEventHandler);
   }
 
   async unload(athena: Athena) {
+    athena.deregisterTool("image/check-out");
     athena.off("event", this.boundAthenaEventHandler);
   }
 
@@ -65,7 +89,25 @@ export default class PromptManager extends PluginBase {
         );
         this.eventQueue = [];
         this.ensureInitialPrompt();
-        this.prompts.push({ role: "user", content: events.join("\n\n") });
+        if (this.imageUrls.length === 0) {
+          this.prompts.push({ role: "user", content: events.join("\n\n") });
+        } else {
+          this.prompts.push({
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: events.join("\n\n"),
+              },
+              ...this.imageUrls.map((url) => ({
+                type: "image_url",
+                image_url: {
+                  url: url,
+                }
+              })),
+            ] as ChatCompletionContentPart[],
+          });
+        }
         if (this.prompts.length > this.config.max_prompts) {
           this.prompts = [
             this.prompts[0],

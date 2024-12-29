@@ -149,6 +149,11 @@ export default class Telegram extends PluginBase {
                 desc: "Photo height.",
                 required: true,
               },
+              url: {
+                type: "string",
+                desc: "URL of the photo.",
+                required: true,
+              },
             }
           }
         },
@@ -170,6 +175,11 @@ export default class Telegram extends PluginBase {
             file_size: {
               type: "number",
               desc: "File size in bytes.",
+              required: true,
+            },
+            url: {
+              type: "string",
+              desc: "URL of the file.",
               required: true,
             },
           },
@@ -239,31 +249,8 @@ export default class Telegram extends PluginBase {
       },
     });
 
-    athena.registerTool({
-      name: "telegram/get-file-url",
-      desc: "Get the URL of a file in Telegram.",
-      args: {
-        file_id: {
-          type: "string",
-          desc: "Identifier for this file, which can be used to download or reuse the file.",
-          required: true,
-        },
-      },
-      retvals: {
-        url: {
-          type: "string",
-          desc: "URL of the file.",
-          required: true,
-        },
-      },
-      fn: async (args: { [key: string]: any }) => {
-        const file = await this.bot.getFile(args.file_id);
-        return { url: `https://api.telegram.org/file/bot${this.config.bot_token}/${file.file_path}` };
-      },
-    });
-
     athena.on("plugins-loaded", () => {
-      this.bot.on("message", (msg) => {
+      this.bot.on("message", async (msg) => {
         const chatId = msg.chat.id;
         if (!this.config.allowed_chat_ids.includes(chatId)) {
           this.bot.sendMessage(
@@ -271,6 +258,18 @@ export default class Telegram extends PluginBase {
             `Your chat ID ${chatId} probably don't have access to this bot.`
           );
           return;
+        }
+        let photo;
+        if (msg.photo) {
+          photo = [];
+          for (const size of msg.photo) {
+            photo.push({
+              file_id: size.file_id,
+              width: size.width,
+              height: size.height,
+              url: await this.getFileUrl(size.file_id),
+            });
+          }
         }
         athena.emitEvent("telegram/message-received", {
           message_id: msg.message_id,
@@ -302,16 +301,13 @@ export default class Telegram extends PluginBase {
               date: new Date(msg.reply_to_message.date * 1000).toISOString(),
             }
             : undefined,
-          text: msg.text,
-          photo: msg.photo ? msg.photo.map((photo: any) => ({
-            file_id: photo.file_id,
-            width: photo.width,
-            height: photo.height,
-          })) : undefined,
+          text: msg.text || msg.caption,
+          photo: photo,
           file: msg.document ? {
             file_id: msg.document.file_id,
             file_name: msg.document.file_name,
             file_size: msg.document.file_size,
+            url: await this.getFileUrl(msg.document.file_id),
           } : undefined,
           date: new Date(msg.date * 1000).toISOString(),
         });
@@ -324,4 +320,9 @@ export default class Telegram extends PluginBase {
     athena.deregisterTool("telegram/send-message");
     athena.deregisterEvent("telegram/message-received");
   }
+
+  async getFileUrl(fileId: string) {
+    const file = await this.bot.getFile(fileId);
+    return `https://api.telegram.org/file/bot${this.config.bot_token}/${file.file_path}`;
+  };
 }
