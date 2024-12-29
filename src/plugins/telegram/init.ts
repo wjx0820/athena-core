@@ -125,6 +125,55 @@ export default class Telegram extends PluginBase {
           desc: "For text messages, the actual UTF-8 text of the message.",
           required: false,
         },
+        photo: {
+          type: "array",
+          desc: "Available sizes of the photo.",
+          required: false,
+          of: {
+            type: "object",
+            desc: "This object represents one size of a photo or a file / sticker thumbnail.",
+            required: true,
+            of: {
+              file_id: {
+                type: "string",
+                desc: "Identifier for this file, which can be used to download or reuse the file.",
+                required: true,
+              },
+              width: {
+                type: "number",
+                desc: "Photo width.",
+                required: true,
+              },
+              height: {
+                type: "number",
+                desc: "Photo height.",
+                required: true,
+              },
+            }
+          }
+        },
+        file: {
+          type: "object",
+          desc: "File in the message.",
+          required: false,
+          of: {
+            file_id: {
+              type: "string",
+              desc: "Identifier for this file, which can be used to download or reuse the file.",
+              required: true,
+            },
+            file_name: {
+              type: "string",
+              desc: "Original filename as defined by the sender.",
+              required: true,
+            },
+            file_size: {
+              type: "number",
+              desc: "File size in bytes.",
+              required: true,
+            },
+          },
+        },
         date: {
           type: "string",
           desc: "Date the message was sent.",
@@ -152,6 +201,16 @@ export default class Telegram extends PluginBase {
           desc: "Text of the message to be sent, 1-4096 characters after entities parsing.",
           required: true,
         },
+        photo: {
+          type: "string",
+          desc: "Photo to send. Pass a local filename or a URL.",
+          required: false,
+        },
+        file: {
+          type: "string",
+          desc: "File to send. Pass a local filename or a URL.",
+          required: false,
+        }
       },
       retvals: {
         message_id: {
@@ -161,10 +220,45 @@ export default class Telegram extends PluginBase {
         },
       },
       fn: async (args: { [key: string]: any }) => {
+        if (args.photo) {
+          const message = await this.bot.sendPhoto(args.chat_id, args.photo, {
+            reply_to_message_id: args.reply_to_message_id,
+          });
+          return { message_id: message.message_id };
+        }
+        if (args.file) {
+          const message = await this.bot.sendDocument(args.chat_id, args.file, {
+            reply_to_message_id: args.reply_to_message_id,
+          });
+          return { message_id: message.message_id };
+        }
         const message = await this.bot.sendMessage(args.chat_id, args.text, {
           reply_to_message_id: args.reply_to_message_id,
         });
         return { message_id: message.message_id };
+      },
+    });
+
+    athena.registerTool({
+      name: "telegram/get-file-url",
+      desc: "Get the URL of a file in Telegram.",
+      args: {
+        file_id: {
+          type: "string",
+          desc: "Identifier for this file, which can be used to download or reuse the file.",
+          required: true,
+        },
+      },
+      retvals: {
+        url: {
+          type: "string",
+          desc: "URL of the file.",
+          required: true,
+        },
+      },
+      fn: async (args: { [key: string]: any }) => {
+        const file = await this.bot.getFile(args.file_id);
+        return { url: `https://api.telegram.org/file/bot${this.config.bot_token}/${file.file_path}` };
       },
     });
 
@@ -182,11 +276,11 @@ export default class Telegram extends PluginBase {
           message_id: msg.message_id,
           from: msg.from
             ? {
-                id: msg.from.id,
-                first_name: msg.from.first_name,
-                last_name: msg.from.last_name,
-                username: msg.from.username,
-              }
+              id: msg.from.id,
+              first_name: msg.from.first_name,
+              last_name: msg.from.last_name,
+              username: msg.from.username,
+            }
             : undefined,
           chat: {
             id: msg.chat.id,
@@ -195,20 +289,30 @@ export default class Telegram extends PluginBase {
           },
           reply_to_message: msg.reply_to_message
             ? {
-                message_id: msg.reply_to_message.message_id,
-                from: msg.reply_to_message.from
-                  ? {
-                      id: msg.reply_to_message.from.id,
-                      first_name: msg.reply_to_message.from.first_name,
-                      last_name: msg.reply_to_message.from.last_name,
-                      username: msg.reply_to_message.from.username,
-                    }
-                  : undefined,
-                text: msg.reply_to_message.text,
-                date: new Date(msg.reply_to_message.date * 1000).toISOString(),
-              }
+              message_id: msg.reply_to_message.message_id,
+              from: msg.reply_to_message.from
+                ? {
+                  id: msg.reply_to_message.from.id,
+                  first_name: msg.reply_to_message.from.first_name,
+                  last_name: msg.reply_to_message.from.last_name,
+                  username: msg.reply_to_message.from.username,
+                }
+                : undefined,
+              text: msg.reply_to_message.text,
+              date: new Date(msg.reply_to_message.date * 1000).toISOString(),
+            }
             : undefined,
           text: msg.text,
+          photo: msg.photo ? msg.photo.map((photo: any) => ({
+            file_id: photo.file_id,
+            width: photo.width,
+            height: photo.height,
+          })) : undefined,
+          file: msg.document ? {
+            file_id: msg.document.file_id,
+            file_name: msg.document.file_name,
+            file_size: msg.document.file_size,
+          } : undefined,
           date: new Date(msg.date * 1000).toISOString(),
         });
       });
