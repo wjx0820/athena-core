@@ -90,6 +90,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Tool ${tool.name} already registered`);
     }
     this.tools[tool.name] = tool;
+    console.log(`Tool ${tool.name} is registered`);
   }
 
   deregisterTool(name: string) {
@@ -97,6 +98,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Tool ${name} not registered`);
     }
     delete this.tools[name];
+    console.log(`Tool ${name} is deregistered`);
   }
 
   registerEvent(event: IAthenaEvent) {
@@ -104,6 +106,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Event ${event.name} already registered`);
     }
     this.events[event.name] = event;
+    console.log(`Event ${event.name} is registered`);
   }
 
   deregisterEvent(name: string) {
@@ -111,6 +114,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Event ${name} not registered`);
     }
     delete this.events[name];
+    console.log(`Event ${name} is deregistered`);
   }
 
   async callTool(name: string, args: { [key: string]: any }) {
