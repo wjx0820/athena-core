@@ -169,6 +169,33 @@ export default class Discord extends PluginBase {
           desc: "The content of the message.",
           required: true,
         },
+        files: {
+          type: "array",
+          desc: "The files to attach to the message.",
+          required: false,
+          of: {
+            type: "object",
+            desc: "The file to attach.",
+            required: true,
+            of: {
+              name: {
+                type: "string",
+                desc: "The name of the file.",
+                required: true,
+              },
+              desc: {
+                type: "string",
+                desc: "The description of the file.",
+                required: false,
+              },
+              path: {
+                type: "string",
+                desc: "The path to the file. Could be absolute or relative.",
+                required: true,
+              }
+            }
+          },
+        },
       },
       retvals: {
         id: {
@@ -191,6 +218,11 @@ export default class Discord extends PluginBase {
             reply: args.reply_to_message_id ? {
               messageReference: args.reply_to_message_id,
             } : undefined,
+            files: args.files ? args.files.map((file: { [key: string]: any }) => ({
+              attachment: file.path,
+              name: file.name,
+              description: file.desc,
+            })) : undefined,
           })).id
         };
       },
