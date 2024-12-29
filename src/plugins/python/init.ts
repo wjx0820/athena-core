@@ -78,7 +78,7 @@ export default class Interpreter extends PluginBase {
       },
       fn: (args: { [key: string]: any }) => {
         return new Promise((resolve, reject) => {
-          exec(`python -m pip install ${args.package}`, (error, stdout, stderr) => {
+          exec(`python -m pip install ${args.package} --break-system-packages`, (error, stdout, stderr) => {
             if (error) {
               reject(Error(stderr));
             } else {
