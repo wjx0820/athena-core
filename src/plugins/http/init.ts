@@ -32,7 +32,7 @@ export default class Http extends PluginBase {
     });
     athena.registerTool({
       name: "http/google",
-      desc: "Searches Google for a query.",
+      desc: "Searches Google for a query. Use this tool only to search for specific URLs. For general searches, use Perplexity.",
       args: {
         query: {
           type: "string",
