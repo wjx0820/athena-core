@@ -5,7 +5,7 @@ import { PythonShell } from "python-shell";
 import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
-export default class Interpreter extends PluginBase {
+export default class Python extends PluginBase {
   async load(athena: Athena) {
     athena.registerTool({
       name: "python/exec",
