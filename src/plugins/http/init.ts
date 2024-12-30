@@ -31,28 +31,6 @@ export default class Http extends PluginBase {
       },
     });
     athena.registerTool({
-      name: "http/google",
-      desc: "Searches Google for a query. Use this tool only to search for specific URLs. For general searches, use Perplexity.",
-      args: {
-        query: {
-          type: "string",
-          desc: "The query to search for.",
-          required: true,
-        },
-      },
-      retvals: {
-        result: {
-          type: "string",
-          desc: "The result of the search.",
-          required: true,
-        },
-      },
-      fn: async (args: { [key: string]: any }) => {
-        const response = await fetch(`https://www.google.com/search?q=${encodeURIComponent(args.query)}`);
-        return { result: convert(await response.text()) };
-      },
-    });
-    athena.registerTool({
       name: "http/download-file",
       desc: "Downloads a file from an HTTP/HTTPS URL.",
       args: {
@@ -99,7 +77,6 @@ export default class Http extends PluginBase {
 
   async unload(athena: Athena) {
     athena.deregisterTool("http/fetch");
-    athena.deregisterTool("http/google");
     athena.deregisterTool("http/download-file");
   }
 }
