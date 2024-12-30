@@ -7,6 +7,14 @@ import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Http extends PluginBase {
+  readonly headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1'
+  };
+
   async load(athena: Athena) {
     athena.registerTool({
       name: "http/fetch",
@@ -26,7 +34,9 @@ export default class Http extends PluginBase {
         },
       },
       fn: async (args: { [key: string]: any }) => {
-        const response = await fetch(args.url);
+        const response = await fetch(args.url, {
+          headers: this.headers,
+        });
         return { result: convert(await response.text()) };
       },
     });
@@ -55,7 +65,9 @@ export default class Http extends PluginBase {
       fn: (args: { [key: string]: any }) => {
         return new Promise((resolve, reject) => {
           const file = fs.createWriteStream(args.filename);
-          https.get(args.url, (response) => {
+          https.get(args.url, {
+            headers: this.headers,
+          }, (response) => {
             if (response.statusCode !== 200) {
               reject(Error(`Failed to download file: ${response.statusCode}`));
               return;
