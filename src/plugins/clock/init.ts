@@ -194,7 +194,7 @@ export default class Clock extends PluginBase {
       args: {
         time: {
           type: "string",
-          desc: "The date and time to set the alarm.",
+          desc: "The date and time to set the alarm for. Need to specify timezone.",
           required: true,
         },
         reason: {
@@ -244,10 +244,10 @@ export default class Clock extends PluginBase {
     for (const timeout of Object.values(this.timeouts)) {
       clearTimeout(timeout.timeout);
     }
+    athena.deregisterEvent("clock/timeout-triggered");
     athena.deregisterTool("clock/set-timeout");
     athena.deregisterTool("clock/list-timeouts");
     athena.deregisterTool("clock/clear-timeout");
     athena.deregisterTool("clock/set-alarm");
-    athena.deregisterEvent("clock/timeout-triggered");
   }
 }

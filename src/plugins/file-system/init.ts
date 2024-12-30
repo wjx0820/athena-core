@@ -5,7 +5,7 @@ import { PluginBase } from "../plugin-base.js";
 
 export default class FileSystem extends PluginBase {
   desc() {
-    return `The home directory is ${process.env.HOME}`;
+    return `The home directory is ${process.env.HOME}. The current working directory is ${process.cwd()}.`;
   }
 
   async load(athena: Athena) {

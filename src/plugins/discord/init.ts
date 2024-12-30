@@ -95,10 +95,44 @@ export default class Discord extends PluginBase {
             },
           }
         },
-        reference_message_id: {
-          type: "string",
-          desc: "The ID of the message being replied to.",
+        reply_to_message: {
+          type: "object",
+          desc: "The message being replied to.",
           required: false,
+          of: {
+            id: {
+              type: "string",
+              desc: "The ID of the message.",
+              required: true,
+            },
+            author: {
+              type: "object",
+              desc: "The author of the message.",
+              required: true,
+              of: {
+                id: {
+                  type: "string",
+                  desc: "The ID of the author.",
+                  required: true,
+                },
+                username: {
+                  type: "string",
+                  desc: "The username of the author.",
+                  required: true,
+                },
+              }
+            },
+            content: {
+              type: "string",
+              desc: "The content of the message.",
+              required: true,
+            },
+            timestamp: {
+              type: "number",
+              desc: "The timestamp of the message.",
+              required: true,
+            },
+          }
         },
         content: {
           type: "string",
@@ -240,6 +274,9 @@ export default class Discord extends PluginBase {
           }
           return;
         }
+        const reply_to_message = (message.reference && message.reference.messageId) ?
+          await message.channel.messages.fetch(message.reference.messageId) :
+          undefined;
         athena.emitEvent("discord/message-received", {
           id: message.id,
           author: {
@@ -255,7 +292,15 @@ export default class Discord extends PluginBase {
             id: message.guild?.id,
             name: message.guild?.name,
           } : undefined,
-          reference_message_id: message.reference?.messageId,
+          reply_to_message: reply_to_message ? {
+            id: reply_to_message.id,
+            author: {
+              id: reply_to_message.author.id,
+              username: reply_to_message.author.username,
+            },
+            content: reply_to_message.content,
+            timestamp: reply_to_message.createdTimestamp,
+          } : undefined,
           content: message.content,
           attachments: message.attachments ? message.attachments.map((attachment) => ({
             id: attachment.id,

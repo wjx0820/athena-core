@@ -297,7 +297,7 @@ export default class Telegram extends PluginBase {
                   username: msg.reply_to_message.from.username,
                 }
                 : undefined,
-              text: msg.reply_to_message.text,
+              text: msg.reply_to_message.text || msg.reply_to_message.caption,
               date: new Date(msg.reply_to_message.date * 1000).toISOString(),
             }
             : undefined,
