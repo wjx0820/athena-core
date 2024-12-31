@@ -214,6 +214,28 @@ export default class FileSystem extends PluginBase {
         return { status: "success" };
       }
     });
+    athena.registerTool({
+      name: "fs/cd",
+      desc: "Change the current working directory.",
+      args: {
+        directory: {
+          type: "string",
+          desc: "Directory to change to. Could be an absolute or relative path.",
+          required: true
+        },
+      },
+      retvals: {
+        result: {
+          desc: "Result of the cd command",
+          required: true,
+          type: "string",
+        },
+      },
+      fn: async (args: { [key: string]: any }) => {
+        process.chdir(args.directory);
+        return { result: "success" };
+      },
+    });
   }
 
   async unload(athena: Athena) {
@@ -224,5 +246,6 @@ export default class FileSystem extends PluginBase {
     athena.deregisterTool("fs/copy");
     athena.deregisterTool("fs/move");
     athena.deregisterTool("fs/mkdir");
+    athena.deregisterTool("fs/cd");
   }
 }
