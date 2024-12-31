@@ -8,7 +8,6 @@ plugins:
     max_prompts: 50
   telegram:
     bot_token: your-telegram-bot-token
-    bot_name: your-telegram-bot-name
     allowed_chat_ids:
       - 1234567890
       - 9876543210
