@@ -9,7 +9,7 @@ if [ "$(docker images -q athena:latest 2> /dev/null)" == "" ]; then
     scripts/build_docker.sh
 fi
 
-if [ "$(docker ps -q -f name=athena)" ]; then
+if [ "$(docker ps -a -q -f name=athena)" ]; then
     docker start -ai athena | tee -a athena.log
     exit 0
 fi
