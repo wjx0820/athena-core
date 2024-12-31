@@ -15,7 +15,7 @@ export default class Discord extends PluginBase {
   client!: Client;
 
   desc() {
-    return `You probably have noticed that you can send and receive messages to and from Discord. Your username in Discord is ${this.client.user?.username} and id is ${this.client.user?.id}. For channels, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "discord/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
+    return `You probably have noticed that you can send and receive messages to and from Discord. Your username in Discord is ${this.client.user?.username}, display name is ${this.client.user?.displayName}, and id is ${this.client.user?.id}. For channels, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "discord/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
   }
 
   async load(athena: Athena) {
@@ -27,6 +27,11 @@ export default class Discord extends PluginBase {
         GatewayIntentBits.MessageContent,
       ],
       partials: [Partials.Channel],
+    });
+    const clientReadyPromise = new Promise<void>((resolve) => {
+      this.client.once(Events.ClientReady, () => {
+        resolve();
+      });
     });
     await this.client.login(this.config.bot_token);
 
@@ -52,6 +57,11 @@ export default class Discord extends PluginBase {
             username: {
               type: "string",
               desc: "The username of the author.",
+              required: true,
+            },
+            display_name: {
+              type: "string",
+              desc: "The display name of the author.",
               required: true,
             },
           }
@@ -118,6 +128,11 @@ export default class Discord extends PluginBase {
                 username: {
                   type: "string",
                   desc: "The username of the author.",
+                  required: true,
+                },
+                display_name: {
+                  type: "string",
+                  desc: "The display name of the author.",
                   required: true,
                 },
               }
@@ -282,6 +297,7 @@ export default class Discord extends PluginBase {
           author: {
             id: message.author.id,
             username: message.author.username,
+            display_name: message.author.displayName,
           },
           channel: {
             id: message.channel.id,
@@ -297,6 +313,7 @@ export default class Discord extends PluginBase {
             author: {
               id: reply_to_message.author.id,
               username: reply_to_message.author.username,
+              display_name: reply_to_message.author.displayName,
             },
             content: reply_to_message.content,
             timestamp: reply_to_message.createdTimestamp,
@@ -314,11 +331,7 @@ export default class Discord extends PluginBase {
       });
     });
 
-    await new Promise<void>((resolve) => {
-      this.client.once(Events.ClientReady, () => {
-        resolve();
-      });
-    });
+    await clientReadyPromise;
   }
 
   async unload(athena: Athena) {
