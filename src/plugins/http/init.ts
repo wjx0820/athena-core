@@ -83,6 +83,8 @@ export default class Http extends PluginBase {
                 reject(err);
               });
             });
+          }).on("error", (err) => {
+            reject(err);
           });
         });
       },
