@@ -1,3 +1,5 @@
+import { ChatCompletionContentPart } from "openai/resources/index.js";
+
 import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 import { OpenAIClient } from "../../utils/openai.js";
@@ -15,6 +17,11 @@ export default class Llm extends PluginBase {
           type: "string",
           desc: "The message to send to the LLM.",
           required: true,
+        },
+        image: {
+          type: "string",
+          desc: "The image URL to send to the LLM, if you want to send an image. You can only send images to models that support them.",
+          required: false,
         },
         model: {
           type: "string",
@@ -40,7 +47,20 @@ export default class Llm extends PluginBase {
         return {
           result: (
             await this.openai.chatCompletion(
-              [{ role: "user", content: args.message }],
+              [{
+                role: "user", content: [
+                  {
+                    type: "text",
+                    text: args.message,
+                  },
+                  ...(args.image ? [
+                    {
+                      type: "image",
+                      url: args.image,
+                    },
+                  ] : []),
+                ] as ChatCompletionContentPart[]
+              }],
               args.model,
               args.temperature
             )

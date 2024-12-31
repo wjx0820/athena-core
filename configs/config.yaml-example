@@ -5,6 +5,7 @@ plugins:
       api_key: sk-proj-your-openai-api-key
       model: gpt-4o
       temperature: 0.5
+      image_supported: true
     max_prompts: 50
   telegram:
     bot_token: your-telegram-bot-token
@@ -23,7 +24,7 @@ plugins:
     models:
       chat:
         - name: gpt-4o
-          desc: GPT-4o is good at general purpose tasks.
+          desc: GPT-4o is good at general purpose tasks. Supports image input.
       image:
         - name: dall-e-3
           desc: DALL-E 3 is good at generating images. Whenever you are requested to generate images, use this model.
