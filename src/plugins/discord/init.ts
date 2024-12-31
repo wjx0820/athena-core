@@ -15,7 +15,7 @@ export default class Discord extends PluginBase {
   client!: Client;
 
   desc() {
-    return `You probably have noticed that you can send and receive messages to and from Discord. Your username in Discord is ${this.client.user?.username}. For channels, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "discord/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
+    return `You probably have noticed that you can send and receive messages to and from Discord. Your username in Discord is ${this.client.user?.username} and id is ${this.client.user?.id}. For channels, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "discord/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
   }
 
   async load(athena: Athena) {
