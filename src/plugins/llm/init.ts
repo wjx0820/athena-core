@@ -55,8 +55,10 @@ export default class Llm extends PluginBase {
                   },
                   ...(args.image ? [
                     {
-                      type: "image",
-                      url: args.image,
+                      type: "image_url",
+                      image_url: {
+                        url: args.image,
+                      }
                     },
                   ] : []),
                 ] as ChatCompletionContentPart[]
