@@ -68,7 +68,7 @@ export default class PromptManager extends PluginBase {
   }
 
   pushEvent(event: IEvent) {
-    console.log(`Event:\n${this.eventToPrompt(event)}\n`);
+    console.log(`<incoming_event>\n${this.eventToPrompt(event)}\n</incoming_event>`);
     this.eventQueue.push(event);
     this.processEventQueue();
   }
@@ -122,7 +122,7 @@ export default class PromptManager extends PluginBase {
         this.prompts.push(completion.choices[0].message);
 
         const response = completion.choices[0].message.content as string;
-        console.log(`Model response:\n${response}\n`);
+        console.log(`<model_response>\n${response}\n</model_response>`);
 
         const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
         let match;

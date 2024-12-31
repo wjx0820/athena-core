@@ -69,7 +69,7 @@ export class Athena extends EventEmitter {
     if (state) {
       plugin.setState(state);
     }
-    console.log(`Plugin ${name} is loaded`);
+    console.error(`Plugin ${name} is loaded`);
   }
 
   async unloadPlugin(name: string) {
@@ -82,7 +82,7 @@ export class Athena extends EventEmitter {
     }
     await this.plugins[name].unload(this);
     delete this.plugins[name];
-    console.log(`Plugin ${name} is unloaded`);
+    console.error(`Plugin ${name} is unloaded`);
   }
 
   registerTool(tool: IAthenaTool) {
@@ -90,7 +90,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Tool ${tool.name} already registered`);
     }
     this.tools[tool.name] = tool;
-    console.log(`Tool ${tool.name} is registered`);
+    console.error(`Tool ${tool.name} is registered`);
   }
 
   deregisterTool(name: string) {
@@ -98,7 +98,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Tool ${name} not registered`);
     }
     delete this.tools[name];
-    console.log(`Tool ${name} is deregistered`);
+    console.error(`Tool ${name} is deregistered`);
   }
 
   registerEvent(event: IAthenaEvent) {
@@ -106,7 +106,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Event ${event.name} already registered`);
     }
     this.events[event.name] = event;
-    console.log(`Event ${event.name} is registered`);
+    console.error(`Event ${event.name} is registered`);
   }
 
   deregisterEvent(name: string) {
@@ -114,7 +114,7 @@ export class Athena extends EventEmitter {
       throw new Error(`Event ${name} not registered`);
     }
     delete this.events[name];
-    console.log(`Event ${name} is deregistered`);
+    console.error(`Event ${name} is deregistered`);
   }
 
   async callTool(name: string, args: { [key: string]: any }) {

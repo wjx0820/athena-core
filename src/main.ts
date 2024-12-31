@@ -25,11 +25,11 @@ const main = async () => {
   process.on("SIGINT", async () => {
     await athena.unloadPlugins();
     await fs.writeFile(statesFile, yaml.stringify(athena.states));
-    console.log("Athena is unloaded");
+    console.error("Athena is unloaded");
     process.exit(0);
   });
 
-  console.log("Athena is loaded");
+  console.error("Athena is loaded");
 };
 
 main();
