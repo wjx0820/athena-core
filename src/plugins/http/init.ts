@@ -1,5 +1,5 @@
 import fs from 'fs';
-import https from 'https';
+import { https } from 'follow-redirects';
 
 import { convert } from 'html-to-text';
 
@@ -36,6 +36,7 @@ export default class Http extends PluginBase {
       fn: async (args: { [key: string]: any }) => {
         const response = await fetch(args.url, {
           headers: this.headers,
+          redirect: 'follow',
         });
         return { result: convert(await response.text()) };
       },
