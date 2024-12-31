@@ -224,7 +224,7 @@ export default class Discord extends PluginBase {
               },
               path: {
                 type: "string",
-                desc: "The path to the file. Could be absolute or relative.",
+                desc: "The path to the file. Could be local path or URL.",
                 required: true,
               }
             }
