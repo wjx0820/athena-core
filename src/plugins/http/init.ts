@@ -1,6 +1,7 @@
 import fs from 'fs';
-import { https } from 'follow-redirects';
 
+import follow_redirects from 'follow-redirects';
+const { https } = follow_redirects;
 import { convert } from 'html-to-text';
 
 import { Athena } from "../../core/athena.js";
