@@ -164,12 +164,7 @@ export default class PromptManager extends PluginBase {
 
   ensureInitialPrompt() {
     if (this.prompts.length === 0) {
-      this.prompts.push({ role: "user", content: this.initialPrompt() });
-      this.prompts.push({
-        role: "assistant",
-        content:
-          "<thinking>I'm ready to behave as a human. I'm currently waiting for events...</thinking>",
-      });
+      this.prompts.push({ role: "system", content: this.initialPrompt() });
       return;
     }
     this.prompts[0].content = this.initialPrompt();
@@ -194,12 +189,6 @@ ${JSON.stringify({
   }
 
   initialPrompt() {
-    const tools = Object.values(this.athena.tools).map((tool) =>
-      this.toolTypeToPrompt(tool)
-    );
-    const events = Object.values(this.athena.events).map((event) =>
-      this.eventTypeToPrompt(event)
-    );
     const descs = Object.values(this.athena.plugins)
       .map((plugin) => plugin.desc())
       .filter((desc) => desc !== null);
@@ -209,11 +198,11 @@ ${JSON.stringify({
 First, familiarize yourself with the available tools and possible events:
 
 <tools>
-${tools.join("\n\n")}
+${JSON.stringify(Object.values(this.athena.tools))}
 </tools>
 
 <events>
-${events.join("\n\n")}
+${JSON.stringify(Object.values(this.athena.events))}
 </events>
 
 You will receive a series of events that represent things happening in the real world. Your task is to respond to these events in a human-like manner, using the provided tools when necessary. Here are your instructions:
@@ -232,14 +221,7 @@ You will receive a series of events that represent things happening in the real 
 - Specify the tool name, a unique call ID, and the required arguments in JSON format.
 - Example:
 <tool_call>
-{
-  "name": "some_tool",
-  "id": "call_123456",
-  "args": {
-    "arg1": "value1",
-    "arg2": "value2"
-  }
-}
+{"name":"tool_name","id":"call_123456","args":{"arg1":"value1","arg2":"value2"}}
 </tool_call>
 - Note that the arguments must follow JSON format. If a string is multi-line, you must use \n to escape newlines.
 
@@ -262,29 +244,11 @@ You will receive a series of events that represent things happening in the real 
 
 7. Adaptability:
 - Be prepared to handle various types of events and adjust your behavior accordingly.
-- If you encounter an unfamiliar situation, use your human-like intelligence to reason through it. Behave resourcefully and use your tools wisely to their full potential. Consult other language models when you think you cannot resolve a problem alone. Notify the user about the problem as the last resort.
+- If you encounter an unfamiliar situation, use your human-like intelligence to reason through it. Behave resourcefully and use your tools wisely to their full potential.
+- Consult other language models when you think you cannot resolve a problem alone. Notify the user about the problem as the **last resort**.
 
 Remember, your primary goal is to behave as human-like as possible while interacting with the world through these events and tools. Always consider how a human would think, plan, and respond in each situation.
 
 ${descs.join("\n\n")}`;
-  }
-
-  toolTypeToPrompt(tool: IAthenaTool) {
-    return `## ${tool.name}
-${tool.desc}
-
-### Arguments
-${JSON.stringify(tool.args)}
-
-### Return Values
-${JSON.stringify(tool.retvals)}`;
-  }
-
-  eventTypeToPrompt(event: IAthenaEvent) {
-    return `## ${event.name}
-${event.desc}
-
-### Arguments
-${JSON.stringify(event.args)}`;
   }
 }
