@@ -251,6 +251,70 @@ export default class Telegram extends PluginBase {
       },
     });
 
+    athena.registerTool({
+      name: "telegram/edit-message",
+      desc: "Edit a message in Telegram.",
+      args: {
+        chat_id: {
+          type: "number",
+          desc: "Unique identifier for the target chat or username of the target channel.",
+          required: true,
+        },
+        message_id: {
+          type: "number",
+          desc: "Unique message identifier inside this chat.",
+          required: true,
+        },
+        text: {
+          type: "string",
+          desc: "New text of the message.",
+          required: true,
+        },
+      },
+      retvals: {
+        status: {
+          type: "string",
+          desc: "Status of the operation.",
+          required: true,
+        }
+      },
+      fn: async (args: { [key: string]: any }) => {
+        await this.bot.editMessageText(args.text, {
+          chat_id: args.chat_id,
+          message_id: args.message_id,
+        });
+        return { status: "success" };
+      },
+    });
+
+    athena.registerTool({
+      name: "telegram/delete-message",
+      desc: "Delete a message in Telegram.",
+      args: {
+        chat_id: {
+          type: "number",
+          desc: "Unique identifier for the target chat or username of the target channel.",
+          required: true,
+        },
+        message_id: {
+          type: "number",
+          desc: "Unique message identifier inside this chat.",
+          required: true,
+        },
+      },
+      retvals: {
+        status: {
+          type: "string",
+          desc: "Status of the operation.",
+          required: true,
+        }
+      },
+      fn: async (args: { [key: string]: any }) => {
+        await this.bot.deleteMessage(args.chat_id, args.message_id);
+        return { status: "success" };
+      },
+    });
+
     athena.on("plugins-loaded", () => {
       this.bot.on("message", async (msg) => {
         const chatId = msg.chat.id;
@@ -320,6 +384,8 @@ export default class Telegram extends PluginBase {
   async unload(athena: Athena) {
     await this.bot.stopPolling();
     athena.deregisterTool("telegram/send-message");
+    athena.deregisterTool("telegram/edit-message");
+    athena.deregisterTool("telegram/delete-message");
     athena.deregisterEvent("telegram/message-received");
   }
 
