@@ -22,8 +22,10 @@ const main = async () => {
   const athena = new Athena(config, states);
   await athena.loadPlugins();
 
+  const savedCwd = process.cwd();
   process.on("SIGINT", async () => {
     await athena.unloadPlugins();
+    process.chdir(savedCwd);
     await fs.writeFile(statesFile, yaml.stringify(athena.states));
     console.error("Athena is unloaded");
     process.exit(0);
