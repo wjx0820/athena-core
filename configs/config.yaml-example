@@ -37,3 +37,6 @@ plugins:
       - "1234567890"
       - "9876543210"
   shell:
+  amadeus:
+    client_id: your-amadeus-client-id
+    client_secret: your-amadeus-client-secret
