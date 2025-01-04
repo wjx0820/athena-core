@@ -42,31 +42,41 @@ export default class Llm extends PluginBase {
           desc: "The result of the LLM.",
           required: true,
         },
+        citations: {
+          type: "array",
+          desc: "The citations of the LLM.",
+          required: false,
+          of: {
+            type: "string",
+            desc: "The citation of the LLM.",
+            required: true,
+          }
+        }
       },
       fn: async (args: any) => {
+        const response = await this.openai.chatCompletion(
+          [{
+            role: "user", content: [
+              {
+                type: "text",
+                text: args.message,
+              },
+              ...(args.image ? [
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: args.image,
+                  }
+                },
+              ] : []),
+            ] as ChatCompletionContentPart[]
+          }],
+          args.model,
+          args.temperature
+        );
         return {
-          result: (
-            await this.openai.chatCompletion(
-              [{
-                role: "user", content: [
-                  {
-                    type: "text",
-                    text: args.message,
-                  },
-                  ...(args.image ? [
-                    {
-                      type: "image_url",
-                      image_url: {
-                        url: args.image,
-                      }
-                    },
-                  ] : []),
-                ] as ChatCompletionContentPart[]
-              }],
-              args.model,
-              args.temperature
-            )
-          ).choices[0].message.content,
+          result: response.choices[0].message.content,
+          citations: (response as any).citations,
         };
       },
     });
