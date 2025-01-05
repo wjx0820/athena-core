@@ -50,27 +50,32 @@ export default class Llm extends PluginBase {
             type: "string",
             desc: "The citation of the LLM.",
             required: true,
-          }
-        }
+          },
+        },
       },
       fn: async (args: any) => {
         const response = await this.openai.chatCompletion(
-          [{
-            role: "user", content: [
-              {
-                type: "text",
-                text: args.message,
-              },
-              ...(args.image ? [
+          [
+            {
+              role: "user",
+              content: [
                 {
-                  type: "image_url",
-                  image_url: {
-                    url: args.image,
-                  }
+                  type: "text",
+                  text: args.message,
                 },
-              ] : []),
-            ] as ChatCompletionContentPart[]
-          }],
+                ...(args.image
+                  ? [
+                      {
+                        type: "image_url",
+                        image_url: {
+                          url: args.image,
+                        },
+                      },
+                    ]
+                  : []),
+              ] as ChatCompletionContentPart[],
+            },
+          ],
           args.model,
           args.temperature
         );
@@ -106,11 +111,14 @@ export default class Llm extends PluginBase {
             type: "string",
             desc: "The URL of the generated image.",
             required: true,
-          }
+          },
         },
       },
       fn: async (args: any) => {
-        const response = await this.openai.generateImage(args.prompt, args.model);
+        const response = await this.openai.generateImage(
+          args.prompt,
+          args.model
+        );
         return {
           urls: response.data.map((image) => image.url),
         };

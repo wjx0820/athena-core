@@ -1,4 +1,4 @@
-import Amadeus from 'amadeus';
+import Amadeus from "amadeus";
 
 import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";

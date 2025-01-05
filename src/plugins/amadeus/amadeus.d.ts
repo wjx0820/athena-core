@@ -1,1 +1,1 @@
-declare module 'amadeus';
+declare module "amadeus";

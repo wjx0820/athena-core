@@ -1,4 +1,7 @@
-import { ChatCompletionContentPart, ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
+import {
+  ChatCompletionContentPart,
+  ChatCompletionMessageParam,
+} from "openai/resources/chat/completions.js";
 
 import { Athena, IAthenaEvent, IAthenaTool } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
@@ -46,14 +49,14 @@ export default class PromptManager extends PluginBase {
             type: "string",
             desc: "The URL of the image to check out.",
             required: true,
-          }
+          },
         },
         retvals: {
           result: {
             type: "string",
             desc: "The result of checking out the image.",
             required: true,
-          }
+          },
         },
         fn: async (args: any) => {
           this.imageUrls.push(args.url);
@@ -72,7 +75,9 @@ export default class PromptManager extends PluginBase {
   }
 
   pushEvent(event: IEvent) {
-    console.log(`<incoming_event>\n${this.eventToPrompt(event)}\n</incoming_event>`);
+    console.log(
+      `<incoming_event>\n${this.eventToPrompt(event)}\n</incoming_event>`
+    );
     this.eventQueue.push(event);
     this.processEventQueue();
   }
@@ -104,7 +109,7 @@ export default class PromptManager extends PluginBase {
               type: "image_url",
               image_url: {
                 url: url,
-              }
+              },
             })),
           ] as ChatCompletionContentPart[],
         });
@@ -174,17 +179,17 @@ export default class PromptManager extends PluginBase {
     if (event.tool_result) {
       return `<tool_result>
 ${JSON.stringify({
-        name: event.name,
-        id: event.id,
-        result: event.args,
-      })}
+  name: event.name,
+  id: event.id,
+  result: event.args,
+})}
 </tool_result>`;
     }
     return `<event>
 ${JSON.stringify({
-      name: event.name,
-      args: event.args,
-    })}
+  name: event.name,
+  args: event.args,
+})}
 </event>`;
   }
 

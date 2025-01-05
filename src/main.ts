@@ -17,7 +17,7 @@ const main = async () => {
   let states = {};
   try {
     states = yaml.parse(await fs.readFile(statesFile, "utf8"));
-  } catch (e) { }
+  } catch (e) {}
 
   const athena = new Athena(config, states);
   await athena.loadPlugins();

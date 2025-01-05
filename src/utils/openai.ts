@@ -23,10 +23,7 @@ export class OpenAIClient {
     });
   }
 
-  async generateImage(
-    prompt: string,
-    model: string,
-  ) {
+  async generateImage(prompt: string, model: string) {
     return await this.client.images.generate({
       prompt: prompt,
       model: model,

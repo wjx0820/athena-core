@@ -156,8 +156,8 @@ export default class Telegram extends PluginBase {
                 desc: "URL of the photo.",
                 required: true,
               },
-            }
-          }
+            },
+          },
         },
         file: {
           type: "object",
@@ -222,7 +222,7 @@ export default class Telegram extends PluginBase {
           type: "string",
           desc: "File to send. Pass a local filename or a URL.",
           required: false,
-        }
+        },
       },
       retvals: {
         message_id: {
@@ -276,7 +276,7 @@ export default class Telegram extends PluginBase {
           type: "string",
           desc: "Status of the operation.",
           required: true,
-        }
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         await this.bot.editMessageText(args.text, {
@@ -307,7 +307,7 @@ export default class Telegram extends PluginBase {
           type: "string",
           desc: "Status of the operation.",
           required: true,
-        }
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         await this.bot.deleteMessage(args.chat_id, args.message_id);
@@ -341,11 +341,11 @@ export default class Telegram extends PluginBase {
           message_id: msg.message_id,
           from: msg.from
             ? {
-              id: msg.from.id,
-              first_name: msg.from.first_name,
-              last_name: msg.from.last_name,
-              username: msg.from.username,
-            }
+                id: msg.from.id,
+                first_name: msg.from.first_name,
+                last_name: msg.from.last_name,
+                username: msg.from.username,
+              }
             : undefined,
           chat: {
             id: msg.chat.id,
@@ -354,27 +354,29 @@ export default class Telegram extends PluginBase {
           },
           reply_to_message: msg.reply_to_message
             ? {
-              message_id: msg.reply_to_message.message_id,
-              from: msg.reply_to_message.from
-                ? {
-                  id: msg.reply_to_message.from.id,
-                  first_name: msg.reply_to_message.from.first_name,
-                  last_name: msg.reply_to_message.from.last_name,
-                  username: msg.reply_to_message.from.username,
-                }
-                : undefined,
-              text: msg.reply_to_message.text || msg.reply_to_message.caption,
-              date: new Date(msg.reply_to_message.date * 1000).toISOString(),
-            }
+                message_id: msg.reply_to_message.message_id,
+                from: msg.reply_to_message.from
+                  ? {
+                      id: msg.reply_to_message.from.id,
+                      first_name: msg.reply_to_message.from.first_name,
+                      last_name: msg.reply_to_message.from.last_name,
+                      username: msg.reply_to_message.from.username,
+                    }
+                  : undefined,
+                text: msg.reply_to_message.text || msg.reply_to_message.caption,
+                date: new Date(msg.reply_to_message.date * 1000).toISOString(),
+              }
             : undefined,
           text: msg.text || msg.caption,
           photo: photo,
-          file: msg.document ? {
-            file_id: msg.document.file_id,
-            file_name: msg.document.file_name,
-            file_size: msg.document.file_size,
-            url: await this.getFileUrl(msg.document.file_id),
-          } : undefined,
+          file: msg.document
+            ? {
+                file_id: msg.document.file_id,
+                file_name: msg.document.file_name,
+                file_size: msg.document.file_size,
+                url: await this.getFileUrl(msg.document.file_id),
+              }
+            : undefined,
           date: new Date(msg.date * 1000).toISOString(),
         });
       });
@@ -392,5 +394,5 @@ export default class Telegram extends PluginBase {
   async getFileUrl(fileId: string) {
     const file = await this.bot.getFile(fileId);
     return `https://api.telegram.org/file/bot${this.config.bot_token}/${file.file_path}`;
-  };
+  }
 }

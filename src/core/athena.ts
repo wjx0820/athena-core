@@ -30,7 +30,10 @@ export class Athena extends EventEmitter {
   tools: { [key: string]: IAthenaTool };
   events: { [key: string]: IAthenaEvent };
 
-  constructor(config: { [key: string]: any }, states: { [key: string]: { [key: string]: any } }) {
+  constructor(
+    config: { [key: string]: any },
+    states: { [key: string]: { [key: string]: any } }
+  ) {
     super();
     this.config = config;
     this.states = states;

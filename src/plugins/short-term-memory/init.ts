@@ -5,11 +5,13 @@ export default class ShortTermMemory extends PluginBase {
   messages: string[] = [];
 
   desc() {
-    return `You have a short-term memory. You must put whatever you think is the most important to remember in the current context in your short-term memory whenever you feel like it. It is crucial because the context and prompts for you, and even your own thinking can go away at any time. Use the "short-term-memory" tools to manipulate your short-term memory. The short-term memory content should be very specific. Try to include as much detail as possible. You can have a maximum of ${this.config.max_messages
-      } messages in your short-term memory and each message can have a maximum of ${this.config.max_length
-      } characters. Here are your current short-term memory messages: ${JSON.stringify(
-        this.messages
-      )}`;
+    return `You have a short-term memory. You must put whatever you think is the most important to remember in the current context in your short-term memory whenever you feel like it. It is crucial because the context and prompts for you, and even your own thinking can go away at any time. Use the "short-term-memory" tools to manipulate your short-term memory. The short-term memory content should be very specific. Try to include as much detail as possible. You can have a maximum of ${
+      this.config.max_messages
+    } messages in your short-term memory and each message can have a maximum of ${
+      this.config.max_length
+    } characters. Here are your current short-term memory messages: ${JSON.stringify(
+      this.messages
+    )}`;
   }
 
   async load(athena: Athena) {
@@ -65,7 +67,8 @@ export default class ShortTermMemory extends PluginBase {
       fn: async (args: { [key: string]: any }) => {
         if (args.index < 0 || args.index >= this.messages.length) {
           throw new Error(
-            `Invalid index. The index must be between 0 and ${this.messages.length - 1
+            `Invalid index. The index must be between 0 and ${
+              this.messages.length - 1
             }.`
           );
         }
@@ -98,7 +101,8 @@ export default class ShortTermMemory extends PluginBase {
       fn: async (args: { [key: string]: any }) => {
         if (args.index < 0 || args.index >= this.messages.length) {
           throw new Error(
-            `Invalid index. The index must be between 0 and ${this.messages.length - 1
+            `Invalid index. The index must be between 0 and ${
+              this.messages.length - 1
             }.`
           );
         }

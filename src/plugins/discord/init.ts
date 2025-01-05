@@ -5,8 +5,8 @@ import {
   GatewayIntentBits,
   Partials,
   SendableChannels,
-  TextChannel
-} from 'discord.js';
+  TextChannel,
+} from "discord.js";
 
 import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
@@ -64,7 +64,7 @@ export default class Discord extends PluginBase {
               desc: "The display name of the author.",
               required: true,
             },
-          }
+          },
         },
         channel: {
           type: "object",
@@ -85,8 +85,8 @@ export default class Discord extends PluginBase {
               type: "string",
               desc: "The name of the channel.",
               required: false,
-            }
-          }
+            },
+          },
         },
         guild: {
           type: "object",
@@ -103,7 +103,7 @@ export default class Discord extends PluginBase {
               desc: "The name of the guild.",
               required: true,
             },
-          }
+          },
         },
         reply_to_message: {
           type: "object",
@@ -135,7 +135,7 @@ export default class Discord extends PluginBase {
                   desc: "The display name of the author.",
                   required: true,
                 },
-              }
+              },
             },
             content: {
               type: "string",
@@ -147,7 +147,7 @@ export default class Discord extends PluginBase {
               desc: "The timestamp of the message.",
               required: true,
             },
-          }
+          },
         },
         content: {
           type: "string",
@@ -187,8 +187,8 @@ export default class Discord extends PluginBase {
                 type: "string",
                 desc: "The URL of the attachment.",
                 required: true,
-              }
-            }
+              },
+            },
           },
         },
         timestamp: {
@@ -241,8 +241,8 @@ export default class Discord extends PluginBase {
                 type: "string",
                 desc: "The path to the file. Could be local path or URL.",
                 required: true,
-              }
-            }
+              },
+            },
           },
         },
       },
@@ -251,7 +251,7 @@ export default class Discord extends PluginBase {
           type: "string",
           desc: "The ID of the message sent.",
           required: true,
-        }
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         const channel = await this.client.channels.fetch(args.channel_id);
@@ -262,17 +262,23 @@ export default class Discord extends PluginBase {
           throw new Error("The channel is not text-based.");
         }
         return {
-          id: (await (channel as SendableChannels).send({
-            content: args.content,
-            reply: args.reply_to_message_id ? {
-              messageReference: args.reply_to_message_id,
-            } : undefined,
-            files: args.files ? args.files.map((file: { [key: string]: any }) => ({
-              attachment: file.path,
-              name: file.name,
-              description: file.desc,
-            })) : undefined,
-          })).id
+          id: (
+            await (channel as SendableChannels).send({
+              content: args.content,
+              reply: args.reply_to_message_id
+                ? {
+                    messageReference: args.reply_to_message_id,
+                  }
+                : undefined,
+              files: args.files
+                ? args.files.map((file: { [key: string]: any }) => ({
+                    attachment: file.path,
+                    name: file.name,
+                    description: file.desc,
+                  }))
+                : undefined,
+            })
+          ).id,
         };
       },
     });
@@ -302,7 +308,7 @@ export default class Discord extends PluginBase {
           type: "string",
           desc: "The status of the operation.",
           required: true,
-        }
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         const channel = await this.client.channels.fetch(args.channel_id);
@@ -312,7 +318,9 @@ export default class Discord extends PluginBase {
         if (!channel.isTextBased()) {
           throw new Error("The channel is not text-based.");
         }
-        const message = await (channel as SendableChannels).messages.fetch(args.message_id);
+        const message = await (channel as SendableChannels).messages.fetch(
+          args.message_id
+        );
         if (!message) {
           throw new Error("The message does not exist.");
         }
@@ -341,7 +349,7 @@ export default class Discord extends PluginBase {
           type: "string",
           desc: "The status of the operation.",
           required: true,
-        }
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         const channel = await this.client.channels.fetch(args.channel_id);
@@ -351,7 +359,9 @@ export default class Discord extends PluginBase {
         if (!channel.isTextBased()) {
           throw new Error("The channel is not text-based.");
         }
-        const message = await (channel as SendableChannels).messages.fetch(args.message_id);
+        const message = await (channel as SendableChannels).messages.fetch(
+          args.message_id
+        );
         if (!message) {
           throw new Error("The message does not exist.");
         }
@@ -365,16 +375,20 @@ export default class Discord extends PluginBase {
         if (message.author.bot) {
           return;
         }
-        const channel_type = message.channel.type === ChannelType.DM ? "dm" : "guild";
+        const channel_type =
+          message.channel.type === ChannelType.DM ? "dm" : "guild";
         if (!this.config.allowed_channel_ids.includes(message.channel.id)) {
           if (channel_type === "dm") {
-            message.channel.send(`Your channel ID ${message.channel.id} probably don't have access to this bot.`);
+            message.channel.send(
+              `Your channel ID ${message.channel.id} probably don't have access to this bot.`
+            );
           }
           return;
         }
-        const reply_to_message = (message.reference && message.reference.messageId) ?
-          await message.channel.messages.fetch(message.reference.messageId) :
-          undefined;
+        const reply_to_message =
+          message.reference && message.reference.messageId
+            ? await message.channel.messages.fetch(message.reference.messageId)
+            : undefined;
         athena.emitEvent("discord/message-received", {
           id: message.id,
           author: {
@@ -385,30 +399,40 @@ export default class Discord extends PluginBase {
           channel: {
             id: message.channel.id,
             type: channel_type,
-            name: channel_type === "guild" ? (message.channel as TextChannel).name : undefined,
+            name:
+              channel_type === "guild"
+                ? (message.channel as TextChannel).name
+                : undefined,
           },
-          guild: channel_type === "guild" ? {
-            id: message.guild?.id,
-            name: message.guild?.name,
-          } : undefined,
-          reply_to_message: reply_to_message ? {
-            id: reply_to_message.id,
-            author: {
-              id: reply_to_message.author.id,
-              username: reply_to_message.author.username,
-              display_name: reply_to_message.author.displayName,
-            },
-            content: reply_to_message.content,
-            timestamp: reply_to_message.createdTimestamp,
-          } : undefined,
+          guild:
+            channel_type === "guild"
+              ? {
+                  id: message.guild?.id,
+                  name: message.guild?.name,
+                }
+              : undefined,
+          reply_to_message: reply_to_message
+            ? {
+                id: reply_to_message.id,
+                author: {
+                  id: reply_to_message.author.id,
+                  username: reply_to_message.author.username,
+                  display_name: reply_to_message.author.displayName,
+                },
+                content: reply_to_message.content,
+                timestamp: reply_to_message.createdTimestamp,
+              }
+            : undefined,
           content: message.content,
-          attachments: message.attachments ? message.attachments.map((attachment) => ({
-            id: attachment.id,
-            name: attachment.name,
-            size: attachment.size,
-            content_type: attachment.contentType,
-            url: attachment.url,
-          })) : undefined,
+          attachments: message.attachments
+            ? message.attachments.map((attachment) => ({
+                id: attachment.id,
+                name: attachment.name,
+                size: attachment.size,
+                content_type: attachment.contentType,
+                url: attachment.url,
+              }))
+            : undefined,
           timestamp: message.createdTimestamp,
         });
       });

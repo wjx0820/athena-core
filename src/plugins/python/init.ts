@@ -14,14 +14,14 @@ export default class Python extends PluginBase {
         code: {
           type: "string",
           desc: "Python code",
-          required: true
+          required: true,
         },
       },
       retvals: {
         stdout: {
           type: "string",
           desc: "Standard output of the code",
-          required: true
+          required: true,
         },
       },
       fn: async (args: { [key: string]: any }) => {
@@ -35,7 +35,7 @@ export default class Python extends PluginBase {
         path: {
           type: "string",
           desc: "Path to the Python file",
-          required: true
+          required: true,
         },
         args: {
           type: "array",
@@ -44,9 +44,9 @@ export default class Python extends PluginBase {
           of: {
             type: "string",
             desc: "Argument to pass",
-            required: true
-          }
-        }
+            required: true,
+          },
+        },
       },
       retvals: {
         stdout: {
@@ -56,7 +56,11 @@ export default class Python extends PluginBase {
         },
       },
       fn: async (args: { [key: string]: any }) => {
-        return { stdout: (await PythonShell.run(args.path, { args: args.args })).join("\n") };
+        return {
+          stdout: (await PythonShell.run(args.path, { args: args.args })).join(
+            "\n"
+          ),
+        };
       },
     });
     athena.registerTool({
@@ -66,7 +70,7 @@ export default class Python extends PluginBase {
         package: {
           type: "string",
           desc: "Package name",
-          required: true
+          required: true,
         },
       },
       retvals: {
@@ -78,13 +82,16 @@ export default class Python extends PluginBase {
       },
       fn: (args: { [key: string]: any }) => {
         return new Promise((resolve, reject) => {
-          exec(`python -m pip install ${args.package} --break-system-packages`, (error, stdout, stderr) => {
-            if (error) {
-              reject(Error(stderr));
-            } else {
-              resolve({ result: "success" });
+          exec(
+            `python -m pip install ${args.package} --break-system-packages`,
+            (error, stdout, stderr) => {
+              if (error) {
+                reject(Error(stderr));
+              } else {
+                resolve({ result: "success" });
+              }
             }
-          });
+          );
         });
       },
     });

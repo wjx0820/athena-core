@@ -5,7 +5,9 @@ import { PluginBase } from "../plugin-base.js";
 
 export default class FileSystem extends PluginBase {
   desc() {
-    return `The home directory is ${process.env.HOME}. The current working directory is ${process.cwd()}.`;
+    return `The home directory is ${
+      process.env.HOME
+    }. The current working directory is ${process.cwd()}.`;
   }
 
   async load(athena: Athena) {
@@ -16,8 +18,8 @@ export default class FileSystem extends PluginBase {
         path: {
           type: "string",
           desc: "The path to list",
-          required: true
-        }
+          required: true,
+        },
       },
       retvals: {
         content: {
@@ -32,21 +34,21 @@ export default class FileSystem extends PluginBase {
               name: {
                 type: "string",
                 desc: "The name of the file or directory",
-                required: true
+                required: true,
               },
               type: {
                 type: "string",
                 desc: "The type of the file or directory",
-                required: true
+                required: true,
               },
               size: {
                 type: "number",
                 desc: "The size of the file in bytes",
-                required: false
-              }
-            }
-          }
-        }
+                required: false,
+              },
+            },
+          },
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         const content = await fs.readdir(args.path, { withFileTypes: true });
@@ -55,7 +57,9 @@ export default class FileSystem extends PluginBase {
           ret.push({
             name: entry.name,
             type: entry.isDirectory() ? "directory" : "file",
-            size: entry.isFile() ? (await fs.stat(`${args.path}/${entry.name}`)).size : null
+            size: entry.isFile()
+              ? (await fs.stat(`${args.path}/${entry.name}`)).size
+              : null,
           });
         }
         return { content: ret };
@@ -68,15 +72,15 @@ export default class FileSystem extends PluginBase {
         path: {
           type: "string",
           desc: "The path to the file",
-          required: true
-        }
+          required: true,
+        },
       },
       retvals: {
         content: {
           type: "string",
           desc: "The content of the file",
-          required: true
-        }
+          required: true,
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         return { content: await fs.readFile(args.path, "utf8") };
@@ -89,23 +93,23 @@ export default class FileSystem extends PluginBase {
         path: {
           type: "string",
           desc: "The path to the file",
-          required: true
+          required: true,
         },
         content: {
           type: "string",
           desc: "The content to write",
-          required: true
-        }
+          required: true,
+        },
       },
       retvals: {
         status: {
           type: "string",
           desc: "The status of the write operation",
-          required: true
-        }
+          required: true,
+        },
       },
       fn: async (args: { [key: string]: any }) => {
-        await fs.writeFile(args.path, args.content, "utf8")
+        await fs.writeFile(args.path, args.content, "utf8");
         return { status: "success" };
       },
     });
@@ -116,15 +120,15 @@ export default class FileSystem extends PluginBase {
         path: {
           type: "string",
           desc: "The path to the file or directory",
-          required: true
-        }
+          required: true,
+        },
       },
       retvals: {
         status: {
           type: "string",
           desc: "The status of the delete operation",
-          required: true
-        }
+          required: true,
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         await fs.rm(args.path, { recursive: true });
@@ -138,20 +142,20 @@ export default class FileSystem extends PluginBase {
         src: {
           type: "string",
           desc: "The source path",
-          required: true
+          required: true,
         },
         dst: {
           type: "string",
           desc: "The destination path",
-          required: true
-        }
+          required: true,
+        },
       },
       retvals: {
         status: {
           type: "string",
           desc: "The status of the copy operation",
-          required: true
-        }
+          required: true,
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         const stat = await fs.stat(args.src);
@@ -172,20 +176,20 @@ export default class FileSystem extends PluginBase {
         src: {
           type: "string",
           desc: "The source path",
-          required: true
+          required: true,
         },
         dst: {
           type: "string",
           desc: "The destination path",
-          required: true
-        }
+          required: true,
+        },
       },
       retvals: {
         status: {
           type: "string",
           desc: "The status of the move operation",
-          required: true
-        }
+          required: true,
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         await fs.rename(args.src, args.dst);
@@ -199,20 +203,20 @@ export default class FileSystem extends PluginBase {
         path: {
           type: "string",
           desc: "The path to the directory",
-          required: true
-        }
+          required: true,
+        },
       },
       retvals: {
         status: {
           type: "string",
           desc: "The status of the mkdir operation",
-          required: true
-        }
+          required: true,
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         await fs.mkdir(args.path, { recursive: true });
         return { status: "success" };
-      }
+      },
     });
     athena.registerTool({
       name: "fs/cd",
@@ -221,7 +225,7 @@ export default class FileSystem extends PluginBase {
         directory: {
           type: "string",
           desc: "Directory to change to. Could be an absolute or relative path.",
-          required: true
+          required: true,
         },
       },
       retvals: {

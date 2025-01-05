@@ -41,7 +41,7 @@ export default class LongTermMemory extends PluginBase {
           type: "string",
           desc: "The status of the operation.",
           required: true,
-        }
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         this.store[args.key] = {
@@ -67,7 +67,7 @@ export default class LongTermMemory extends PluginBase {
           type: "string",
           desc: "The status of the operation.",
           required: true,
-        }
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         delete this.store[args.key];
@@ -103,9 +103,9 @@ export default class LongTermMemory extends PluginBase {
                 desc: "The creation date of the data.",
                 required: true,
               },
-            }
-          }
-        }
+            },
+          },
+        },
       },
       fn: async (args: { [key: string]: any }) => {
         const list = Object.keys(this.store).map((key) => {

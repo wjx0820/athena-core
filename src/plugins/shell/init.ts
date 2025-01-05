@@ -12,14 +12,14 @@ export default class Shell extends PluginBase {
         command: {
           type: "string",
           desc: "Shell command",
-          required: true
+          required: true,
         },
       },
       retvals: {
         stdout: {
           type: "string",
           desc: "Standard output of the command",
-          required: true
+          required: true,
         },
       },
       fn: (args: { [key: string]: any }) => {
@@ -41,7 +41,7 @@ export default class Shell extends PluginBase {
         package: {
           type: "string",
           desc: "Package name",
-          required: true
+          required: true,
         },
       },
       retvals: {
