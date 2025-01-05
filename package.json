@@ -1,5 +1,5 @@
 {
-  "name": "athena",
+  "name": "athena-core",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/main.js",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/yvbbrjdr/athena.git"
+    "url": "git+ssh://git@github.com/Athena-Lab-AI/athena-core.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yvbbrjdr/athena/issues"
+    "url": "https://github.com/Athena-Lab-AI/athena-core/issues"
   },
-  "homepage": "https://github.com/yvbbrjdr/athena#readme",
+  "homepage": "https://athenalab.ai/",
   "description": "",
   "dependencies": {
     "amadeus": "^11.0.0",
