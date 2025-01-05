@@ -6,7 +6,8 @@
   "scripts": {
     "start": "npm run build && npm run fast-start",
     "fast-start": "node dist/main.js configs/config.yaml",
-    "build": "npm run clean && NODE_OPTIONS='--max-old-space-size=8192' tsc",
+    "build": "npm run clean && npm run fast-build",
+    "fast-build": "NODE_OPTIONS='--max-old-space-size=8192' tsc",
     "clean": "rm -rf dist"
   },
   "repository": {
