@@ -315,7 +315,7 @@ export default class Telegram extends PluginBase {
       },
     });
 
-    athena.on("plugins-loaded", () => {
+    athena.once("plugins-loaded", () => {
       this.bot.on("message", async (msg) => {
         const chatId = msg.chat.id;
         if (!this.config.allowed_chat_ids.includes(chatId)) {

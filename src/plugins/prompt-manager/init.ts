@@ -65,6 +65,11 @@ export default class PromptManager extends PluginBase {
       });
     }
     athena.on("event", this.boundAthenaEventHandler);
+    athena.once("plugins-loaded", () => {
+      console.log(
+        `<initial_prompt>\n${this.initialPrompt()}\n</initial_prompt>`
+      );
+    });
   }
 
   async unload(athena: Athena) {

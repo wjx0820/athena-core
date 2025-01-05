@@ -370,7 +370,7 @@ export default class Discord extends PluginBase {
       },
     });
 
-    athena.on("plugins-loaded", () => {
+    athena.once("plugins-loaded", () => {
       this.client.on(Events.MessageCreate, async (message) => {
         if (message.author.bot) {
           return;
