@@ -12,12 +12,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Athena-Lab-AI/athena-core.git"
+    "url": "git+ssh://git@github.com/Athena-AI-Lab/athena-core.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Athena-Lab-AI/athena-core/issues"
+    "url": "https://github.com/Athena-AI-Lab/athena-core/issues"
   },
   "homepage": "https://athenalab.ai/",
   "description": "",
