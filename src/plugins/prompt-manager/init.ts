@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 import {
   ChatCompletionContentPart,
   ChatCompletionMessageParam,
@@ -5,7 +6,6 @@ import {
 
 import { Athena, IAthenaEvent, IAthenaTool } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
-import { OpenAIClient } from "../../utils/openai.js";
 
 interface IToolCall {
   name: string;
@@ -22,7 +22,7 @@ interface IEvent {
 
 export default class PromptManager extends PluginBase {
   athena!: Athena;
-  openai!: OpenAIClient;
+  openai!: OpenAI;
   busy: boolean = false;
   prompts: Array<ChatCompletionMessageParam> = [];
   eventQueue: Array<IEvent> = [];
@@ -36,10 +36,10 @@ export default class PromptManager extends PluginBase {
 
   async load(athena: Athena) {
     this.athena = athena;
-    this.openai = new OpenAIClient(
-      this.config.openai.base_url,
-      this.config.openai.api_key
-    );
+    this.openai = new OpenAI({
+      baseURL: this.config.openai.base_url,
+      apiKey: this.config.openai.api_key,
+    });
     if (this.config.openai.image_supported) {
       athena.registerTool({
         name: "image/check-out",
@@ -125,11 +125,11 @@ export default class PromptManager extends PluginBase {
             ...this.prompts.slice(-(this.config.max_prompts - 1)),
           ];
         }
-        const completion = await this.openai.chatCompletion(
-          this.prompts,
-          this.config.openai.model,
-          this.config.openai.temperature
-        );
+        const completion = await this.openai.chat.completions.create({
+          messages: this.prompts,
+          model: this.config.openai.model,
+          temperature: this.config.openai.temperature,
+        });
         this.prompts.push(completion.choices[0].message);
 
         const response = completion.choices[0].message.content as string;

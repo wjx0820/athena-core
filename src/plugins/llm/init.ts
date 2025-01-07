@@ -1,14 +1,17 @@
+import OpenAI from "openai";
 import { ChatCompletionContentPart } from "openai/resources/index.js";
 
 import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
-import { OpenAIClient } from "../../utils/openai.js";
 
 export default class Llm extends PluginBase {
-  openai!: OpenAIClient;
+  openai!: OpenAI;
 
   async load(athena: Athena) {
-    this.openai = new OpenAIClient(this.config.base_url, this.config.api_key);
+    this.openai = new OpenAI({
+      baseURL: this.config.base_url,
+      apiKey: this.config.api_key,
+    });
     athena.registerTool({
       name: "llm/chat",
       desc: "Chat with the LLM.",
@@ -54,8 +57,8 @@ export default class Llm extends PluginBase {
         },
       },
       fn: async (args: any) => {
-        const response = await this.openai.chatCompletion(
-          [
+        const response = await this.openai.chat.completions.create({
+          messages: [
             {
               role: "user",
               content: [
@@ -76,9 +79,9 @@ export default class Llm extends PluginBase {
               ] as ChatCompletionContentPart[],
             },
           ],
-          args.model,
-          args.temperature
-        );
+          model: args.model,
+          temperature: args.temperature,
+        });
         return {
           result: response.choices[0].message.content,
           citations: (response as any).citations,
@@ -115,10 +118,10 @@ export default class Llm extends PluginBase {
         },
       },
       fn: async (args: any) => {
-        const response = await this.openai.generateImage(
-          args.prompt,
-          args.model
-        );
+        const response = await this.openai.images.generate({
+          prompt: args.prompt,
+          model: args.model,
+        });
         return {
           urls: response.data.map((image) => image.url),
         };
