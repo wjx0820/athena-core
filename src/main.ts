@@ -1,8 +1,10 @@
 import fs from "fs/promises";
 
+import { format, transports } from "winston";
 import yaml from "yaml";
 
 import { Athena } from "./core/athena.js";
+import logger from "./utils/logger.js";
 
 const main = async () => {
   if (process.argv.length !== 3) {
@@ -13,25 +15,85 @@ const main = async () => {
   const configFile = process.argv[2];
   const config = yaml.parse(await fs.readFile(configFile, "utf8"));
 
-  const statesFile = `${configFile}.states.yaml`;
+  if (config.log_file) {
+    logger.add(
+      new transports.File({
+        filename: config.log_file,
+        format: format.combine(format.timestamp(), format.json()),
+      })
+    );
+    logger.info(`Log file: ${config.log_file}`);
+  } else {
+    logger.info("Log file is not set");
+  }
+
+  logger.info(`PID: ${process.pid}`);
+
+  let statesFile = null;
   let states = {};
-  try {
-    states = yaml.parse(await fs.readFile(statesFile, "utf8"));
-  } catch (e) {}
+  if (config.states_file) {
+    try {
+      statesFile = await fs.open(config.states_file, "r+");
+    } catch (err: any) {
+      if (err.code === "ENOENT") {
+        statesFile = await fs.open(config.states_file, "w+");
+      } else {
+        throw err;
+      }
+    }
+    try {
+      states = yaml.parse(await statesFile.readFile("utf8"));
+    } catch (err) {}
+    if (!states) {
+      states = {};
+    }
+    logger.info(`States file: ${config.states_file}`);
+    logger.info(`States: ${JSON.stringify(states)}`);
+  } else {
+    logger.info("States file is not set");
+  }
 
   const athena = new Athena(config, states);
   await athena.loadPlugins();
 
-  const savedCwd = process.cwd();
+  let sigintTriggered = false;
   process.on("SIGINT", async () => {
+    if (sigintTriggered) {
+      return;
+    }
+    sigintTriggered = true;
+    logger.warn("SIGINT triggered, exiting...");
     await athena.unloadPlugins();
-    process.chdir(savedCwd);
-    await fs.writeFile(statesFile, yaml.stringify(athena.states));
-    console.error("Athena is unloaded");
-    process.exit(0);
+    if (statesFile) {
+      await statesFile.truncate(0);
+      await statesFile.write(yaml.stringify(athena.states), 0, "utf8");
+      await statesFile.close();
+      logger.info("States file is saved");
+      logger.info(`States: ${JSON.stringify(athena.states)}`);
+    }
+    logger.info("Athena is unloaded");
   });
 
-  console.error("Athena is loaded");
+  let reloading = false;
+  process.on("SIGUSR1", async () => {
+    if (reloading) {
+      return;
+    }
+    reloading = true;
+    logger.info("SIGUSR1 triggered, reloading...");
+    await athena.unloadPlugins();
+    if (statesFile) {
+      await statesFile.truncate(0);
+      await statesFile.write(yaml.stringify(athena.states), 0, "utf8");
+      logger.info("States file is saved");
+      logger.info(`States: ${JSON.stringify(athena.states)}`);
+    }
+    await athena.loadPlugins();
+    logger.info("Athena is reloaded");
+    reloading = false;
+  });
+
+  logger.info("Athena is loaded");
 };
 
 main();

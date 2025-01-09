@@ -1,3 +1,6 @@
+states_file: configs/states.yaml
+log_file: configs/athena-core.log
+
 plugins:
   prompt-manager:
     openai:

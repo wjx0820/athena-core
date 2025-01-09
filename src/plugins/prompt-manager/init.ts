@@ -4,7 +4,7 @@ import {
   ChatCompletionMessageParam,
 } from "openai/resources/chat/completions.js";
 
-import { Athena, IAthenaEvent, IAthenaTool } from "../../core/athena.js";
+import { Athena } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 interface IToolCall {
@@ -66,9 +66,9 @@ export default class PromptManager extends PluginBase {
     }
     athena.on("event", this.boundAthenaEventHandler);
     athena.once("plugins-loaded", () => {
-      console.log(
-        `<initial_prompt>\n${this.initialPrompt()}\n</initial_prompt>`
-      );
+      this.logger.info(this.initialPrompt(), {
+        type: "initial_prompt",
+      });
     });
   }
 
@@ -80,9 +80,9 @@ export default class PromptManager extends PluginBase {
   }
 
   pushEvent(event: IEvent) {
-    console.log(
-      `<incoming_event>\n${this.eventToPrompt(event)}\n</incoming_event>`
-    );
+    this.logger.info(this.eventToPrompt(event), {
+      type: "event",
+    });
     this.eventQueue.push(event);
     this.processEventQueue();
   }
@@ -133,7 +133,9 @@ export default class PromptManager extends PluginBase {
         this.prompts.push(completion.choices[0].message);
 
         const response = completion.choices[0].message.content as string;
-        console.log(`<model_response>\n${response}\n</model_response>`);
+        this.logger.info(response, {
+          type: "model_response",
+        });
 
         const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
         let match;
@@ -165,7 +167,7 @@ export default class PromptManager extends PluginBase {
         }
       }
     } catch (e) {
-      console.error(e);
+      this.logger.error(e);
       process.kill(process.pid, "SIGINT");
     } finally {
       this.busy = false;

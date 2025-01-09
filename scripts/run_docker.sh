@@ -10,8 +10,8 @@ if [ "$(docker images -q athena-ai/athena-core:latest 2> /dev/null)" == "" ]; th
 fi
 
 if [ "$(docker ps -a -q -f name=athena-core)" ]; then
-    docker start -ai athena-core | tee -a athena-core.log
+    docker start -ai athena-core
     exit 0
 fi
 
-docker run --name athena-core -v "$(pwd)/configs:/app/configs" --net=host -it athena-ai/athena-core:latest | tee -a athena-core.log
+docker run --name athena-core -v "$(pwd)/configs:/app/configs" --net=host -it athena-ai/athena-core:latest

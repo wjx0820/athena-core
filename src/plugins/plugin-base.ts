@@ -1,7 +1,10 @@
+import { Logger } from "winston";
+
 import { Athena } from "../core/athena.js";
 
 export abstract class PluginBase {
   config: { [key: string]: any };
+  logger!: Logger;
 
   constructor(config: { [key: string]: any }) {
     this.config = config;
