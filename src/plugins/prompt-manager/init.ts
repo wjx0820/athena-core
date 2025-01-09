@@ -168,7 +168,7 @@ export default class PromptManager extends PluginBase {
       }
     } catch (e) {
       this.logger.error(e);
-      process.kill(process.pid, "SIGINT");
+      process.kill(process.pid, "SIGUSR1");
     } finally {
       this.busy = false;
     }
