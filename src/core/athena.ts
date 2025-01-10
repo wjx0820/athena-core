@@ -45,7 +45,7 @@ export class Athena extends EventEmitter {
   async loadPlugins() {
     const plugins = this.config.plugins;
     if (!plugins) {
-      throw new Error("No plugins found in config");
+      logger.warn("No plugins found in config");
     }
     for (const [name, args] of Object.entries(plugins)) {
       await this.loadPlugin(name, args as Dict<any>);
@@ -82,10 +82,7 @@ export class Athena extends EventEmitter {
     if (!(name in this.plugins)) {
       throw new Error(`Plugin ${name} not loaded`);
     }
-    const state = this.plugins[name].state();
-    if (state) {
-      this.states[name] = state;
-    }
+    this.gatherState(name);
     await this.plugins[name].unload(this);
     delete this.plugins[name];
     logger.warn(`Plugin ${name} is unloaded`);
@@ -121,6 +118,26 @@ export class Athena extends EventEmitter {
     }
     delete this.events[name];
     logger.warn(`Event ${name} is deregistered`);
+  }
+
+  gatherState(plugin: string) {
+    if (!(plugin in this.plugins)) {
+      throw new Error(`Plugin ${plugin} not loaded`);
+    }
+    const state = this.plugins[plugin].state();
+    if (state) {
+      this.states[plugin] = state;
+    }
+  }
+
+  gatherStates() {
+    for (const plugin of Object.keys(this.plugins)) {
+      try {
+        this.gatherState(plugin);
+      } catch (error) {
+        logger.error(`Failed to gather state for plugin ${plugin}: ${error}`);
+      }
+    }
   }
 
   async callTool(name: string, args: Dict<any>) {

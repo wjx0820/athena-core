@@ -53,6 +53,20 @@ const main = async () => {
     logger.info("States file is not set");
   }
 
+  const saveStates = async (athena: Athena, close: boolean = false) => {
+    if (!statesFile) {
+      return;
+    }
+    athena.gatherStates();
+    await statesFile.truncate(0);
+    await statesFile.write(yaml.stringify(athena.states), 0, "utf8");
+    if (close) {
+      await statesFile.close();
+    }
+    logger.info("States file is saved");
+    logger.info(`States: ${JSON.stringify(athena.states)}`);
+  };
+
   const athena = new Athena(config, states);
   await athena.loadPlugins();
 
@@ -63,14 +77,8 @@ const main = async () => {
     }
     sigintTriggered = true;
     logger.warn("SIGINT triggered, exiting...");
+    await saveStates(athena, true);
     await athena.unloadPlugins();
-    if (statesFile) {
-      await statesFile.truncate(0);
-      await statesFile.write(yaml.stringify(athena.states), 0, "utf8");
-      await statesFile.close();
-      logger.info("States file is saved");
-      logger.info(`States: ${JSON.stringify(athena.states)}`);
-    }
     logger.info("Athena is unloaded");
   });
 
@@ -81,16 +89,22 @@ const main = async () => {
     }
     reloading = true;
     logger.info("SIGUSR1 triggered, reloading...");
+    await saveStates(athena);
     await athena.unloadPlugins();
-    if (statesFile) {
-      await statesFile.truncate(0);
-      await statesFile.write(yaml.stringify(athena.states), 0, "utf8");
-      logger.info("States file is saved");
-      logger.info(`States: ${JSON.stringify(athena.states)}`);
-    }
     await athena.loadPlugins();
     logger.info("Athena is reloaded");
     reloading = false;
+  });
+
+  let savingStates = false;
+  process.on("SIGUSR2", async () => {
+    if (savingStates) {
+      return;
+    }
+    savingStates = true;
+    logger.info("SIGUSR2 triggered, saving states...");
+    await saveStates(athena);
+    savingStates = false;
   });
 
   logger.info("Athena is loaded");
