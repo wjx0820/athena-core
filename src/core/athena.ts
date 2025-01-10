@@ -56,7 +56,11 @@ export class Athena extends EventEmitter {
   async unloadPlugins() {
     const plugins = Object.keys(this.plugins);
     for (const name of plugins) {
-      await this.unloadPlugin(name);
+      try {
+        await this.unloadPlugin(name);
+      } catch (error) {
+        logger.error(`Failed to unload plugin ${name}: ${error}`);
+      }
     }
   }
 
