@@ -4,7 +4,7 @@ import follow_redirects from "follow-redirects";
 const { https } = follow_redirects;
 import { convert } from "html-to-text";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Http extends PluginBase {
@@ -36,7 +36,7 @@ export default class Http extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const response = await fetch(args.url, {
           headers: this.headers,
           redirect: "follow",
@@ -66,7 +66,7 @@ export default class Http extends PluginBase {
           required: true,
         },
       },
-      fn: (args: { [key: string]: any }) => {
+      fn: (args: Dict<any>) => {
         return new Promise((resolve, reject) => {
           const file = fs.createWriteStream(args.filename);
           https

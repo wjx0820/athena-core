@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Shell extends PluginBase {
@@ -22,7 +22,7 @@ export default class Shell extends PluginBase {
           required: true,
         },
       },
-      fn: (args: { [key: string]: any }) => {
+      fn: (args: Dict<any>) => {
         return new Promise((resolve, reject) => {
           exec(args.command, (error, stdout, stderr) => {
             if (error) {
@@ -51,7 +51,7 @@ export default class Shell extends PluginBase {
           type: "string",
         },
       },
-      fn: (args: { [key: string]: any }) => {
+      fn: (args: Dict<any>) => {
         return new Promise((resolve, reject) => {
           exec(`apt install ${args.package} -y`, (error, stdout, stderr) => {
             if (error) {

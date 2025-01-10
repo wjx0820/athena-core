@@ -1,6 +1,6 @@
 import safeEval from "safe-eval";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Calculator extends PluginBase {
@@ -22,7 +22,7 @@ export default class Calculator extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         return { result: safeEval(args.expression) };
       },
     });

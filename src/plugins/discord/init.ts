@@ -8,7 +8,7 @@ import {
   TextChannel,
 } from "discord.js";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Discord extends PluginBase {
@@ -253,7 +253,7 @@ export default class Discord extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const channel = await this.client.channels.fetch(args.channel_id);
         if (!channel) {
           throw new Error("The channel does not exist.");
@@ -271,7 +271,7 @@ export default class Discord extends PluginBase {
                   }
                 : undefined,
               files: args.files
-                ? args.files.map((file: { [key: string]: any }) => ({
+                ? args.files.map((file: Dict<any>) => ({
                     attachment: file.path,
                     name: file.name,
                     description: file.desc,
@@ -310,7 +310,7 @@ export default class Discord extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const channel = await this.client.channels.fetch(args.channel_id);
         if (!channel) {
           throw new Error("The channel does not exist.");
@@ -351,7 +351,7 @@ export default class Discord extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const channel = await this.client.channels.fetch(args.channel_id);
         if (!channel) {
           throw new Error("The channel does not exist.");

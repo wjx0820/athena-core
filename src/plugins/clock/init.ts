@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 interface ITimeout {
@@ -13,7 +13,7 @@ interface ITimeout {
 }
 
 export default class Clock extends PluginBase {
-  timeouts: { [key: string]: ITimeout } = {};
+  timeouts: Dict<ITimeout> = {};
 
   desc() {
     return `Current time is ${new Date().toString()}.`;
@@ -73,7 +73,7 @@ export default class Clock extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const id = uuidv4();
         let timeout: NodeJS.Timeout;
         if (args.recurring) {
@@ -179,7 +179,7 @@ export default class Clock extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         if (!this.timeouts[args.timeout_id]) {
           throw new Error(`Timeout with id ${args.timeout_id} not found.`);
         }
@@ -210,7 +210,7 @@ export default class Clock extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const id = uuidv4();
         const time = new Date(args.time);
         const now = new Date();

@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Telegram extends PluginBase {
@@ -231,7 +231,7 @@ export default class Telegram extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         if (args.photo) {
           const message = await this.bot.sendPhoto(args.chat_id, args.photo, {
             reply_to_message_id: args.reply_to_message_id,
@@ -278,7 +278,7 @@ export default class Telegram extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         await this.bot.editMessageText(args.text, {
           chat_id: args.chat_id,
           message_id: args.message_id,
@@ -309,7 +309,7 @@ export default class Telegram extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         await this.bot.deleteMessage(args.chat_id, args.message_id);
         return { status: "success" };
       },

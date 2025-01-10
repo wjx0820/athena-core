@@ -3,38 +3,37 @@ import { EventEmitter } from "events";
 import { PluginBase } from "../plugins/plugin-base.js";
 import logger from "../utils/logger.js";
 
+export type Dict<T> = { [key: string]: T };
+
 export interface IAthenaArgument {
   type: "string" | "number" | "boolean" | "object" | "array";
   desc: string;
   required: boolean;
-  of?: { [key: string]: IAthenaArgument } | IAthenaArgument;
+  of?: Dict<IAthenaArgument> | IAthenaArgument;
 }
 
 export interface IAthenaTool {
   name: string;
   desc: string;
-  args: { [key: string]: IAthenaArgument };
-  retvals: { [key: string]: IAthenaArgument };
-  fn: (args: { [key: string]: any }) => Promise<{ [key: string]: any }>;
+  args: Dict<IAthenaArgument>;
+  retvals: Dict<IAthenaArgument>;
+  fn: (args: Dict<any>) => Promise<Dict<any>>;
 }
 
 export interface IAthenaEvent {
   name: string;
   desc: string;
-  args: { [key: string]: IAthenaArgument };
+  args: Dict<IAthenaArgument>;
 }
 
 export class Athena extends EventEmitter {
-  config: { [key: string]: any };
-  states: { [key: string]: { [key: string]: any } };
-  plugins: { [key: string]: PluginBase };
-  tools: { [key: string]: IAthenaTool };
-  events: { [key: string]: IAthenaEvent };
+  config: Dict<any>;
+  states: Dict<Dict<any>>;
+  plugins: Dict<PluginBase>;
+  tools: Dict<IAthenaTool>;
+  events: Dict<IAthenaEvent>;
 
-  constructor(
-    config: { [key: string]: any },
-    states: { [key: string]: { [key: string]: any } }
-  ) {
+  constructor(config: Dict<any>, states: Dict<Dict<any>>) {
     super();
     this.config = config;
     this.states = states;
@@ -49,7 +48,7 @@ export class Athena extends EventEmitter {
       throw new Error("No plugins found in config");
     }
     for (const [name, args] of Object.entries(plugins)) {
-      await this.loadPlugin(name, args as { [key: string]: any });
+      await this.loadPlugin(name, args as Dict<any>);
     }
     this.emit("plugins-loaded");
   }
@@ -61,7 +60,7 @@ export class Athena extends EventEmitter {
     }
   }
 
-  async loadPlugin(name: string, args: { [key: string]: any }) {
+  async loadPlugin(name: string, args: Dict<any>) {
     if (name in this.plugins) {
       throw new Error(`Plugin ${name} already loaded`);
     }
@@ -124,14 +123,14 @@ export class Athena extends EventEmitter {
     logger.warn(`Event ${name} is deregistered`);
   }
 
-  async callTool(name: string, args: { [key: string]: any }) {
+  async callTool(name: string, args: Dict<any>) {
     if (!(name in this.tools)) {
       throw new Error(`Tool ${name} not registered`);
     }
     return await this.tools[name].fn(args);
   }
 
-  emitEvent(name: string, args: { [key: string]: any }) {
+  emitEvent(name: string, args: Dict<any>) {
     if (!(name in this.events)) {
       throw new Error(`Event ${name} not registered`);
     }

@@ -1,6 +1,6 @@
 import Amadeus from "amadeus";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class AmadeusPlugin extends PluginBase {
@@ -93,7 +93,7 @@ export default class AmadeusPlugin extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const response = await this.amadeus.shopping.flightOffersSearch.get({
           originLocationCode: args.originLocationCode,
           destinationLocationCode: args.destinationLocationCode,

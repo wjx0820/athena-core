@@ -1,4 +1,4 @@
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class ShortTermMemory extends PluginBase {
@@ -32,7 +32,7 @@ export default class ShortTermMemory extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         if (this.messages.length >= this.config.max_messages) {
           throw new Error(
             `Short-term memory is full. You can have a maximum of ${this.config.max_messages} messages in your short-term memory. Try to remove or edit some messages first.`
@@ -64,7 +64,7 @@ export default class ShortTermMemory extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         if (args.index < 0 || args.index >= this.messages.length) {
           throw new Error(
             `Invalid index. The index must be between 0 and ${
@@ -98,7 +98,7 @@ export default class ShortTermMemory extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         if (args.index < 0 || args.index >= this.messages.length) {
           throw new Error(
             `Invalid index. The index must be between 0 and ${
@@ -127,7 +127,7 @@ export default class ShortTermMemory extends PluginBase {
     return { messages: this.messages };
   }
 
-  setState(state: { [key: string]: any }) {
+  setState(state: Dict<any>) {
     this.messages = state.messages;
   }
 }

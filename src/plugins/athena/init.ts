@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class AthenaPlugin extends PluginBase {
@@ -31,7 +31,7 @@ export default class AthenaPlugin extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         if (athena.plugins[args.name]) {
           await athena.unloadPlugin(args.name);
         }

@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class FileSystem extends PluginBase {
@@ -50,7 +50,7 @@ export default class FileSystem extends PluginBase {
           },
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const content = await fs.readdir(args.path, { withFileTypes: true });
         const ret = [];
         for (const entry of content) {
@@ -82,7 +82,7 @@ export default class FileSystem extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         return { content: await fs.readFile(args.path, "utf8") };
       },
     });
@@ -108,7 +108,7 @@ export default class FileSystem extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         await fs.writeFile(args.path, args.content, "utf8");
         return { status: "success" };
       },
@@ -130,7 +130,7 @@ export default class FileSystem extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         await fs.rm(args.path, { recursive: true });
         return { status: "success" };
       },
@@ -157,7 +157,7 @@ export default class FileSystem extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const stat = await fs.stat(args.src);
         if (stat.isFile()) {
           await fs.copyFile(args.src, args.dst);
@@ -191,7 +191,7 @@ export default class FileSystem extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         await fs.rename(args.src, args.dst);
         return { status: "success" };
       },
@@ -213,7 +213,7 @@ export default class FileSystem extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         await fs.mkdir(args.path, { recursive: true });
         return { status: "success" };
       },
@@ -235,7 +235,7 @@ export default class FileSystem extends PluginBase {
           type: "string",
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         process.chdir(args.directory);
         return { result: "success" };
       },

@@ -1,15 +1,14 @@
-import { error } from "console";
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 interface ILongTermMemoryItem {
   desc: string;
-  data: { [key: string]: any };
+  data: Dict<any>;
   created_at: string;
 }
 
 export default class LongTermMemory extends PluginBase {
-  store: { [key: string]: ILongTermMemoryItem } = {};
+  store: Dict<ILongTermMemoryItem> = {};
 
   desc() {
     return "You have a long-term memory. You must put whatever you think a human would remember long-term in here. This could be knowledge, experiences, or anything else you think is important. It's a key-value store. The key is a string, and the value is a JSON object. You will override the value if you store the same key again. If you want to recall something, you should list and/or retrieve it.";
@@ -43,7 +42,7 @@ export default class LongTermMemory extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         this.store[args.key] = {
           desc: args.desc,
           data: args.data,
@@ -69,7 +68,7 @@ export default class LongTermMemory extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         delete this.store[args.key];
         return { status: "success" };
       },
@@ -107,7 +106,7 @@ export default class LongTermMemory extends PluginBase {
           },
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const list = Object.keys(this.store).map((key) => {
           return {
             key: key,
@@ -145,7 +144,7 @@ export default class LongTermMemory extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         const item = this.store[args.key];
         if (!item) {
           return { error: "The key does not exist." };
@@ -170,7 +169,7 @@ export default class LongTermMemory extends PluginBase {
     return { store: this.store };
   }
 
-  setState(state: { [key: string]: any }) {
+  setState(state: Dict<any>) {
     this.store = state.store;
   }
 }

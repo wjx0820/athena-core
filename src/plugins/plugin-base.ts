@@ -1,12 +1,12 @@
 import { Logger } from "winston";
 
-import { Athena } from "../core/athena.js";
+import { Athena, Dict } from "../core/athena.js";
 
 export abstract class PluginBase {
-  config: { [key: string]: any };
+  config: Dict<any>;
   logger!: Logger;
 
-  constructor(config: { [key: string]: any }) {
+  constructor(config: Dict<any>) {
     this.config = config;
   }
 
@@ -18,9 +18,9 @@ export abstract class PluginBase {
 
   async unload(athena: Athena): Promise<void> {}
 
-  state(): { [key: string]: any } | null {
+  state(): Dict<any> | null {
     return null;
   }
 
-  setState(state: { [key: string]: any }): void {}
+  setState(state: Dict<any>): void {}
 }

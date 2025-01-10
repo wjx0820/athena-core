@@ -2,7 +2,7 @@ import { exec } from "child_process";
 
 import { PythonShell } from "python-shell";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Python extends PluginBase {
@@ -24,7 +24,7 @@ export default class Python extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         return { stdout: (await PythonShell.runString(args.code)).join("\n") };
       },
     });
@@ -55,7 +55,7 @@ export default class Python extends PluginBase {
           type: "string",
         },
       },
-      fn: async (args: { [key: string]: any }) => {
+      fn: async (args: Dict<any>) => {
         return {
           stdout: (await PythonShell.run(args.path, { args: args.args })).join(
             "\n"
@@ -80,7 +80,7 @@ export default class Python extends PluginBase {
           type: "string",
         },
       },
-      fn: (args: { [key: string]: any }) => {
+      fn: (args: Dict<any>) => {
         return new Promise((resolve, reject) => {
           exec(
             `python -m pip install ${args.package} --break-system-packages`,
