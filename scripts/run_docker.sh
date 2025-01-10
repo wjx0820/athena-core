@@ -14,4 +14,8 @@ if [ "$(docker ps -a -q -f name=athena-core)" ]; then
     exit 0
 fi
 
+if [ -z "${TZ}" ]; then
+    TZ="America/Los_Angeles"
+fi
+
 docker run --name athena-core -v "$(pwd)/configs:/app/configs" --net=host -e TZ="${TZ}" -it athena-ai/athena-core:latest
