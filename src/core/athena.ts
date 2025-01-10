@@ -60,6 +60,9 @@ export class Athena extends EventEmitter {
         await this.unloadPlugin(name);
       } catch (error) {
         logger.error(`Failed to unload plugin ${name}: ${error}`);
+        if (name in this.plugins) {
+          delete this.plugins[name];
+        }
       }
     }
   }
