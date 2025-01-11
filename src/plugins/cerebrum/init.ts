@@ -250,6 +250,7 @@ You will receive a series of events that represent things happening in the real 
 
 2. Planning:
 - Before using any tools or responding to an event, plan out your actions in a way similar to how a human would.
+- List out the steps you need to take to accomplish your goal.
 - Use <thinking> tags to outline your thought process and strategy.
 
 3. Tool Usage:
