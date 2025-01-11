@@ -1,5 +1,7 @@
 import { promises as fs } from "fs";
 
+import { isBinary } from "istextorbinary";
+
 import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
@@ -59,7 +61,7 @@ export default class FileSystem extends PluginBase {
             type: entry.isDirectory() ? "directory" : "file",
             size: entry.isFile()
               ? (await fs.stat(`${args.path}/${entry.name}`)).size
-              : null,
+              : undefined,
           });
         }
         return { content: ret };
@@ -83,7 +85,11 @@ export default class FileSystem extends PluginBase {
         },
       },
       fn: async (args: Dict<any>) => {
-        return { content: await fs.readFile(args.path, "utf8") };
+        const buffer = await fs.readFile(args.path);
+        if (isBinary(args.path, buffer)) {
+          throw new Error("File is binary");
+        }
+        return { content: buffer.toString("utf8") };
       },
     });
     athena.registerTool({

@@ -98,6 +98,8 @@ export default class Cerebrum extends PluginBase {
     this.busy = true;
     try {
       while (this.eventQueue.length > 0) {
+        // Add a small delay to allow multiple events to accumulate
+        await new Promise((resolve) => setTimeout(resolve, 100));
         const events = this.eventQueue.map((event) =>
           this.eventToPrompt(event)
         );
