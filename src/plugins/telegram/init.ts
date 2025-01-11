@@ -302,12 +302,14 @@ export default class Telegram extends PluginBase {
       fn: async (args: Dict<any>) => {
         if (args.photo) {
           const message = await this.bot.sendPhoto(args.chat_id, args.photo, {
+            caption: args.text,
             reply_to_message_id: args.reply_to_message_id,
           });
           return { message_id: message.message_id };
         }
         if (args.file) {
           const message = await this.bot.sendDocument(args.chat_id, args.file, {
+            caption: args.text,
             reply_to_message_id: args.reply_to_message_id,
           });
           return { message_id: message.message_id };
