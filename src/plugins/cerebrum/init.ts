@@ -232,13 +232,13 @@ First, familiarize yourself with the available tools and possible events:
 <tools>
 ${Object.values(this.athena.tools)
   .map((tool) => JSON.stringify(tool))
-  .join("\n")}
+  .join("\n\n")}
 </tools>
 
 <events>
 ${Object.values(this.athena.events)
   .map((event) => JSON.stringify(event))
-  .join("\n")}
+  .join("\n\n")}
 </events>
 
 You will receive a series of events that represent things happening in the real world. Your task is to respond to these events in a human-like manner, using the provided tools when necessary. Here are your instructions:
