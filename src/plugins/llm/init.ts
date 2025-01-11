@@ -23,7 +23,7 @@ export default class Llm extends PluginBase {
         },
         image: {
           type: "string",
-          desc: "The image URL to send to the LLM, if you want to send an image. You can only send images to models that support them.",
+          desc: "The image URL to send to the LLM, if you want to send an image. You can only send images to models that support them. Don't send the image URL in the message.",
           required: false,
         },
         model: {

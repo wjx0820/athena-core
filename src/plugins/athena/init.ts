@@ -5,7 +5,7 @@ import { PluginBase } from "../plugin-base.js";
 
 export default class AthenaPlugin extends PluginBase {
   desc() {
-    return 'Athena is made up of plugins. Whenever you are told to implement a new feature or to "improve" yourself, you should create a new plugin. The way to do this is to create a new folder in the "src/plugins" directory. Inside the directory, create a new file called "init.ts". You must refer to other plugins as templates before creating your own. After you create the plugin, you can load it by using the "athena/load-plugin" tool. The args argument you pass to the tool can be accessed by the plugin as "this.config". You can also modify an existing plugin and reload it by using the same tool.';
+    return 'Athena is made up of plugins. Whenever you are told to implement a new feature or to "improve" yourself, you should create a new plugin. The way to do this is to create a new folder in the "src/plugins" directory. Inside the directory, create a new file called "init.ts". You must refer to other plugins, such as "python", as templates before creating your own. After you create the plugin, you can load it by using the "athena/load-plugin" tool. The args argument you pass to the tool can be accessed by the plugin as "this.config". You can also modify an existing plugin and reload it by using the same tool.';
   }
 
   async load(athena: Athena) {
