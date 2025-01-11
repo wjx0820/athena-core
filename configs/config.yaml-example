@@ -2,7 +2,7 @@ states_file: configs/states.yaml
 log_file: configs/athena-core.log
 
 plugins:
-  prompt-manager:
+  cerebrum:
     openai:
       base_url: https://api.openai.com/v1
       api_key: sk-proj-your-openai-api-key

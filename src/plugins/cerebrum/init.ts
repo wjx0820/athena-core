@@ -20,7 +20,7 @@ interface IEvent {
   args: any;
 }
 
-export default class PromptManager extends PluginBase {
+export default class Cerebrum extends PluginBase {
   athena!: Athena;
   openai!: OpenAI;
   busy: boolean = false;
