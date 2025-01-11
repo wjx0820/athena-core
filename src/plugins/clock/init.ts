@@ -59,7 +59,7 @@ export default class Clock extends PluginBase {
         seconds: {
           type: "number",
           desc: "The number of seconds to wait before triggering the timer.",
-          required: true,
+          required: false,
         },
         minutes: {
           type: "number",
@@ -91,7 +91,7 @@ export default class Clock extends PluginBase {
       },
       fn: async (args: Dict<any>) => {
         const interval =
-          args.seconds * 1000 +
+          (args.seconds || 0) * 1000 +
           (args.minutes || 0) * 60 * 1000 +
           (args.hours || 0) * 60 * 60 * 1000;
         this.timeouts.push({
