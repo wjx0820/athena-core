@@ -5,20 +5,20 @@ import {
   ChatCompletionMessageParam,
 } from "openai/resources/chat/completions.js";
 
-import { Athena } from "../../core/athena.js";
+import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 interface IToolCall {
   name: string;
   id: string;
-  args: any;
+  args: Dict<any>;
 }
 
 interface IEvent {
   tool_result: boolean;
   name: string;
   id?: string;
-  args: any;
+  args: Dict<any>;
 }
 
 export default class Cerebrum extends PluginBase {
@@ -28,7 +28,7 @@ export default class Cerebrum extends PluginBase {
   prompts: Array<ChatCompletionMessageParam> = [];
   eventQueue: Array<IEvent> = [];
   imageUrls: Array<string> = [];
-  boundAthenaEventHandler!: (name: string, args: any) => void;
+  boundAthenaEventHandler!: (name: string, args: Dict<any>) => void;
 
   async load(athena: Athena) {
     this.athena = athena;
@@ -55,7 +55,7 @@ export default class Cerebrum extends PluginBase {
             required: true,
           },
         },
-        fn: async (args: any) => {
+        fn: async (args: Dict<any>) => {
           let image = args.image;
           if (!image.startsWith("http")) {
             image = await image2uri(image);
@@ -73,6 +73,7 @@ export default class Cerebrum extends PluginBase {
       athena.emitPrivateEvent("cerebrum/initial-prompt", {
         content: this.initialPrompt(),
       });
+      this.processEventQueue();
     });
   }
 
@@ -94,7 +95,7 @@ export default class Cerebrum extends PluginBase {
     this.processEventQueue();
   }
 
-  athenaEventHandler(name: string, args: any) {
+  athenaEventHandler(name: string, args: Dict<any>) {
     this.pushEvent({ tool_result: false, name, args });
   }
 
@@ -191,6 +192,7 @@ export default class Cerebrum extends PluginBase {
       this.athena.emitPrivateEvent("cerebrum/error", {
         content: e.message,
       });
+      this.prompts = [];
       process.kill(process.pid, "SIGUSR1");
     } finally {
       this.busy = false;
@@ -290,5 +292,19 @@ You will receive a series of events that represent things happening in the real 
 Remember, your primary goal is to behave as human-like as possible while interacting with the world through these events and tools. Always consider how a human would think, plan, and respond in each situation.
 
 ${descs.join("\n\n")}`;
+  }
+
+  state() {
+    return {
+      prompts: this.prompts,
+      event_queue: this.eventQueue,
+      image_urls: this.imageUrls,
+    };
+  }
+
+  setState(state: Dict<any>) {
+    this.prompts = state.prompts;
+    this.eventQueue = state.event_queue;
+    this.imageUrls = state.image_urls;
   }
 }
