@@ -26,6 +26,7 @@
     "discord.js": "^14.17.2",
     "follow-redirects": "^1.15.9",
     "html-to-text": "^9.0.5",
+    "image2uri": "^2.1.2",
     "istextorbinary": "^9.5.0",
     "node-telegram-bot-api": "^0.63.0",
     "openai": "^4.77.3",

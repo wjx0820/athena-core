@@ -1,3 +1,4 @@
+import image2uri from "image2uri";
 import OpenAI from "openai";
 import {
   ChatCompletionContentPart,
@@ -27,12 +28,7 @@ export default class Cerebrum extends PluginBase {
   prompts: Array<ChatCompletionMessageParam> = [];
   eventQueue: Array<IEvent> = [];
   imageUrls: Array<string> = [];
-  boundAthenaEventHandler: (name: string, args: any) => void;
-
-  constructor(config: any) {
-    super(config);
-    this.boundAthenaEventHandler = this.athenaEventHandler.bind(this);
-  }
+  boundAthenaEventHandler!: (name: string, args: any) => void;
 
   async load(athena: Athena) {
     this.athena = athena;
@@ -40,14 +36,15 @@ export default class Cerebrum extends PluginBase {
       baseURL: this.config.base_url,
       apiKey: this.config.api_key,
     });
+    this.boundAthenaEventHandler = this.athenaEventHandler.bind(this);
     if (this.config.image_supported) {
       athena.registerTool({
         name: "image/check-out",
-        desc: "Check out an image. Whenever you see an image URL and want to check it out, or the user asks you to see an image, use this tool.",
+        desc: "Check out an image. Whenever you want to see an image, or the user asks you to see an image, use this tool.",
         args: {
-          url: {
+          image: {
             type: "string",
-            desc: "The URL of the image to check out.",
+            desc: "The URL or local path of the image to check out.",
             required: true,
           },
         },
@@ -59,7 +56,11 @@ export default class Cerebrum extends PluginBase {
           },
         },
         fn: async (args: any) => {
-          this.imageUrls.push(args.url);
+          let image = args.image;
+          if (!image.startsWith("http")) {
+            image = await image2uri(image);
+          }
+          this.imageUrls.push(image);
           return { result: "success" };
         },
       });
@@ -224,11 +225,15 @@ ${JSON.stringify({
 First, familiarize yourself with the available tools and possible events:
 
 <tools>
-${JSON.stringify(Object.values(this.athena.tools))}
+${Object.values(this.athena.tools)
+  .map((tool) => JSON.stringify(tool))
+  .join("\n")}
 </tools>
 
 <events>
-${JSON.stringify(Object.values(this.athena.events))}
+${Object.values(this.athena.events)
+  .map((event) => JSON.stringify(event))
+  .join("\n")}
 </events>
 
 You will receive a series of events that represent things happening in the real world. Your task is to respond to these events in a human-like manner, using the provided tools when necessary. Here are your instructions:

@@ -1,3 +1,4 @@
+import image2uri from "image2uri";
 import OpenAI from "openai";
 import { ChatCompletionContentPart } from "openai/resources/index.js";
 
@@ -23,7 +24,7 @@ export default class Llm extends PluginBase {
         },
         image: {
           type: "string",
-          desc: "The image URL to send to the LLM, if you want to send an image. You can only send images to models that support them. Don't send the image URL in the message.",
+          desc: "The image to send to the LLM, if you need to. You can only send images to models that support them. Don't send the image in the message. Supports both URL and local image.",
           required: false,
         },
         model: {
@@ -57,6 +58,14 @@ export default class Llm extends PluginBase {
         },
       },
       fn: async (args: any) => {
+        let image;
+        if (args.image) {
+          if (args.image.startsWith("http")) {
+            image = args.image;
+          } else {
+            image = await image2uri(args.image);
+          }
+        }
         const response = await this.openai.chat.completions.create({
           messages: [
             {
@@ -66,12 +75,12 @@ export default class Llm extends PluginBase {
                   type: "text",
                   text: args.message,
                 },
-                ...(args.image
+                ...(image
                   ? [
                       {
                         type: "image_url",
                         image_url: {
-                          url: args.image,
+                          url: image,
                         },
                       },
                     ]
