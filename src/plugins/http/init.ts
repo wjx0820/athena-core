@@ -69,35 +69,32 @@ export default class Http extends PluginBase {
       fn: (args: Dict<any>) => {
         return new Promise((resolve, reject) => {
           const file = fs.createWriteStream(args.filename);
-          https
-            .get(
-              args.url,
-              {
-                headers: this.headers,
-              },
-              (response) => {
-                if (response.statusCode !== 200) {
-                  reject(
-                    Error(`Failed to download file: ${response.statusCode}`)
-                  );
-                  return;
-                }
-                response.pipe(file);
-                file
-                  .on("finish", () => {
-                    file.close();
-                    resolve({ result: "success" });
-                  })
-                  .on("error", (err) => {
-                    fs.unlink(args.filename, () => {
-                      reject(err);
-                    });
-                  });
-              }
-            )
-            .on("error", (err) => {
-              reject(err);
+
+          const request = https.get(args.url, {
+            headers: this.headers,
+          });
+
+          request.on("error", reject);
+
+          request.on("response", (response) => {
+            if (response.statusCode !== 200) {
+              reject(
+                new Error(`Failed to download file: ${response.statusCode}`)
+              );
+              return;
+            }
+
+            response.pipe(file);
+
+            file.on("finish", () => {
+              file.close();
+              resolve({ result: "success" });
             });
+
+            file.on("error", (err) => {
+              fs.unlink(args.filename, () => reject(err));
+            });
+          });
         });
       },
     });

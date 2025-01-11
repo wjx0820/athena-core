@@ -154,8 +154,12 @@ export default class Cerebrum extends PluginBase {
         while ((match = toolCallRegex.exec(response)) !== null) {
           const toolCallJson = match[1];
           (async (toolCallJson: string) => {
+            let toolName;
+            let toolCallId;
             try {
               const toolCall = JSON.parse(toolCallJson) as IToolCall;
+              toolName = toolCall.name;
+              toolCallId = toolCall.id;
               const result = await this.athena.callTool(
                 toolCall.name,
                 toolCall.args
@@ -169,7 +173,8 @@ export default class Cerebrum extends PluginBase {
             } catch (error: any) {
               this.pushEvent({
                 tool_result: true,
-                name: "tool_error",
+                name: toolName ?? "tool_error",
+                id: toolCallId ?? "tool_error",
                 args: {
                   error: error.message,
                 },
