@@ -16,7 +16,6 @@ plugins:
       - 1234567890
       - 9876543210
   clock:
-  calculator:
   http:
   short-term-memory:
     max_messages: 15

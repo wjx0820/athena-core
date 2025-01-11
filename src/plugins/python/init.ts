@@ -9,7 +9,7 @@ export default class Python extends PluginBase {
   async load(athena: Athena) {
     athena.registerTool({
       name: "python/exec",
-      desc: "Executes Python code. Whenever you need to run Python code, or the user's request requires running Python code, use this tool. You must print the final result to get it. Otherwise the stdout will be empty.",
+      desc: "Executes Python code. Whenever you need to run Python code or do *any* kind of math calculations, or the user's request requires running Python code or doing math calculations, use this tool. You must print the final result to get it. Otherwise the stdout will be empty.",
       args: {
         code: {
           type: "string",
@@ -65,7 +65,7 @@ export default class Python extends PluginBase {
     });
     athena.registerTool({
       name: "python/pip-install",
-      desc: "Installs a Python package using pip. Whenever you need to use a package that is not installed, or the user's request requires installing a package, use this tool.",
+      desc: "Installs a Python package using pip. Whenever you need to use a package that is not installed, or the user's request requires installing a package, use this tool. Don't use shell to install packages.",
       args: {
         package: {
           type: "string",
