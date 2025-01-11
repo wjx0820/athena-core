@@ -6,14 +6,23 @@ import { PluginBase } from "../plugin-base.js";
 export default class Telegram extends PluginBase {
   bot!: TelegramBot;
   me!: TelegramBot.User;
+  boundAthenaPrivateEventHandler!: (event: string, args: Dict<any>) => void;
 
   desc() {
     return `You can send and receive messages to and from Telegram. Your username in Telegram is ${this.me.username} and your display name is ${this.me.first_name}. For group chats, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "telegram/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
   }
 
   async load(athena: Athena) {
+    this.boundAthenaPrivateEventHandler =
+      this.athenaPrivateEventHandler.bind(this);
+
     this.bot = new TelegramBot(this.config.bot_token, { polling: true });
     this.me = await this.bot.getMe();
+
+    athena.on("private-event", this.boundAthenaPrivateEventHandler);
+    athena.emitPrivateEvent("telegram/load", {
+      content: "Plugin telegram loaded.",
+    });
 
     athena.registerEvent({
       name: "telegram/message-received",
@@ -466,6 +475,10 @@ export default class Telegram extends PluginBase {
   }
 
   async unload(athena: Athena) {
+    athena.emitPrivateEvent("telegram/unload", {
+      content: "Plugin telegram unloaded.",
+    });
+    athena.off("private-event", this.boundAthenaPrivateEventHandler);
     await this.bot.stopPolling();
     athena.deregisterTool("telegram/send-message");
     athena.deregisterTool("telegram/edit-message");
@@ -476,5 +489,14 @@ export default class Telegram extends PluginBase {
   async getFileUrl(fileId: string) {
     const file = await this.bot.getFile(fileId);
     return `https://api.telegram.org/file/bot${this.config.bot_token}/${file.file_path}`;
+  }
+
+  athenaPrivateEventHandler(event: string, args: Dict<any>) {
+    if (!args.content) {
+      return;
+    }
+    for (const chatId of this.config.admin_chat_ids) {
+      this.bot.sendMessage(chatId, `${event}\n${args.content}`).catch(() => {});
+    }
   }
 }

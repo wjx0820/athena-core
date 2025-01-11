@@ -160,4 +160,8 @@ export class Athena extends EventEmitter {
     }
     this.emit("event", name, args);
   }
+
+  emitPrivateEvent(name: string, args: Dict<any>) {
+    this.emit("private-event", name, args);
+  }
 }

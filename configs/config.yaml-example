@@ -15,6 +15,8 @@ plugins:
     allowed_chat_ids:
       - 1234567890
       - 9876543210
+    admin_chat_ids:
+      - 1234567890
   clock:
   http:
   short-term-memory:

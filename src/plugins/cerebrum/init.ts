@@ -69,6 +69,9 @@ export default class Cerebrum extends PluginBase {
       this.logger.info(this.initialPrompt(), {
         type: "initial_prompt",
       });
+      athena.emitPrivateEvent("cerebrum/initial-prompt", {
+        content: this.initialPrompt(),
+      });
     });
   }
 
@@ -82,6 +85,9 @@ export default class Cerebrum extends PluginBase {
   pushEvent(event: IEvent) {
     this.logger.info(this.eventToPrompt(event), {
       type: "event",
+    });
+    this.athena.emitPrivateEvent("cerebrum/event", {
+      content: this.eventToPrompt(event),
     });
     this.eventQueue.push(event);
     this.processEventQueue();
@@ -138,6 +144,9 @@ export default class Cerebrum extends PluginBase {
         this.logger.info(response, {
           type: "model_response",
         });
+        this.athena.emitPrivateEvent("cerebrum/model-response", {
+          content: response,
+        });
 
         const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
         let match;
@@ -168,8 +177,11 @@ export default class Cerebrum extends PluginBase {
           })(toolCallJson);
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       this.logger.error(e);
+      this.athena.emitPrivateEvent("cerebrum/error", {
+        content: e.message,
+      });
       process.kill(process.pid, "SIGUSR1");
     } finally {
       this.busy = false;
