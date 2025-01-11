@@ -15,7 +15,7 @@ export default class Discord extends PluginBase {
   client!: Client;
 
   desc() {
-    return `You probably have noticed that you can send and receive messages to and from Discord. Your username in Discord is ${this.client.user?.username}, display name is ${this.client.user?.displayName}, and id is ${this.client.user?.id}. For channels, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "discord/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
+    return `You can send and receive messages to and from Discord. Your username in Discord is ${this.client.user?.username}, display name is ${this.client.user?.displayName}, and id is ${this.client.user?.id}. For channels, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "discord/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
   }
 
   async load(athena: Athena) {
@@ -141,6 +141,43 @@ export default class Discord extends PluginBase {
               type: "string",
               desc: "The content of the message.",
               required: true,
+            },
+            attachments: {
+              type: "array",
+              desc: "The attachments of the message.",
+              required: false,
+              of: {
+                type: "object",
+                desc: "The attachment.",
+                required: true,
+                of: {
+                  id: {
+                    type: "string",
+                    desc: "The ID of the attachment.",
+                    required: true,
+                  },
+                  name: {
+                    type: "string",
+                    desc: "The name of the attachment.",
+                    required: true,
+                  },
+                  size: {
+                    type: "number",
+                    desc: "The size of the attachment in bytes.",
+                    required: true,
+                  },
+                  content_type: {
+                    type: "string",
+                    desc: "The mime type of the attachment.",
+                    required: true,
+                  },
+                  url: {
+                    type: "string",
+                    desc: "The URL of the attachment.",
+                    required: true,
+                  },
+                },
+              },
             },
             timestamp: {
               type: "number",
@@ -372,7 +409,7 @@ export default class Discord extends PluginBase {
 
     athena.once("plugins-loaded", () => {
       this.client.on(Events.MessageCreate, async (message) => {
-        if (message.author.bot) {
+        if (message.author.id === this.client.user?.id) {
           return;
         }
         const channel_type =
@@ -420,6 +457,15 @@ export default class Discord extends PluginBase {
                   display_name: reply_to_message.author.displayName,
                 },
                 content: reply_to_message.content,
+                attachments: reply_to_message.attachments
+                  ? reply_to_message.attachments.map((attachment) => ({
+                      id: attachment.id,
+                      name: attachment.name,
+                      size: attachment.size,
+                      content_type: attachment.contentType,
+                      url: attachment.url,
+                    }))
+                  : undefined,
                 timestamp: reply_to_message.createdTimestamp,
               }
             : undefined,

@@ -8,7 +8,7 @@ export default class Telegram extends PluginBase {
   me!: TelegramBot.User;
 
   desc() {
-    return `You probably have noticed that you can send and receive messages to and from Telegram. Your username in Telegram is ${this.me.username} and your display name is ${this.me.first_name}. For group chats, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "telegram/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
+    return `You can send and receive messages to and from Telegram. Your username in Telegram is ${this.me.username} and your display name is ${this.me.first_name}. For group chats, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "telegram/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
   }
 
   async load(athena: Athena) {
@@ -114,6 +114,65 @@ export default class Telegram extends PluginBase {
               type: "string",
               desc: "For text messages, the actual UTF-8 text of the message.",
               required: false,
+            },
+            photo: {
+              type: "array",
+              desc: "Available sizes of the photo.",
+              required: false,
+              of: {
+                type: "object",
+                desc: "This object represents one size of a photo or a file / sticker thumbnail.",
+                required: true,
+                of: {
+                  file_id: {
+                    type: "string",
+                    desc: "Identifier for this file, which can be used to download or reuse the file.",
+                    required: true,
+                  },
+                  width: {
+                    type: "number",
+                    desc: "Photo width.",
+                    required: true,
+                  },
+                  height: {
+                    type: "number",
+                    desc: "Photo height.",
+                    required: true,
+                  },
+                  url: {
+                    type: "string",
+                    desc: "URL of the photo.",
+                    required: true,
+                  },
+                },
+              },
+            },
+            file: {
+              type: "object",
+              desc: "File in the message.",
+              required: false,
+              of: {
+                file_id: {
+                  type: "string",
+                  desc: "Identifier for this file, which can be used to download or reuse the file.",
+                  required: true,
+                },
+                file_name: {
+                  type: "string",
+                  desc: "Original filename as defined by the sender.",
+                  required: true,
+                },
+                file_size: {
+                  type: "number",
+                  desc: "File size in bytes.",
+                  required: true,
+                },
+                url: {
+                  type: "string",
+                  desc: "URL of the file.",
+                  required: true,
+                },
+              },
             },
             date: {
               type: "string",
@@ -337,6 +396,18 @@ export default class Telegram extends PluginBase {
             });
           }
         }
+        let reply_to_message_photo;
+        if (msg.reply_to_message?.photo) {
+          reply_to_message_photo = [];
+          for (const size of msg.reply_to_message.photo) {
+            reply_to_message_photo.push({
+              file_id: size.file_id,
+              width: size.width,
+              height: size.height,
+              url: await this.getFileUrl(size.file_id),
+            });
+          }
+        }
         athena.emitEvent("telegram/message-received", {
           message_id: msg.message_id,
           from: msg.from
@@ -364,6 +435,17 @@ export default class Telegram extends PluginBase {
                     }
                   : undefined,
                 text: msg.reply_to_message.text || msg.reply_to_message.caption,
+                photo: reply_to_message_photo,
+                file: msg.reply_to_message.document
+                  ? {
+                      file_id: msg.reply_to_message.document.file_id,
+                      file_name: msg.reply_to_message.document.file_name,
+                      file_size: msg.reply_to_message.document.file_size,
+                      url: await this.getFileUrl(
+                        msg.reply_to_message.document.file_id
+                      ),
+                    }
+                  : undefined,
                 date: new Date(msg.reply_to_message.date * 1000).toISOString(),
               }
             : undefined,
