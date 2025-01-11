@@ -1,174 +1,69 @@
-import { v4 as uuidv4 } from "uuid";
-
 import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
 interface ITimeout {
-  id: string;
-  start_time: Date;
-  seconds: number;
   reason: string;
+  next_trigger_time: number;
   recurring: boolean;
-  timeout: NodeJS.Timeout;
+  interval: number;
 }
 
 export default class Clock extends PluginBase {
-  timeouts: Dict<ITimeout> = {};
+  athena!: Athena;
+  timeouts: ITimeout[] = [];
+  timeout?: NodeJS.Timeout;
 
   desc() {
-    return `Current time is ${new Date().toString()}.`;
+    return `Current time is ${new Date().toString()}. The following timeouts are set: ${JSON.stringify(
+      this.timeouts.map((t) => ({
+        reason: t.reason,
+        next_trigger_time: new Date(t.next_trigger_time).toString(),
+        recurring: t.recurring,
+        interval: t.interval / 1000,
+      }))
+    )}`;
   }
 
   async load(athena: Athena) {
+    this.athena = athena;
     athena.registerEvent({
       name: "clock/timeout-triggered",
       desc: "This event is triggered when a timeout is reached.",
       args: {
-        timeout_id: {
-          type: "string",
-          desc: "The id of the timeout that was reached.",
-          required: true,
-        },
         reason: {
           type: "string",
-          desc: "The reason why the timeout was set.",
-          required: true,
-        },
-        recurring: {
-          type: "boolean",
-          desc: "Whether the timeout is recurring.",
-          required: true,
-        },
-        current_time: {
-          type: "string",
-          desc: "The current time.",
+          desc: "The reason why the timeout was triggered.",
           required: true,
         },
       },
     });
     athena.registerTool({
-      name: "clock/set-timeout",
-      desc: "Set a timeout.",
+      name: "clock/set-timer",
+      desc: "Set a timer.",
       args: {
         seconds: {
           type: "number",
-          desc: "The number of seconds to wait before triggering the timeout.",
+          desc: "The number of seconds to wait before triggering the timer.",
           required: true,
+        },
+        minutes: {
+          type: "number",
+          desc: "The number of minutes to wait before triggering the timer.",
+          required: false,
+        },
+        hours: {
+          type: "number",
+          desc: "The number of hours to wait before triggering the timer.",
+          required: false,
         },
         reason: {
           type: "string",
-          desc: "The reason why the timeout was set.",
+          desc: "The reason why the timer was set. Include as much detail as possible.",
           required: true,
         },
         recurring: {
           type: "boolean",
-          desc: "Whether the timeout is recurring.",
-          required: true,
-        },
-      },
-      retvals: {
-        timeout_id: {
-          type: "string",
-          desc: "The id of the timeout that was set.",
-          required: true,
-        },
-      },
-      fn: async (args: Dict<any>) => {
-        const id = uuidv4();
-        let timeout: NodeJS.Timeout;
-        if (args.recurring) {
-          timeout = setInterval(() => {
-            athena.emitEvent("clock/timeout-triggered", {
-              timeout_id: id,
-              reason: args.reason,
-              recurring: args.recurring,
-              current_time: new Date().toString(),
-            });
-          }, args.seconds * 1000);
-        } else {
-          timeout = setTimeout(() => {
-            athena.emitEvent("clock/timeout-triggered", {
-              timeout_id: id,
-              reason: args.reason,
-              recurring: args.recurring,
-              current_time: new Date().toString(),
-            });
-            delete this.timeouts[id];
-          }, args.seconds * 1000);
-        }
-        this.timeouts[id] = {
-          id,
-          start_time: new Date(),
-          seconds: args.seconds,
-          reason: args.reason,
-          recurring: args.recurring,
-          timeout,
-        };
-        return { timeout_id: id };
-      },
-    });
-    athena.registerTool({
-      name: "clock/list-timeouts",
-      desc: "List all timeouts.",
-      args: {},
-      retvals: {
-        timeouts: {
-          type: "array",
-          desc: "The timeouts.",
-          required: true,
-          of: {
-            type: "object",
-            desc: "A timeout.",
-            required: true,
-            of: {
-              id: {
-                type: "string",
-                desc: "The id of the timeout.",
-                required: true,
-              },
-              start_time: {
-                type: "string",
-                desc: "The start time of the timeout.",
-                required: true,
-              },
-              seconds: {
-                type: "number",
-                desc: "The number of seconds to wait before triggering the timeout.",
-                required: true,
-              },
-              reason: {
-                type: "string",
-                desc: "The reason why the timeout was set.",
-                required: true,
-              },
-              recurring: {
-                type: "boolean",
-                desc: "Whether the timeout is recurring.",
-                required: true,
-              },
-            },
-          },
-        },
-      },
-      fn: async () => {
-        return {
-          timeouts: Object.values(this.timeouts).map((timeout) => ({
-            id: timeout.id,
-            start_time: timeout.start_time.toString(),
-            seconds: timeout.seconds,
-            reason: timeout.reason,
-            recurring: timeout.recurring,
-          })),
-        };
-      },
-    });
-    athena.registerTool({
-      name: "clock/clear-timeout",
-      desc: "Clear a timeout.",
-      args: {
-        timeout_id: {
-          type: "string",
-          desc: "The id of the timeout to clear.",
+          desc: "Whether the timer is recurring.",
           required: true,
         },
       },
@@ -180,11 +75,17 @@ export default class Clock extends PluginBase {
         },
       },
       fn: async (args: Dict<any>) => {
-        if (!this.timeouts[args.timeout_id]) {
-          throw new Error(`Timeout with id ${args.timeout_id} not found.`);
-        }
-        clearTimeout(this.timeouts[args.timeout_id].timeout);
-        delete this.timeouts[args.timeout_id];
+        const interval =
+          args.seconds * 1000 +
+          (args.minutes || 0) * 60 * 1000 +
+          (args.hours || 0) * 60 * 60 * 1000;
+        this.timeouts.push({
+          reason: args.reason,
+          next_trigger_time: Date.now() + interval,
+          recurring: args.recurring,
+          interval,
+        });
+        this.updateTimeout();
         return { status: "success" };
       },
     });
@@ -199,55 +100,127 @@ export default class Clock extends PluginBase {
         },
         reason: {
           type: "string",
-          desc: "The reason why the alarm was set.",
+          desc: "The reason why the alarm was set. Include as much detail as possible.",
+          required: true,
+        },
+        recurring: {
+          type: "boolean",
+          desc: "Whether the alarm is recurring.",
           required: true,
         },
       },
       retvals: {
-        timeout_id: {
+        status: {
           type: "string",
-          desc: "The id of the timeout that was set.",
+          desc: "The status of the operation.",
           required: true,
         },
       },
       fn: async (args: Dict<any>) => {
-        const id = uuidv4();
         const time = new Date(args.time);
         const now = new Date();
-        const seconds = Math.floor((time.getTime() - now.getTime()) / 1000);
-        if (seconds < 0) {
+        if (time <= now) {
           throw new Error("Alarm time must be in the future.");
         }
-        const timeout = setTimeout(() => {
-          athena.emitEvent("clock/timeout-triggered", {
-            timeout_id: id,
-            reason: args.reason,
-            recurring: false,
-            current_time: new Date().toString(),
-          });
-          delete this.timeouts[id];
-        }, seconds * 1000);
-        this.timeouts[id] = {
-          id,
-          start_time: new Date(),
-          seconds,
+        this.timeouts.push({
           reason: args.reason,
-          recurring: false,
-          timeout,
-        };
-        return { timeout_id: id };
+          next_trigger_time: time.getTime(),
+          recurring: args.recurring,
+          interval: 24 * 60 * 60 * 1000,
+        });
+        this.updateTimeout();
+        return { status: "success" };
+      },
+    });
+    athena.registerTool({
+      name: "clock/clear-timeout",
+      desc: "Clear a timeout.",
+      args: {
+        index: {
+          type: "number",
+          desc: "The index of the timeout to clear.",
+          required: true,
+        },
+      },
+      retvals: {
+        status: {
+          type: "string",
+          desc: "The status of the operation.",
+          required: true,
+        },
+      },
+      fn: async (args: Dict<any>) => {
+        this.timeouts.splice(args.index, 1);
+        this.updateTimeout();
+        return { status: "success" };
       },
     });
   }
 
   async unload(athena: Athena) {
-    for (const timeout of Object.values(this.timeouts)) {
-      clearTimeout(timeout.timeout);
+    if (this.timeout) {
+      clearTimeout(this.timeout);
     }
     athena.deregisterEvent("clock/timeout-triggered");
-    athena.deregisterTool("clock/set-timeout");
-    athena.deregisterTool("clock/list-timeouts");
-    athena.deregisterTool("clock/clear-timeout");
+    athena.deregisterTool("clock/set-timer");
     athena.deregisterTool("clock/set-alarm");
+    athena.deregisterTool("clock/clear-timeout");
+  }
+
+  state() {
+    return {
+      timeouts: this.timeouts,
+    };
+  }
+
+  setState(state: Dict<any>) {
+    this.timeouts = state.timeouts;
+    const now = Date.now();
+    this.timeouts = this.timeouts.filter((t) => {
+      if (t.next_trigger_time > now) {
+        return true;
+      }
+      if (t.recurring) {
+        while (t.next_trigger_time <= now) {
+          t.next_trigger_time += t.interval;
+        }
+        return true;
+      }
+      return false;
+    });
+    this.updateTimeout();
+  }
+
+  updateTimeout() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+    const closestNextTriggerTime = this.timeouts.reduce((min, t) => {
+      return Math.min(min, t.next_trigger_time);
+    }, Infinity);
+    this.timeout = setTimeout(() => {
+      const now = Date.now();
+      const firedTimeouts = this.timeouts.filter(
+        (t) => t.next_trigger_time <= now
+      );
+      for (const timeout of firedTimeouts) {
+        this.athena.emitEvent("clock/timeout-triggered", {
+          reason: timeout.reason,
+        });
+      }
+      this.timeouts = this.timeouts.filter((t) => {
+        if (t.next_trigger_time > now) {
+          return true;
+        }
+        if (t.recurring) {
+          while (t.next_trigger_time <= now) {
+            t.next_trigger_time += t.interval;
+          }
+          return true;
+        }
+        return false;
+      });
+      this.updateTimeout();
+    }, closestNextTriggerTime - Date.now());
   }
 }
