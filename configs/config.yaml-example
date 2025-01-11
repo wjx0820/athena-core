@@ -3,12 +3,11 @@ log_file: configs/athena-core.log
 
 plugins:
   cerebrum:
-    openai:
-      base_url: https://api.openai.com/v1
-      api_key: sk-proj-your-openai-api-key
-      model: gpt-4o
-      temperature: 0.5
-      image_supported: true
+    base_url: https://api.openai.com/v1
+    api_key: sk-proj-your-openai-api-key
+    model: gpt-4o
+    temperature: 0.5
+    image_supported: true
     max_prompts: 50
   telegram:
     bot_token: your-telegram-bot-token

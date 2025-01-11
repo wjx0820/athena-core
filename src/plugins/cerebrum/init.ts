@@ -37,10 +37,10 @@ export default class Cerebrum extends PluginBase {
   async load(athena: Athena) {
     this.athena = athena;
     this.openai = new OpenAI({
-      baseURL: this.config.openai.base_url,
-      apiKey: this.config.openai.api_key,
+      baseURL: this.config.base_url,
+      apiKey: this.config.api_key,
     });
-    if (this.config.openai.image_supported) {
+    if (this.config.image_supported) {
       athena.registerTool({
         name: "image/check-out",
         desc: "Check out an image. Whenever you see an image URL and want to check it out, or the user asks you to see an image, use this tool.",
@@ -76,7 +76,7 @@ export default class Cerebrum extends PluginBase {
   }
 
   async unload(athena: Athena) {
-    if (this.config.openai.image_supported) {
+    if (this.config.image_supported) {
       athena.deregisterTool("image/check-out");
     }
     athena.off("event", this.boundAthenaEventHandler);
@@ -135,8 +135,8 @@ export default class Cerebrum extends PluginBase {
         }
         const completion = await this.openai.chat.completions.create({
           messages: this.prompts,
-          model: this.config.openai.model,
-          temperature: this.config.openai.temperature,
+          model: this.config.model,
+          temperature: this.config.temperature,
         });
         this.prompts.push(completion.choices[0].message);
 
