@@ -70,17 +70,22 @@ const main = async () => {
   const athena = new Athena(config, states);
   await athena.loadPlugins();
 
-  let sigintTriggered = false;
-  process.on("SIGINT", async () => {
-    if (sigintTriggered) {
+  let exiting = false;
+  const cleanup = async (event: string) => {
+    if (exiting) {
       return;
     }
-    sigintTriggered = true;
-    logger.warn("SIGINT triggered, exiting...");
+    exiting = true;
+    logger.warn(`${event} triggered, cleaning up...`);
     await saveStates(athena, true);
     await athena.unloadPlugins();
     logger.info("Athena is unloaded");
-  });
+  };
+
+  process.on("SIGINT", () => cleanup("SIGINT"));
+  process.on("SIGTERM", () => cleanup("SIGTERM"));
+  process.on("SIGHUP", () => cleanup("SIGHUP"));
+  process.on("beforeExit", () => cleanup("beforeExit"));
 
   let reloading = false;
   process.on("SIGUSR1", async () => {
