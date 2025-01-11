@@ -44,7 +44,18 @@ export default class AthenaPlugin extends PluginBase {
             }
           });
         });
-        await athena.loadPlugin(args.name, args.args);
+        try {
+          await athena.loadPlugin(args.name, args.args);
+        } catch (e) {
+          try {
+            await athena.unloadPlugin(args.name);
+          } catch (e) {
+            if (args.name in athena.plugins) {
+              delete athena.plugins[args.name];
+            }
+          }
+          throw e;
+        }
         return { status: "success" };
       },
     });
