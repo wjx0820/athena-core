@@ -195,6 +195,9 @@ export default class Clock extends PluginBase {
     if (this.timeout) {
       clearTimeout(this.timeout);
     }
+    if (this.timeouts.length === 0) {
+      return;
+    }
     const closestNextTriggerTime = this.timeouts.reduce((min, t) => {
       return Math.min(min, t.next_trigger_time);
     }, Infinity);
