@@ -139,7 +139,10 @@ export default class Cerebrum extends PluginBase {
           model: this.config.model,
           temperature: this.config.temperature,
         });
-        this.prompts.push(completion.choices[0].message);
+        this.prompts.push({
+          role: "assistant",
+          content: completion.choices[0].message.content,
+        });
 
         const response = completion.choices[0].message.content as string;
         this.logger.info(response, {
