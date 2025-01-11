@@ -28,6 +28,21 @@ export default class Http extends PluginBase {
           desc: "The URL to fetch.",
           required: true,
         },
+        method: {
+          type: "string",
+          desc: "The HTTP method to use. Defaults to GET.",
+          required: false,
+        },
+        headers: {
+          type: "object",
+          desc: "The headers to send with the request.",
+          required: false,
+        },
+        body: {
+          type: "string",
+          desc: "The body to send with the request.",
+          required: false,
+        },
       },
       retvals: {
         result: {
@@ -38,7 +53,14 @@ export default class Http extends PluginBase {
       },
       fn: async (args: Dict<any>) => {
         const response = await fetch(args.url, {
-          headers: this.headers,
+          method: args.method,
+          headers: args.headers
+            ? {
+                ...this.headers,
+                ...args.headers,
+              }
+            : this.headers,
+          body: args.body,
           redirect: "follow",
         });
         return { result: convert(await response.text()) };
