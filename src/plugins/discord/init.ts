@@ -380,7 +380,7 @@ export default class Discord extends PluginBase {
         if (!this.config.allowed_channel_ids.includes(message.channel.id)) {
           if (channel_type === "dm") {
             message.channel.send(
-              `Your channel ID ${message.channel.id} probably don't have access to this bot.`
+              `You appear to not have access to Athena, but FYI, your channel ID is ${message.channel.id}.`
             );
           }
           return;

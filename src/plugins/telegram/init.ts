@@ -321,7 +321,7 @@ export default class Telegram extends PluginBase {
         if (!this.config.allowed_chat_ids.includes(chatId)) {
           this.bot.sendMessage(
             chatId,
-            `Your chat ID ${chatId} probably don't have access to this bot.`
+            `You appear to not have access to Athena, but FYI, your chat ID is ${chatId}.`
           );
           return;
         }
