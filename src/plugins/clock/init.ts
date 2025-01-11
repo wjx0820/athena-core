@@ -30,9 +30,24 @@ export default class Clock extends PluginBase {
       name: "clock/timeout-triggered",
       desc: "This event is triggered when a timeout is reached.",
       args: {
+        index: {
+          type: "number",
+          desc: "The index of the timeout in the list of timeouts.",
+          required: true,
+        },
         reason: {
           type: "string",
           desc: "The reason why the timeout was triggered.",
+          required: true,
+        },
+        recurring: {
+          type: "boolean",
+          desc: "Whether the timeout is recurring.",
+          required: true,
+        },
+        interval: {
+          type: "number",
+          desc: "The interval of the timeout.",
           required: true,
         },
       },
@@ -208,7 +223,10 @@ export default class Clock extends PluginBase {
       );
       for (const timeout of firedTimeouts) {
         this.athena.emitEvent("clock/timeout-triggered", {
+          index: this.timeouts.indexOf(timeout),
           reason: timeout.reason,
+          recurring: timeout.recurring,
+          interval: timeout.interval,
         });
       }
       this.timeouts = this.timeouts.filter((t) => {
