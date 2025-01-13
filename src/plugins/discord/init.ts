@@ -415,7 +415,10 @@ export default class Discord extends PluginBase {
         const channel_type =
           message.channel.type === ChannelType.DM ? "dm" : "guild";
         if (!this.config.allowed_channel_ids.includes(message.channel.id)) {
-          if (channel_type === "dm") {
+          if (
+            channel_type === "dm" ||
+            message.content.toLowerCase().includes("channel id")
+          ) {
             message.channel.send(
               `You appear to not have access to Athena, but FYI, your channel ID is ${message.channel.id}.`
             );
