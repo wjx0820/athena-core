@@ -425,10 +425,17 @@ export default class Discord extends PluginBase {
           }
           return;
         }
-        const reply_to_message =
-          message.reference && message.reference.messageId
-            ? await message.channel.messages.fetch(message.reference.messageId)
-            : undefined;
+        let reply_to_message;
+        try {
+          reply_to_message =
+            message.reference && message.reference.messageId
+              ? await message.channel.messages.fetch(
+                  message.reference.messageId
+                )
+              : undefined;
+        } catch (e) {
+          this.logger.error(e);
+        }
         athena.emitEvent("discord/message-received", {
           id: message.id,
           author: {
