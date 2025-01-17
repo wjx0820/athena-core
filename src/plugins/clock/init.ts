@@ -192,6 +192,7 @@ export default class Clock extends PluginBase {
       clearTimeout(this.timeout);
     }
     athena.deregisterEvent("clock/timeout-triggered");
+    athena.deregisterTool("clock/get-time");
     athena.deregisterTool("clock/set-timer");
     athena.deregisterTool("clock/set-alarm");
     athena.deregisterTool("clock/clear-timeout");
