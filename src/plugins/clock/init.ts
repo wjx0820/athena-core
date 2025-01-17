@@ -14,7 +14,7 @@ export default class Clock extends PluginBase {
   timeout?: NodeJS.Timeout;
 
   desc() {
-    return `Current time is ${new Date().toString()}. The following timeouts are set: ${JSON.stringify(
+    return `The following timeouts are set: ${JSON.stringify(
       this.timeouts.map((t) => ({
         reason: t.reason,
         next_trigger_time: new Date(t.next_trigger_time).toString(),
@@ -50,6 +50,21 @@ export default class Clock extends PluginBase {
           desc: "The interval of the timeout.",
           required: true,
         },
+      },
+    });
+    athena.registerTool({
+      name: "clock/get-time",
+      desc: "Get the current date and time.",
+      args: {},
+      retvals: {
+        time: {
+          type: "string",
+          desc: "The current date and time.",
+          required: true,
+        },
+      },
+      fn: async () => {
+        return { time: new Date().toString() };
       },
     });
     athena.registerTool({
