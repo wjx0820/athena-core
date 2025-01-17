@@ -13,12 +13,16 @@ import { PluginBase } from "../plugin-base.js";
 
 export default class Discord extends PluginBase {
   client!: Client;
+  boundAthenaPrivateEventHandler!: (event: string, args: Dict<any>) => void;
 
   desc() {
     return `You can send and receive messages to and from Discord. Your username in Discord is ${this.client.user?.username}, display name is ${this.client.user?.displayName}, and id is ${this.client.user?.id}. For channels, you don't have to respond to every message. Just respond when you are asked to do something or have something useful to say. For private chats, you should respond to every message, unless being explicitly told not to. When you receive a message, you can reply to it by calling the "discord/send-message" tool. Be mindful about which chat you are in and the type of the chat before sending a message.`;
   }
 
   async load(athena: Athena) {
+    this.boundAthenaPrivateEventHandler =
+      this.athenaPrivateEventHandler.bind(this);
+
     this.client = new Client({
       intents: [
         GatewayIntentBits.Guilds,
@@ -34,6 +38,11 @@ export default class Discord extends PluginBase {
       });
     });
     await this.client.login(this.config.bot_token);
+
+    athena.on("private-event", this.boundAthenaPrivateEventHandler);
+    athena.emitPrivateEvent("discord/load", {
+      content: "Plugin discord loaded.",
+    });
 
     athena.registerEvent({
       name: "discord/message-received",
@@ -498,10 +507,29 @@ export default class Discord extends PluginBase {
   }
 
   async unload(athena: Athena) {
+    athena.emitPrivateEvent("discord/unload", {
+      content: "Plugin discord unloaded.",
+    });
+    athena.off("private-event", this.boundAthenaPrivateEventHandler);
     await this.client.destroy();
     athena.deregisterTool("discord/send-message");
     athena.deregisterTool("discord/edit-message");
     athena.deregisterTool("discord/delete-message");
     athena.deregisterEvent("discord/message-received");
+  }
+
+  athenaPrivateEventHandler(event: string, args: Dict<any>) {
+    if (!args.content) {
+      return;
+    }
+    for (const channelId of this.config.admin_channel_ids) {
+      this.client.channels.fetch(channelId).then((channel) => {
+        if (channel && channel.isTextBased()) {
+          (channel as TextChannel)
+            .send(`${event}\n${args.content}`)
+            .catch(() => {});
+        }
+      });
+    }
   }
 }

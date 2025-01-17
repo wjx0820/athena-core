@@ -39,6 +39,8 @@ plugins:
     allowed_channel_ids:
       - "1234567890"
       - "9876543210"
+    admin_channel_ids:
+      - "1234567890"
   shell:
   amadeus:
     client_id: your-amadeus-client-id
