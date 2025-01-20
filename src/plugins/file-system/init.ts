@@ -9,7 +9,9 @@ export default class FileSystem extends PluginBase {
   desc() {
     return `The home directory is ${
       process.env.HOME
-    }. The current working directory is ${process.cwd()}.`;
+    }. The current working directory is ${process.cwd()}. The operating system is ${
+      process.platform
+    }.`;
   }
 
   async load(athena: Athena) {

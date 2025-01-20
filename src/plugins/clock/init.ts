@@ -13,17 +13,6 @@ export default class Clock extends PluginBase {
   timeouts: ITimeout[] = [];
   timeout?: NodeJS.Timeout;
 
-  desc() {
-    return `The following timeouts are set: ${JSON.stringify(
-      this.timeouts.map((t) => ({
-        reason: t.reason,
-        next_trigger_time: new Date(t.next_trigger_time).toString(),
-        recurring: t.recurring,
-        interval: t.interval / 1000,
-      }))
-    )}`;
-  }
-
   async load(athena: Athena) {
     this.athena = athena;
     athena.registerEvent({
@@ -183,6 +172,55 @@ export default class Clock extends PluginBase {
         this.timeouts.splice(args.index, 1);
         this.updateTimeout();
         return { status: "success" };
+      },
+    });
+    athena.registerTool({
+      name: "clock/list-timeouts",
+      desc: "List all timeouts.",
+      args: {},
+      retvals: {
+        timeouts: {
+          type: "array",
+          desc: "The list of timeouts.",
+          required: true,
+          of: {
+            type: "object",
+            desc: "A timeout.",
+            required: true,
+            of: {
+              reason: {
+                type: "string",
+                desc: "The reason why the timeout was set.",
+                required: true,
+              },
+              next_trigger_time: {
+                type: "string",
+                desc: "The next trigger time of the timeout.",
+                required: true,
+              },
+              recurring: {
+                type: "boolean",
+                desc: "Whether the timeout is recurring.",
+                required: true,
+              },
+              interval: {
+                type: "number",
+                desc: "The interval of the timeout, in seconds.",
+                required: true,
+              },
+            },
+          },
+        },
+      },
+      fn: async () => {
+        return {
+          timeouts: this.timeouts.map((t) => ({
+            reason: t.reason,
+            next_trigger_time: new Date(t.next_trigger_time).toString(),
+            recurring: t.recurring,
+            interval: t.interval / 1000,
+          })),
+        };
       },
     });
   }
