@@ -161,6 +161,38 @@ export default class Telegram extends PluginBase {
                 },
               },
             },
+            video: {
+              type: "object",
+              desc: "Message is a video, information about the video.",
+              required: false,
+              of: {
+                file_id: {
+                  type: "string",
+                  desc: "Identifier for this file, which can be used to download or reuse the file.",
+                  required: true,
+                },
+                width: {
+                  type: "number",
+                  desc: "Video width as defined by the sender.",
+                  required: true,
+                },
+                height: {
+                  type: "number",
+                  desc: "Video height as defined by the sender.",
+                  required: true,
+                },
+                duration: {
+                  type: "number",
+                  desc: "Duration of the video in seconds as defined by the sender",
+                  required: true,
+                },
+                url: {
+                  type: "string",
+                  desc: "URL of the photo.",
+                  required: true,
+                },
+              },
+            },
             file: {
               type: "object",
               desc: "File in the message.",
@@ -234,6 +266,38 @@ export default class Telegram extends PluginBase {
                 desc: "URL of the photo.",
                 required: true,
               },
+            },
+          },
+        },
+        video: {
+          type: "object",
+          desc: "Message is a video, information about the video.",
+          required: false,
+          of: {
+            file_id: {
+              type: "string",
+              desc: "Identifier for this file, which can be used to download or reuse the file.",
+              required: true,
+            },
+            width: {
+              type: "number",
+              desc: "Video width as defined by the sender.",
+              required: true,
+            },
+            height: {
+              type: "number",
+              desc: "Video height as defined by the sender.",
+              required: true,
+            },
+            duration: {
+              type: "number",
+              desc: "Duration of the video in seconds as defined by the sender",
+              required: true,
+            },
+            url: {
+              type: "string",
+              desc: "URL of the photo.",
+              required: true,
             },
           },
         },
@@ -486,17 +550,41 @@ export default class Telegram extends PluginBase {
             });
           }
         }
-        let reply_to_message_photo;
-        if (msg.reply_to_message?.photo) {
-          reply_to_message_photo = [];
-          for (const size of msg.reply_to_message.photo) {
-            reply_to_message_photo.push({
-              file_id: size.file_id,
-              width: size.width,
-              height: size.height,
-              url: await this.getFileUrl(size.file_id),
-            });
+        let video;
+        try {
+          if (msg.video) {
+            video = {
+              file_id: msg.video.file_id,
+              width: msg.video.width,
+              height: msg.video.height,
+              duration: msg.video.duration,
+              url: await this.getFileUrl(msg.video.file_id),
+            };
           }
+        } catch (e) {}
+        let reply_to_message_photo;
+        try {
+          if (msg.reply_to_message?.photo) {
+            reply_to_message_photo = [];
+            for (const size of msg.reply_to_message.photo) {
+              reply_to_message_photo.push({
+                file_id: size.file_id,
+                width: size.width,
+                height: size.height,
+                url: await this.getFileUrl(size.file_id),
+              });
+            }
+          }
+        } catch (e) {}
+        let reply_to_message_video;
+        if (msg.reply_to_message?.video) {
+          reply_to_message_video = {
+            file_id: msg.reply_to_message.video.file_id,
+            width: msg.reply_to_message.video.width,
+            height: msg.reply_to_message.video.height,
+            duration: msg.reply_to_message.video.duration,
+            // url: await this.getFileUrl(msg.reply_to_message.video.file_id),
+          };
         }
         athena.emitEvent("telegram/message-received", {
           message_id: msg.message_id,
@@ -527,6 +615,7 @@ export default class Telegram extends PluginBase {
                 text: msg.reply_to_message.text || msg.reply_to_message.caption,
                 sticker_emoji: msg.reply_to_message.sticker?.emoji,
                 photo: reply_to_message_photo,
+                video: reply_to_message_video,
                 file: msg.reply_to_message.document
                   ? {
                       file_id: msg.reply_to_message.document.file_id,
@@ -543,6 +632,7 @@ export default class Telegram extends PluginBase {
           text: msg.text || msg.caption,
           sticker_emoji: msg.sticker?.emoji,
           photo: photo,
+          video: video,
           file: msg.document
             ? {
                 file_id: msg.document.file_id,
