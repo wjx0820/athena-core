@@ -245,6 +245,60 @@ export default class Discord extends PluginBase {
       },
     });
 
+    athena.registerEvent({
+      name: "discord/interaction-received",
+      desc: "Triggered when an interaction is received from Discord.",
+      args: {
+        id: {
+          type: "string",
+          desc: "The ID of the interaction.",
+          required: true,
+        },
+        user: {
+          type: "object",
+          desc: "The user who initiated the interaction.",
+          required: true,
+          of: {
+            id: {
+              type: "string",
+              desc: "The ID of the user.",
+              required: true,
+            },
+            username: {
+              type: "string",
+              desc: "The username of the user.",
+              required: true,
+            },
+            display_name: {
+              type: "string",
+              desc: "The display name of the user.",
+              required: true,
+            },
+          },
+        },
+        channel_id: {
+          type: "string",
+          desc: "The ID of the channel the interaction is in.",
+          required: true,
+        },
+        message_id: {
+          type: "string",
+          desc: "The ID of the message the interaction is in.",
+          required: true,
+        },
+        custom_id: {
+          type: "string",
+          desc: "The custom ID of the interaction.",
+          required: true,
+        },
+        timestamp: {
+          type: "number",
+          desc: "The timestamp of the interaction.",
+          required: true,
+        },
+      },
+    });
+
     athena.registerTool({
       name: "discord/send-message",
       desc: "Send a message to a chat in Discord.",
@@ -291,6 +345,16 @@ export default class Discord extends PluginBase {
             },
           },
         },
+        components: {
+          type: "array",
+          desc: "The components to attach to the message.",
+          required: false,
+          of: {
+            type: "object",
+            desc: "The component to attach to the message.",
+            required: true,
+          },
+        },
       },
       retvals: {
         id: {
@@ -323,6 +387,7 @@ export default class Discord extends PluginBase {
                     description: file.desc,
                   }))
                 : undefined,
+              components: args.components,
             })
           ).id,
         };
@@ -501,6 +566,27 @@ export default class Discord extends PluginBase {
           timestamp: message.createdTimestamp,
         });
       });
+
+      this.client.on(Events.InteractionCreate, async (interaction) => {
+        if (!interaction.isButton()) {
+          return;
+        }
+
+        athena.emitEvent("discord/interaction-received", {
+          id: interaction.id,
+          user: {
+            id: interaction.user.id,
+            username: interaction.user.username,
+            display_name: interaction.user.displayName,
+          },
+          channel_id: interaction.channelId,
+          message_id: interaction.message?.id,
+          custom_id: interaction.customId,
+          timestamp: interaction.createdTimestamp,
+        });
+
+        await interaction.deferUpdate();
+      });
     });
 
     await clientReadyPromise;
@@ -516,6 +602,7 @@ export default class Discord extends PluginBase {
     athena.deregisterTool("discord/edit-message");
     athena.deregisterTool("discord/delete-message");
     athena.deregisterEvent("discord/message-received");
+    athena.deregisterEvent("discord/interaction-received");
   }
 
   athenaPrivateEventHandler(event: string, args: Dict<any>) {

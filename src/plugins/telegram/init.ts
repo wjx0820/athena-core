@@ -124,6 +124,11 @@ export default class Telegram extends PluginBase {
               desc: "For text messages, the actual UTF-8 text of the message.",
               required: false,
             },
+            sticker_emoji: {
+              type: "string",
+              desc: "Emoji of the sticker.",
+              required: false,
+            },
             photo: {
               type: "array",
               desc: "Available sizes of the photo.",
@@ -195,6 +200,11 @@ export default class Telegram extends PluginBase {
           desc: "For text messages, the actual UTF-8 text of the message.",
           required: false,
         },
+        sticker_emoji: {
+          type: "string",
+          desc: "Emoji of the sticker.",
+          required: false,
+        },
         photo: {
           type: "array",
           desc: "Available sizes of the photo.",
@@ -262,6 +272,67 @@ export default class Telegram extends PluginBase {
       },
     });
 
+    athena.registerEvent({
+      name: "telegram/callback-query-received",
+      desc: "Triggered when a callback query is received from Telegram.",
+      args: {
+        id: {
+          type: "string",
+          desc: "Unique identifier for this query.",
+          required: true,
+        },
+        from: {
+          type: "object",
+          desc: "Sender.",
+          required: true,
+          of: {
+            id: {
+              type: "number",
+              desc: "Unique identifier for this user or bot.",
+              required: true,
+            },
+            first_name: {
+              type: "string",
+              desc: "User's or bot's first name.",
+              required: true,
+            },
+            last_name: {
+              type: "string",
+              desc: "User's or bot's last name.",
+              required: false,
+            },
+            username: {
+              type: "string",
+              desc: "User's or bot's username.",
+              required: false,
+            },
+          },
+        },
+        message: {
+          type: "object",
+          desc: "Message sent by the bot with the callback button that originated the query.",
+          required: true,
+          of: {
+            chat_id: {
+              type: "number",
+              desc: "Unique identifier for the chat the message belongs to.",
+              required: true,
+            },
+            message_id: {
+              type: "number",
+              desc: "Unique message identifier inside this chat.",
+              required: true,
+            },
+          },
+        },
+        data: {
+          type: "string",
+          desc: "Data associated with the callback button. Be aware that the message originated the query can contain no callback buttons with this data.",
+          required: false,
+        },
+      },
+    });
+
     athena.registerTool({
       name: "telegram/send-message",
       desc: "Send a message to a chat in Telegram.",
@@ -291,6 +362,11 @@ export default class Telegram extends PluginBase {
           desc: "File to send. Pass a local filename or a URL.",
           required: false,
         },
+        reply_markup: {
+          type: "object",
+          desc: "Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user.",
+          required: false,
+        },
       },
       retvals: {
         message_id: {
@@ -304,6 +380,7 @@ export default class Telegram extends PluginBase {
           const message = await this.bot.sendPhoto(args.chat_id, args.photo, {
             caption: args.text,
             reply_to_message_id: args.reply_to_message_id,
+            reply_markup: args.reply_markup,
           });
           return { message_id: message.message_id };
         }
@@ -311,11 +388,13 @@ export default class Telegram extends PluginBase {
           const message = await this.bot.sendDocument(args.chat_id, args.file, {
             caption: args.text,
             reply_to_message_id: args.reply_to_message_id,
+            reply_markup: args.reply_markup,
           });
           return { message_id: message.message_id };
         }
         const message = await this.bot.sendMessage(args.chat_id, args.text, {
           reply_to_message_id: args.reply_to_message_id,
+          reply_markup: args.reply_markup,
         });
         return { message_id: message.message_id };
       },
@@ -446,6 +525,7 @@ export default class Telegram extends PluginBase {
                     }
                   : undefined,
                 text: msg.reply_to_message.text || msg.reply_to_message.caption,
+                sticker_emoji: msg.reply_to_message.sticker?.emoji,
                 photo: reply_to_message_photo,
                 file: msg.reply_to_message.document
                   ? {
@@ -461,6 +541,7 @@ export default class Telegram extends PluginBase {
               }
             : undefined,
           text: msg.text || msg.caption,
+          sticker_emoji: msg.sticker?.emoji,
           photo: photo,
           file: msg.document
             ? {
@@ -472,6 +553,24 @@ export default class Telegram extends PluginBase {
             : undefined,
           date: new Date(msg.date * 1000).toISOString(),
         });
+      });
+
+      this.bot.on("callback_query", async (query) => {
+        athena.emitEvent("telegram/callback-query-received", {
+          id: query.id,
+          from: {
+            id: query.from.id,
+            first_name: query.from.first_name,
+            last_name: query.from.last_name,
+            username: query.from.username,
+          },
+          message: {
+            chat_id: query.message?.chat.id,
+            message_id: query.message?.message_id,
+          },
+          data: query.data,
+        });
+        await this.bot.answerCallbackQuery(query.id);
       });
     });
   }
@@ -486,6 +585,7 @@ export default class Telegram extends PluginBase {
     athena.deregisterTool("telegram/edit-message");
     athena.deregisterTool("telegram/delete-message");
     athena.deregisterEvent("telegram/message-received");
+    athena.deregisterEvent("telegram/callback-query-received");
   }
 
   async getFileUrl(fileId: string) {
