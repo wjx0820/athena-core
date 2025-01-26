@@ -18,6 +18,7 @@ export class ShellProcess extends EventEmitter {
       }
       this.child.stdout?.off("data", this.boundStdoutHandler);
       this.child.stderr?.off("data", this.boundStdoutHandler);
+      this.kill();
       this.emit("close", code);
     });
   }
