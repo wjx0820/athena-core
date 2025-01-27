@@ -206,7 +206,7 @@ export default class Cerebrum extends PluginBase {
       this.athena.emitPrivateEvent("cerebrum/error", {
         content: e.message,
       });
-      if (e.message.contains("maximum context length")) {
+      if (e.message.includes("maximum context length")) {
         this.prompts.splice(1, 1);
       }
     } finally {
