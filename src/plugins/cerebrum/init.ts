@@ -74,7 +74,9 @@ export default class Cerebrum extends PluginBase {
       athena.emitPrivateEvent("cerebrum/initial-prompt", {
         content: this.initialPrompt(),
       });
-      this.processEventQueueWithDelay();
+      if (this.eventQueue.length > 0) {
+        this.processEventQueueWithDelay();
+      }
     });
   }
 
