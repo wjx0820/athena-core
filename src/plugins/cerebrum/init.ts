@@ -29,6 +29,7 @@ export default class Cerebrum extends PluginBase {
   eventQueue: Array<IEvent> = [];
   imageUrls: Array<string> = [];
   boundAthenaEventHandler!: (name: string, args: Dict<any>) => void;
+  processEventQueueTimer?: NodeJS.Timeout;
 
   async load(athena: Athena) {
     this.athena = athena;
@@ -73,7 +74,7 @@ export default class Cerebrum extends PluginBase {
       athena.emitPrivateEvent("cerebrum/initial-prompt", {
         content: this.initialPrompt(),
       });
-      this.processEventQueue();
+      this.processEventQueueWithDelay();
     });
   }
 
@@ -82,6 +83,9 @@ export default class Cerebrum extends PluginBase {
       athena.deregisterTool("image/check-out");
     }
     athena.off("event", this.boundAthenaEventHandler);
+    if (this.processEventQueueTimer) {
+      clearTimeout(this.processEventQueueTimer);
+    }
   }
 
   pushEvent(event: IEvent) {
@@ -92,11 +96,21 @@ export default class Cerebrum extends PluginBase {
       content: this.eventToPrompt(event),
     });
     this.eventQueue.push(event);
-    this.processEventQueue();
+    this.processEventQueueWithDelay();
   }
 
   athenaEventHandler(name: string, args: Dict<any>) {
     this.pushEvent({ tool_result: false, name, args });
+  }
+
+  processEventQueueWithDelay() {
+    if (this.processEventQueueTimer) {
+      clearTimeout(this.processEventQueueTimer);
+    }
+    this.processEventQueueTimer = setTimeout(
+      () => this.processEventQueue(),
+      500
+    );
   }
 
   async processEventQueue() {
@@ -104,124 +118,126 @@ export default class Cerebrum extends PluginBase {
       return;
     }
     this.busy = true;
+    const eventQueueSnapshot = this.eventQueue.slice();
+    const imageUrlsSnapshot = this.imageUrls.slice();
+    let promptsSnapshot = this.prompts.slice();
     try {
-      while (this.eventQueue.length > 0) {
-        // Add a small delay to allow multiple events to accumulate
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        const events = this.eventQueue.map((event) =>
-          this.eventToPrompt(event)
-        );
-        this.eventQueue = [];
-        this.ensureInitialPrompt();
-        this.prompts.push({
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: events.join("\n\n"),
+      const events = eventQueueSnapshot.map((event) => this.eventToPrompt(event));
+      this.ensureInitialPrompt(promptsSnapshot);
+      promptsSnapshot.push({
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: events.join("\n\n"),
+          },
+          ...imageUrlsSnapshot.map((url) => ({
+            type: "image_url",
+            image_url: {
+              url: url,
             },
-            ...this.imageUrls.map((url) => ({
-              type: "image_url",
-              image_url: {
-                url: url,
+          })),
+        ] as ChatCompletionContentPart[],
+      });
+      if (promptsSnapshot.length > this.config.max_prompts) {
+        promptsSnapshot = [
+          promptsSnapshot[0],
+          ...promptsSnapshot.slice(-(this.config.max_prompts - 1)),
+        ];
+      }
+      const completion = await this.openai.chat.completions.create({
+        messages: promptsSnapshot,
+        model: this.config.model,
+        temperature: this.config.temperature,
+      });
+      const response = completion.choices[0].message.content as string;
+      promptsSnapshot.push({
+        role: "assistant",
+        content: response,
+      });
+      this.eventQueue = this.eventQueue.slice(eventQueueSnapshot.length);
+      this.imageUrls = this.imageUrls.slice(imageUrlsSnapshot.length);
+      this.prompts = promptsSnapshot;
+
+      this.logger.info(response, {
+        type: "model_response",
+      });
+      this.athena.emitPrivateEvent("cerebrum/model-response", {
+        content: response,
+      });
+
+      const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
+      let match;
+      while ((match = toolCallRegex.exec(response)) !== null) {
+        const toolCallJson = match[1];
+        (async (toolCallJson: string) => {
+          let toolName;
+          let toolCallId;
+          try {
+            const toolCall = JSON.parse(toolCallJson) as IToolCall;
+            toolName = toolCall.name;
+            toolCallId = toolCall.id;
+            const result = await this.athena.callTool(
+              toolCall.name,
+              toolCall.args
+            );
+            this.pushEvent({
+              tool_result: true,
+              name: toolCall.name,
+              id: toolCall.id,
+              args: result,
+            });
+          } catch (error: any) {
+            this.pushEvent({
+              tool_result: true,
+              name: toolName ?? "tool_error",
+              id: toolCallId ?? "tool_error",
+              args: {
+                error: error.message,
               },
-            })),
-          ] as ChatCompletionContentPart[],
-        });
-        this.imageUrls = [];
-        if (this.prompts.length > this.config.max_prompts) {
-          this.prompts = [
-            this.prompts[0],
-            ...this.prompts.slice(-(this.config.max_prompts - 1)),
-          ];
-        }
-        const completion = await this.openai.chat.completions.create({
-          messages: this.prompts,
-          model: this.config.model,
-          temperature: this.config.temperature,
-        });
-        const response = completion.choices[0].message.content as string;
-        this.prompts.push({
-          role: "assistant",
-          content: response,
-        });
-
-        this.logger.info(response, {
-          type: "model_response",
-        });
-        this.athena.emitPrivateEvent("cerebrum/model-response", {
-          content: response,
-        });
-
-        const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
-        let match;
-        while ((match = toolCallRegex.exec(response)) !== null) {
-          const toolCallJson = match[1];
-          (async (toolCallJson: string) => {
-            let toolName;
-            let toolCallId;
-            try {
-              const toolCall = JSON.parse(toolCallJson) as IToolCall;
-              toolName = toolCall.name;
-              toolCallId = toolCall.id;
-              const result = await this.athena.callTool(
-                toolCall.name,
-                toolCall.args
-              );
-              this.pushEvent({
-                tool_result: true,
-                name: toolCall.name,
-                id: toolCall.id,
-                args: result,
-              });
-            } catch (error: any) {
-              this.pushEvent({
-                tool_result: true,
-                name: toolName ?? "tool_error",
-                id: toolCallId ?? "tool_error",
-                args: {
-                  error: error.message,
-                },
-              });
-            }
-          })(toolCallJson);
-        }
+            });
+          }
+        })(toolCallJson);
       }
     } catch (e: any) {
       this.logger.error(e);
       this.athena.emitPrivateEvent("cerebrum/error", {
         content: e.message,
       });
-      this.prompts = [];
-      process.kill(process.pid, "SIGUSR1");
+      if (e.message.contains("maximum context length")) {
+        this.prompts.splice(1, 1);
+      }
     } finally {
+      if (this.eventQueue.length > 0) {
+        this.processEventQueueWithDelay();
+      }
       this.busy = false;
     }
   }
 
-  ensureInitialPrompt() {
-    if (this.prompts.length === 0) {
-      this.prompts.push({ role: "system", content: this.initialPrompt() });
+  ensureInitialPrompt(prompts: Array<ChatCompletionMessageParam>) {
+    if (prompts.length === 0) {
+      prompts.push({ role: "system", content: this.initialPrompt() });
       return;
     }
-    this.prompts[0].content = this.initialPrompt();
+    prompts[0].content = this.initialPrompt();
   }
 
   eventToPrompt(event: IEvent) {
     if (event.tool_result) {
       return `<tool_result>
 ${JSON.stringify({
-  name: event.name,
-  id: event.id,
-  result: event.args,
-})}
+        name: event.name,
+        id: event.id,
+        result: event.args,
+      })}
 </tool_result>`;
     }
     return `<event>
 ${JSON.stringify({
-  name: event.name,
-  args: event.args,
-})}
+      name: event.name,
+      args: event.args,
+    })}
 </event>`;
   }
 
@@ -236,14 +252,14 @@ First, familiarize yourself with the available tools and possible events:
 
 <tools>
 ${Object.values(this.athena.tools)
-  .map((tool) => JSON.stringify(tool))
-  .join("\n\n")}
+        .map((tool) => JSON.stringify(tool))
+        .join("\n\n")}
 </tools>
 
 <events>
 ${Object.values(this.athena.events)
-  .map((event) => JSON.stringify(event))
-  .join("\n\n")}
+        .map((event) => JSON.stringify(event))
+        .join("\n\n")}
 </events>
 
 You will receive a series of events that represent things happening in the real world. Your task is to respond to these events in a human-like manner, using the provided tools when necessary. Here are your instructions:
