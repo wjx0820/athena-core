@@ -16,7 +16,7 @@ export default class LongTermMemory extends PluginBase {
 
   async load(athena: Athena) {
     athena.registerTool({
-      name: "long-term-memory/store",
+      name: "ltm/store",
       desc: "Store some data to your long-term memory.",
       args: {
         key: {
@@ -52,7 +52,7 @@ export default class LongTermMemory extends PluginBase {
       },
     });
     athena.registerTool({
-      name: "long-term-memory/remove",
+      name: "ltm/remove",
       desc: "Remove data from your long-term memory.",
       args: {
         key: {
@@ -74,7 +74,7 @@ export default class LongTermMemory extends PluginBase {
       },
     });
     athena.registerTool({
-      name: "long-term-memory/list",
+      name: "ltm/list",
       desc: "List your long-term memory.",
       args: {},
       retvals: {
@@ -118,7 +118,7 @@ export default class LongTermMemory extends PluginBase {
       },
     });
     athena.registerTool({
-      name: "long-term-memory/retrieve",
+      name: "ltm/retrieve",
       desc: "Retrieve data from your long-term memory.",
       args: {
         key: {
@@ -159,10 +159,10 @@ export default class LongTermMemory extends PluginBase {
   }
 
   async unload(athena: Athena) {
-    athena.deregisterTool("long-term-memory/store");
-    athena.deregisterTool("long-term-memory/remove");
-    athena.deregisterTool("long-term-memory/list");
-    athena.deregisterTool("long-term-memory/retrieve");
+    athena.deregisterTool("ltm/store");
+    athena.deregisterTool("ltm/remove");
+    athena.deregisterTool("ltm/list");
+    athena.deregisterTool("ltm/retrieve");
   }
 
   state() {
