@@ -124,7 +124,9 @@ export default class Cerebrum extends PluginBase {
     const imageUrlsSnapshot = this.imageUrls.slice();
     let promptsSnapshot = this.prompts.slice();
     try {
-      const events = eventQueueSnapshot.map((event) => this.eventToPrompt(event));
+      const events = eventQueueSnapshot.map((event) =>
+        this.eventToPrompt(event)
+      );
       this.ensureInitialPrompt(promptsSnapshot);
       promptsSnapshot.push({
         role: "user",
@@ -229,17 +231,17 @@ export default class Cerebrum extends PluginBase {
     if (event.tool_result) {
       return `<tool_result>
 ${JSON.stringify({
-        name: event.name,
-        id: event.id,
-        result: event.args,
-      })}
+  name: event.name,
+  id: event.id,
+  result: event.args,
+})}
 </tool_result>`;
     }
     return `<event>
 ${JSON.stringify({
-      name: event.name,
-      args: event.args,
-    })}
+  name: event.name,
+  args: event.args,
+})}
 </event>`;
   }
 
@@ -254,14 +256,14 @@ First, familiarize yourself with the available tools and possible events:
 
 <tools>
 ${Object.values(this.athena.tools)
-        .map((tool) => JSON.stringify(tool))
-        .join("\n\n")}
+  .map((tool) => JSON.stringify(tool))
+  .join("\n\n")}
 </tools>
 
 <events>
 ${Object.values(this.athena.events)
-        .map((event) => JSON.stringify(event))
-        .join("\n\n")}
+  .map((event) => JSON.stringify(event))
+  .join("\n\n")}
 </events>
 
 You will receive a series of events that represent things happening in the real world. Your task is to respond to these events in a human-like manner, using the provided tools when necessary. Here are your instructions:
@@ -306,6 +308,12 @@ You will receive a series of events that represent things happening in the real 
 - Be prepared to handle various types of events and adjust your behavior accordingly.
 - If you encounter an unfamiliar situation, use your human-like intelligence to reason through it. Behave resourcefully and use your tools wisely to their full potential.
 - Consult other language models when you think you cannot resolve a problem alone. Notify the user about the problem as the **last resort**.
+
+8. Correctness:
+- All your responses must be wrapped in either <thinking> tags or <tool_call> tags. There can be no tokens outside of these tags.
+- You should never respond with an <event> tag or <tool_result> tag.
+- You can generate multiple <tool_call> tags in your response, but you should ensure that each <tool_call> is independent and does not depend on the results of other <tool_call> tags.
+- For <tool_call> tags that depend on the results of other <tool_call> tags, you must first wait for the results of the other <tool_call> tags to be returned before you can make your <tool_call>.
 
 Remember, your primary goal is to behave as human-like as possible while interacting with the world through these events and tools. Always consider how a human would think, plan, and respond in each situation.
 
