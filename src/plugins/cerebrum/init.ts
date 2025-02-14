@@ -170,8 +170,16 @@ export default class Cerebrum extends PluginBase {
         content: response,
       });
 
-      const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
+      const thinkingRegex = /<thinking>\s*(.+)\s*<\/thinking>/g;
       let match;
+      if ((match = thinkingRegex.exec(response)) !== null) {
+        const thinking = match[1];
+        this.athena.emitPrivateEvent("cerebrum/thinking", {
+          content: thinking,
+        });
+      }
+
+      const toolCallRegex = /<tool_call>\s*({[\s\S]*?})\s*<\/tool_call>/g;
       while ((match = toolCallRegex.exec(response)) !== null) {
         const toolCallJson = match[1];
         (async (toolCallJson: string) => {
