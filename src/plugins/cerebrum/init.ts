@@ -149,6 +149,9 @@ export default class Cerebrum extends PluginBase {
           ...promptsSnapshot.slice(-(this.config.max_prompts - 1)),
         ];
       }
+      this.athena.emitPrivateEvent("cerebrum/busy", {
+        busy: true,
+      });
       const completion = await this.openai.chat.completions.create({
         messages: promptsSnapshot,
         model: this.config.model,
@@ -223,6 +226,9 @@ export default class Cerebrum extends PluginBase {
       if (this.eventQueue.length > 0) {
         this.processEventQueueWithDelay();
       }
+      this.athena.emitPrivateEvent("cerebrum/busy", {
+        busy: false,
+      });
       this.busy = false;
     }
   }
