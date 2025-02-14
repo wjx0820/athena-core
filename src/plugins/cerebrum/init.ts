@@ -170,7 +170,7 @@ export default class Cerebrum extends PluginBase {
         content: response,
       });
 
-      const thinkingRegex = /<thinking>\s*(.+)\s*<\/thinking>/g;
+      const thinkingRegex = /<thinking>\s*([\s\S]+)\s*<\/thinking>/;
       let match;
       if ((match = thinkingRegex.exec(response)) !== null) {
         const thinking = match[1];
