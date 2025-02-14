@@ -47,7 +47,7 @@ export default class Shell extends PluginBase {
     });
     athena.registerTool({
       name: "shell/exec",
-      desc: "Executes a shell command. Whenever you need to run a shell command, or the user's request requires running a shell command, use this tool.",
+      desc: "Executes a shell command. Whenever you need to run a shell command, or the user's request requires running a shell command, use this tool. When this tool returns, the command is still running. You need to wait for it to output or terminate.",
       args: {
         command: {
           type: "string",
@@ -115,7 +115,7 @@ export default class Shell extends PluginBase {
     });
     athena.registerTool({
       name: "shell/kill",
-      desc: "Kills a running shell command. Whenever you need to kill a running shell command, or the user's request requires killing a running shell command, use this tool.",
+      desc: "Kills a running shell command. Whenever you need to kill a running shell command, or the user's request requires killing a running shell command, use this tool. Do not use this tool to terminate any other processes. Use shell/exec to execute a kill command instead.",
       args: {
         pid: {
           type: "number",

@@ -39,6 +39,11 @@ export default class Clock extends PluginBase {
           desc: "The interval of the timeout.",
           required: true,
         },
+        now: {
+          type: "string",
+          desc: "The current date and time.",
+          required: true,
+        },
       },
     });
     athena.registerTool({
@@ -282,6 +287,7 @@ export default class Clock extends PluginBase {
           reason: timeout.reason,
           recurring: timeout.recurring,
           interval: timeout.interval,
+          now: new Date().toString(),
         });
       }
       this.timeouts = this.timeouts.filter((t) => {

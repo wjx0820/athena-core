@@ -71,7 +71,7 @@ export default class FileSystem extends PluginBase {
     });
     athena.registerTool({
       name: "fs/read",
-      desc: "Read a file",
+      desc: "Read a file. This tool cannot be used to read binary files.",
       args: {
         path: {
           type: "string",

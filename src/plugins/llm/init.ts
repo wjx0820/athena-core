@@ -15,7 +15,7 @@ export default class Llm extends PluginBase {
     });
     athena.registerTool({
       name: "llm/chat",
-      desc: "Chat with the LLM.",
+      desc: "Chat with the LLM. Only chat with an LLM if absolutely necessary. For easy tasks such as translation or summarization, do not use this tool.",
       args: {
         message: {
           type: "string",
