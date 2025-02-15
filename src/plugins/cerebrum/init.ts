@@ -173,9 +173,9 @@ export default class Cerebrum extends PluginBase {
         content: response,
       });
 
-      const thinkingRegex = /<thinking>\s*([\s\S]+)\s*<\/thinking>/;
+      const thinkingRegex = /<thinking>\s*([\s\S]*?)\s*<\/thinking>/g;
       let match;
-      if ((match = thinkingRegex.exec(response)) !== null) {
+      while ((match = thinkingRegex.exec(response)) !== null) {
         const thinking = match[1];
         this.athena.emitPrivateEvent("cerebrum/thinking", {
           content: thinking,
