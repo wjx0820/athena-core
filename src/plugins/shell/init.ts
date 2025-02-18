@@ -23,6 +23,10 @@ export default class Shell extends PluginBase {
           required: true,
         },
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Process ${args.pid} output to stdout.`,
+        details: args.stdout,
+      }),
     });
     athena.registerEvent({
       name: "shell/terminated",
@@ -44,6 +48,10 @@ export default class Shell extends PluginBase {
           required: true,
         },
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Process ${args.pid} terminated.`,
+        details: args.stdout,
+      }),
     });
     athena.registerTool({
       name: "shell/exec",
@@ -81,6 +89,12 @@ export default class Shell extends PluginBase {
         this.processes[process.pid] = process;
         return { pid: process.pid };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Executing shell command ${args.command}...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The shell command is assigned PID ${retvals.pid}.`,
+      }),
     });
     athena.registerTool({
       name: "shell/write-stdin",
@@ -112,6 +126,10 @@ export default class Shell extends PluginBase {
         process.write(args.data);
         return { result: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Writing to process ${args.pid}...`,
+        details: args.data,
+      }),
     });
     athena.registerTool({
       name: "shell/kill",
@@ -143,6 +161,13 @@ export default class Shell extends PluginBase {
         process.kill(args.signal);
         return { result: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Killing process ${args.pid}...`,
+        details: args.signal,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The process ${args.pid} is killed.`,
+      }),
     });
     athena.registerTool({
       name: "shell/apt-install",
@@ -172,6 +197,12 @@ export default class Shell extends PluginBase {
           });
         });
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Installing package ${args.package} using apt...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The package ${args.package} is installed.`,
+      }),
     });
   }
 

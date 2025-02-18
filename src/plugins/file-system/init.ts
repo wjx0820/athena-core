@@ -68,6 +68,13 @@ export default class FileSystem extends PluginBase {
         }
         return { content: ret };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Listing the directory ${args.path}...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The directory ${args.path} is successfully listed.`,
+        details: retvals.content.map((item: Dict<any>) => item.name).join(", "),
+      }),
     });
     athena.registerTool({
       name: "fs/read",
@@ -93,6 +100,13 @@ export default class FileSystem extends PluginBase {
         }
         return { content: buffer.toString("utf8") };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Reading the file ${args.path}...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The file ${args.path} is successfully read.`,
+        details: retvals.content,
+      }),
     });
     athena.registerTool({
       name: "fs/write",
@@ -120,6 +134,10 @@ export default class FileSystem extends PluginBase {
         await fs.writeFile(args.path, args.content, "utf8");
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Writing to the file ${args.path}...`,
+        details: args.content,
+      }),
     });
     athena.registerTool({
       name: "fs/delete",
@@ -142,6 +160,9 @@ export default class FileSystem extends PluginBase {
         await fs.rm(args.path, { recursive: true });
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Deleting the file or directory ${args.path}...`,
+      }),
     });
     athena.registerTool({
       name: "fs/copy",
@@ -176,6 +197,9 @@ export default class FileSystem extends PluginBase {
         }
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Copying the file or directory ${args.src} to ${args.dst}...`,
+      }),
     });
     athena.registerTool({
       name: "fs/move",
@@ -203,6 +227,9 @@ export default class FileSystem extends PluginBase {
         await fs.rename(args.src, args.dst);
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Moving or renaming the file or directory ${args.src} to ${args.dst}...`,
+      }),
     });
     athena.registerTool({
       name: "fs/mkdir",
@@ -225,6 +252,9 @@ export default class FileSystem extends PluginBase {
         await fs.mkdir(args.path, { recursive: true });
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Creating the directory ${args.path}...`,
+      }),
     });
     athena.registerTool({
       name: "fs/cd",
@@ -247,6 +277,9 @@ export default class FileSystem extends PluginBase {
         process.chdir(args.directory);
         return { result: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Changing the current working directory to ${args.directory}...`,
+      }),
     });
   }
 

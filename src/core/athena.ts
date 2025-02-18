@@ -18,12 +18,20 @@ export interface IAthenaTool {
   args: Dict<IAthenaArgument>;
   retvals: Dict<IAthenaArgument>;
   fn: (args: Dict<any>) => Promise<Dict<any>>;
+  explain_args?: (args: Dict<any>) => IAthenaExplanation;
+  explain_retvals?: (args: Dict<any>, retvals: Dict<any>) => IAthenaExplanation;
 }
 
 export interface IAthenaEvent {
   name: string;
   desc: string;
   args: Dict<IAthenaArgument>;
+  explain_args?: (args: Dict<any>) => IAthenaExplanation;
+}
+
+export interface IAthenaExplanation {
+  summary: string;
+  details?: string;
 }
 
 export class Athena extends EventEmitter {
@@ -151,12 +159,27 @@ export class Athena extends EventEmitter {
     if (!(name in this.tools)) {
       throw new Error(`Tool ${name} not registered`);
     }
-    return await this.tools[name].fn(args);
+    const tool = this.tools[name];
+    if (tool.explain_args) {
+      this.emitPrivateEvent("athena/tool-call", tool.explain_args(args));
+    }
+    const retvals = await tool.fn(args);
+    if (tool.explain_retvals) {
+      this.emitPrivateEvent(
+        "athena/tool-result",
+        tool.explain_retvals(args, retvals)
+      );
+    }
+    return retvals;
   }
 
   emitEvent(name: string, args: Dict<any>) {
     if (!(name in this.events)) {
       throw new Error(`Event ${name} not registered`);
+    }
+    const event = this.events[name];
+    if (event.explain_args) {
+      this.emitPrivateEvent("athena/event", event.explain_args(args));
     }
     this.emit("event", name, args);
   }

@@ -64,15 +64,16 @@ export default class Cerebrum extends PluginBase {
           this.imageUrls.push(image);
           return { result: "success" };
         },
+        explain_args: (args: Dict<any>) => ({
+          summary: "Checking out the image...",
+          details: args.image,
+        }),
       });
     }
     athena.on("event", this.boundAthenaEventHandler);
     athena.once("plugins-loaded", () => {
       this.logger.info(this.initialPrompt(), {
         type: "initial_prompt",
-      });
-      athena.emitPrivateEvent("cerebrum/initial-prompt", {
-        content: this.initialPrompt(),
       });
       if (this.eventQueue.length > 0) {
         this.processEventQueueWithDelay();

@@ -45,6 +45,10 @@ export default class Clock extends PluginBase {
           required: true,
         },
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: "A timeout was triggered.",
+        details: args.reason,
+      }),
     });
     athena.registerTool({
       name: "clock/get-time",
@@ -60,6 +64,12 @@ export default class Clock extends PluginBase {
       fn: async () => {
         return { time: new Date().toString() };
       },
+      explain_args: () => ({
+        summary: "Getting the current date and time...",
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The current date and time is ${retvals.time}.`,
+      }),
     });
     athena.registerTool({
       name: "clock/set-timer",
@@ -112,6 +122,14 @@ export default class Clock extends PluginBase {
         this.updateTimeout();
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Setting a ${
+          args.recurring ? "recurring" : "one-time"
+        } timer for ${args.hours || 0} hours, ${
+          args.minutes || 0
+        } minutes, and ${args.seconds || 0} seconds...`,
+        details: args.reason,
+      }),
     });
     athena.registerTool({
       name: "clock/set-alarm",
@@ -155,6 +173,12 @@ export default class Clock extends PluginBase {
         this.updateTimeout();
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Setting a ${
+          args.recurring ? "recurring" : "one-time"
+        } alarm for ${args.time}...`,
+        details: args.reason,
+      }),
     });
     athena.registerTool({
       name: "clock/clear-timeout",
@@ -178,6 +202,9 @@ export default class Clock extends PluginBase {
         this.updateTimeout();
         return { status: "success" };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Clearing the timeout at index ${args.index}...`,
+      }),
     });
     athena.registerTool({
       name: "clock/list-timeouts",

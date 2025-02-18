@@ -65,6 +65,13 @@ export default class Http extends PluginBase {
         });
         return { result: convert(await response.text()) };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Fetching the URL ${args.url}...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The URL ${args.url} was fetched successfully.`,
+        details: retvals.result,
+      }),
     });
     athena.registerTool({
       name: "http/download-file",
@@ -119,6 +126,12 @@ export default class Http extends PluginBase {
           });
         });
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Downloading the file from ${args.url} to ${args.filename}...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The file ${args.filename} was downloaded successfully.`,
+      }),
     });
   }
 

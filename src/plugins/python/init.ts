@@ -27,6 +27,14 @@ export default class Python extends PluginBase {
       fn: async (args: Dict<any>) => {
         return { stdout: (await PythonShell.runString(args.code)).join("\n") };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Executing Python code...`,
+        details: args.code,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The Python code has finished.`,
+        details: retvals.stdout,
+      }),
     });
     athena.registerTool({
       name: "python/exec-file",
@@ -62,6 +70,13 @@ export default class Python extends PluginBase {
           ),
         };
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Executing Python file ${args.path}...`,
+        details: args.args.join(", "),
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The Python file has finished.`,
+      }),
     });
     athena.registerTool({
       name: "python/pip-install",
@@ -94,6 +109,12 @@ export default class Python extends PluginBase {
           );
         });
       },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Installing Python package ${args.package}...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `The Python package ${args.package} is installed.`,
+      }),
     });
   }
 
