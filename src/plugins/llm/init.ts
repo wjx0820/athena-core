@@ -19,7 +19,7 @@ export default class Llm extends PluginBase {
       args: {
         message: {
           type: "string",
-          desc: "The message to send to the LLM.",
+          desc: "The message to send to the LLM. The LLM doesn't have access to your context, so you need to include all necessary information in the message. Don't use any placeholders.",
           required: true,
         },
         image: {
