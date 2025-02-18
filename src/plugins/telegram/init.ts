@@ -690,11 +690,27 @@ export default class Telegram extends PluginBase {
   }
 
   athenaPrivateEventHandler(event: string, args: Dict<any>) {
-    if (!args.content) {
-      return;
+    if (args.content) {
+      for (const chatId of this.config.admin_chat_ids) {
+        this.bot
+          .sendMessage(chatId, `${event}\n${args.content}`)
+          .catch(() => {});
+      }
     }
-    for (const chatId of this.config.admin_chat_ids) {
-      this.bot.sendMessage(chatId, `${event}\n${args.content}`).catch(() => {});
+    if (
+      ["cerebrum/thinking", "athena/tool-call", "athena/tool-result"].includes(
+        event
+      )
+    ) {
+      const message = (() => {
+        if (event === "cerebrum/thinking") {
+          return `Thinking: ${args.content}`;
+        }
+        return args.summary;
+      })();
+      for (const chatId of this.config.log_chat_ids) {
+        this.bot.sendMessage(chatId, message).catch(() => {});
+      }
     }
   }
 }

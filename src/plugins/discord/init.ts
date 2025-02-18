@@ -606,17 +606,35 @@ export default class Discord extends PluginBase {
   }
 
   athenaPrivateEventHandler(event: string, args: Dict<any>) {
-    if (!args.content) {
-      return;
+    if (args.content) {
+      for (const channelId of this.config.admin_channel_ids) {
+        this.client.channels.fetch(channelId).then((channel) => {
+          if (channel && channel.isTextBased()) {
+            (channel as TextChannel)
+              .send(`${event}\n${args.content}`)
+              .catch(() => {});
+          }
+        });
+      }
     }
-    for (const channelId of this.config.admin_channel_ids) {
-      this.client.channels.fetch(channelId).then((channel) => {
-        if (channel && channel.isTextBased()) {
-          (channel as TextChannel)
-            .send(`${event}\n${args.content}`)
-            .catch(() => {});
+    if (
+      ["cerebrum/thinking", "athena/tool-call", "athena/tool-result"].includes(
+        event
+      )
+    ) {
+      const message = (() => {
+        if (event === "cerebrum/thinking") {
+          return `Thinking: ${args.content}`;
         }
-      });
+        return args.summary;
+      })();
+      for (const channelId of this.config.log_channel_ids) {
+        this.client.channels.fetch(channelId).then((channel) => {
+          if (channel && channel.isTextBased()) {
+            (channel as TextChannel).send(message).catch(() => {});
+          }
+        });
+      }
     }
   }
 }

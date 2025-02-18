@@ -16,6 +16,8 @@ plugins:
       - 9876543210
     admin_chat_ids:
       - 1234567890
+    log_chat_ids:
+      - 1234567890
   clock:
   http:
   short-term-memory:
@@ -40,6 +42,8 @@ plugins:
       - "1234567890"
       - "9876543210"
     admin_channel_ids:
+      - "1234567890"
+    log_channel_ids:
       - "1234567890"
   shell:
   amadeus:
