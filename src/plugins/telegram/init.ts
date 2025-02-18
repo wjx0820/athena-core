@@ -531,11 +531,17 @@ export default class Telegram extends PluginBase {
     athena.once("plugins-loaded", () => {
       this.bot.on("message", async (msg) => {
         const chatId = msg.chat.id;
+        const chatType = msg.chat.type;
         if (!this.config.allowed_chat_ids.includes(chatId)) {
-          this.bot.sendMessage(
-            chatId,
-            `You appear to not have access to Athena, but FYI, your chat ID is ${chatId}.`
-          );
+          if (
+            chatType === "private" ||
+            msg.text?.toLowerCase().includes("chat id")
+          ) {
+            this.bot.sendMessage(
+              chatId,
+              `You appear to not have access to Athena, but FYI, your chat ID is ${chatId}.`
+            );
+          }
           return;
         }
         let photo;
@@ -598,7 +604,7 @@ export default class Telegram extends PluginBase {
             : undefined,
           chat: {
             id: msg.chat.id,
-            type: msg.chat.type,
+            type: chatType,
             title: msg.chat.title,
           },
           reply_to_message: msg.reply_to_message

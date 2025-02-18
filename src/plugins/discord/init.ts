@@ -486,11 +486,11 @@ export default class Discord extends PluginBase {
         if (message.author.id === this.client.user?.id) {
           return;
         }
-        const channel_type =
+        const channelType =
           message.channel.type === ChannelType.DM ? "dm" : "guild";
         if (!this.config.allowed_channel_ids.includes(message.channel.id)) {
           if (
-            channel_type === "dm" ||
+            channelType === "dm" ||
             message.content.toLowerCase().includes("channel id")
           ) {
             message.channel.send(
@@ -519,14 +519,14 @@ export default class Discord extends PluginBase {
           },
           channel: {
             id: message.channel.id,
-            type: channel_type,
+            type: channelType,
             name:
-              channel_type === "guild"
+              channelType === "guild"
                 ? (message.channel as TextChannel).name
                 : undefined,
           },
           guild:
-            channel_type === "guild"
+            channelType === "guild"
               ? {
                   id: message.guild?.id,
                   name: message.guild?.name,
