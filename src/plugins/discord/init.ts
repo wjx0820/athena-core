@@ -624,9 +624,9 @@ export default class Discord extends PluginBase {
     ) {
       const message = (() => {
         if (event === "cerebrum/thinking") {
-          return `Thinking: ${args.content}`;
+          return `>>> ${args.content}`;
         }
-        return args.summary;
+        return `\`\`\`\n${args.summary}\n\`\`\``;
       })();
       for (const channelId of this.config.log_channel_ids) {
         this.client.channels.fetch(channelId).then((channel) => {
