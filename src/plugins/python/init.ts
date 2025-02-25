@@ -72,7 +72,7 @@ export default class Python extends PluginBase {
       },
       explain_args: (args: Dict<any>) => ({
         summary: `Executing Python file ${args.path}...`,
-        details: args.args.join(", "),
+        details: args.args ? args.args.join(", ") : "",
       }),
       explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
         summary: `The Python file has finished.`,
