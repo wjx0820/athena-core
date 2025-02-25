@@ -158,7 +158,22 @@ export default class Cerebrum extends PluginBase {
         model: this.config.model,
         temperature: this.config.temperature,
       });
-      const response = completion.choices[0].message.content as string;
+      let response = completion.choices[0].message.content as string;
+
+      const toolResultIndex = response.indexOf("<tool_result>");
+      const eventIndex = response.indexOf("<event>");
+      if (toolResultIndex !== -1 || eventIndex !== -1) {
+        let firstPatternIndex;
+        if (toolResultIndex === -1) {
+          firstPatternIndex = eventIndex;
+        } else if (eventIndex === -1) {
+          firstPatternIndex = toolResultIndex;
+        } else {
+          firstPatternIndex = Math.min(toolResultIndex, eventIndex);
+        }
+        response = response.substring(0, firstPatternIndex);
+      }
+
       promptsSnapshot.push({
         role: "assistant",
         content: response,
