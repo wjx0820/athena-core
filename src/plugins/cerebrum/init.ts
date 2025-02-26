@@ -157,6 +157,7 @@ export default class Cerebrum extends PluginBase {
         messages: promptsSnapshot,
         model: this.config.model,
         temperature: this.config.temperature,
+        stop: ["<tool_result>", "<event>"],
       });
       let response = completion.choices[0].message.content as string;
 
