@@ -46,6 +46,7 @@ export default class AthenaPlugin extends PluginBase {
         });
         try {
           await athena.loadPlugin(args.name, args.args);
+          athena.emit("plugins-loaded");
         } catch (e) {
           try {
             await athena.unloadPlugin(args.name);
