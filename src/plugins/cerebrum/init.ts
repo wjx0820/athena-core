@@ -29,6 +29,7 @@ export default class Cerebrum extends PluginBase {
   eventQueue: Array<IEvent> = [];
   imageUrls: Array<string> = [];
   boundAthenaEventHandler!: (name: string, args: Dict<any>) => void;
+  boundAthenaPrivateEventHandler!: (name: string, args: Dict<any>) => void;
   processEventQueueTimer?: NodeJS.Timeout;
 
   async load(athena: Athena) {
@@ -38,6 +39,8 @@ export default class Cerebrum extends PluginBase {
       apiKey: this.config.api_key,
     });
     this.boundAthenaEventHandler = this.athenaEventHandler.bind(this);
+    this.boundAthenaPrivateEventHandler =
+      this.athenaPrivateEventHandler.bind(this);
     if (this.config.image_supported) {
       athena.registerTool({
         name: "image/check-out",
@@ -71,6 +74,8 @@ export default class Cerebrum extends PluginBase {
       });
     }
     athena.on("event", this.boundAthenaEventHandler);
+    athena.on("private-event", this.boundAthenaPrivateEventHandler);
+    athena.emitPrivateEvent("webapp-ui/request-token", {});
     athena.once("plugins-loaded", () => {
       this.logger.info(this.initialPrompt(), {
         type: "initial_prompt",
@@ -86,6 +91,7 @@ export default class Cerebrum extends PluginBase {
       athena.deregisterTool("image/check-out");
     }
     athena.off("event", this.boundAthenaEventHandler);
+    athena.off("private-event", this.boundAthenaPrivateEventHandler);
     if (this.processEventQueueTimer) {
       clearTimeout(this.processEventQueueTimer);
     }
@@ -104,6 +110,15 @@ export default class Cerebrum extends PluginBase {
 
   athenaEventHandler(name: string, args: Dict<any>) {
     this.pushEvent({ tool_result: false, name, args });
+  }
+
+  athenaPrivateEventHandler(name: string, args: Dict<any>) {
+    if (name === "webapp-ui/token-refreshed") {
+      this.openai = new OpenAI({
+        baseURL: this.config.base_url,
+        apiKey: args.token,
+      });
+    }
   }
 
   processEventQueueWithDelay() {

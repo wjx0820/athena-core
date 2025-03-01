@@ -1,7 +1,18 @@
 states_file: configs/states.yaml
 log_file: configs/athena-core.log
+workdir: /path/to/your/workdir
 
 plugins:
+  webapp-ui:
+    supabase:
+      url: https://your-supabase-url.supabase.co
+      anon_key: your-supabase-anon-key
+      email: your-email@example.com
+      otp: "123456"
+      files_bucket: your-files-bucket-name
+    context_id: your-context-id
+    shutdown_timeout: 300
+    port: 3000
   cerebrum:
     base_url: https://api.openai.com/v1
     api_key: sk-proj-your-openai-api-key

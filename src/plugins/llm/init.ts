@@ -7,12 +7,17 @@ import { PluginBase } from "../plugin-base.js";
 
 export default class Llm extends PluginBase {
   openai!: OpenAI;
+  boundAthenaPrivateEventHandler!: (name: string, args: Dict<any>) => void;
 
   async load(athena: Athena) {
     this.openai = new OpenAI({
       baseURL: this.config.base_url,
       apiKey: this.config.api_key,
     });
+    this.boundAthenaPrivateEventHandler =
+      this.athenaPrivateEventHandler.bind(this);
+    athena.on("private-event", this.boundAthenaPrivateEventHandler);
+    athena.emitPrivateEvent("webapp-ui/request-token", {});
     athena.registerTool({
       name: "llm/chat",
       desc: "Chat with the LLM. Only chat with an LLM if absolutely necessary. For easy tasks such as translation or summarization, do not use this tool.",
@@ -155,7 +160,17 @@ export default class Llm extends PluginBase {
   }
 
   async unload(athena: Athena) {
+    athena.off("private-event", this.boundAthenaPrivateEventHandler);
     athena.deregisterTool("llm/chat");
     athena.deregisterTool("llm/generate-image");
+  }
+
+  athenaPrivateEventHandler(name: string, args: Dict<any>) {
+    if (name === "webapp-ui/token-refreshed") {
+      this.openai = new OpenAI({
+        baseURL: this.config.base_url,
+        apiKey: args.token,
+      });
+    }
   }
 }

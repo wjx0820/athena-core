@@ -67,6 +67,11 @@ const main = async () => {
     logger.info(`States: ${JSON.stringify(athena.states)}`);
   };
 
+  if (config.workdir) {
+    logger.info(`Changing working directory to ${config.workdir}`);
+    process.chdir(config.workdir);
+  }
+
   const athena = new Athena(config, states);
   await athena.loadPlugins();
 
