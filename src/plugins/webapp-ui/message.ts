@@ -8,7 +8,7 @@ export interface IWebappUIMessageMessage {
   data: {
     role: "assistant" | "user";
     content: string;
-    files: IWebappUIMessageMessageFile[];
+    files?: IWebappUIMessageMessageFile[];
     timestamp: number;
   };
 }
@@ -25,7 +25,7 @@ export interface IWebappUIMessageToolCall {
   type: "tool_call";
   data: {
     summary: string;
-    details: string;
+    details?: string;
     timestamp: number;
   };
 }
@@ -34,7 +34,7 @@ export interface IWebappUIMessageToolResult {
   type: "tool_result";
   data: {
     summary: string;
-    details: string;
+    details?: string;
     timestamp: number;
   };
 }
@@ -43,7 +43,7 @@ export interface IWebappUIMessageEvent {
   type: "event";
   data: {
     summary: string;
-    details: string;
+    details?: string;
     timestamp: number;
   };
 }
@@ -65,6 +65,23 @@ export interface IWebappUIMessagePong {
   data: Record<string, never>;
 }
 
+export interface IWebappUIMessageConnected {
+  type: "connected";
+  data: Record<string, never>;
+}
+
+export interface IWebappUIMessageDisconnected {
+  type: "disconnected";
+  data: Record<string, never>;
+}
+
+export interface IWebappUIMessageError {
+  type: "error";
+  data: {
+    message: string;
+  };
+}
+
 export type IWebappUIMessage =
   | IWebappUIMessageMessage
   | IWebappUIMessageThinking
@@ -73,4 +90,7 @@ export type IWebappUIMessage =
   | IWebappUIMessageEvent
   | IWebappUIMessageBusy
   | IWebappUIMessagePing
-  | IWebappUIMessagePong;
+  | IWebappUIMessagePong
+  | IWebappUIMessageConnected
+  | IWebappUIMessageDisconnected
+  | IWebappUIMessageError;

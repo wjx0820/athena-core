@@ -183,7 +183,7 @@ export default class WebappUI extends PluginBase {
           data: {
             role: "assistant",
             content: args.content,
-            files: args.files ?? [],
+            files: args.files,
             timestamp: Date.now(),
           },
         };
@@ -307,10 +307,7 @@ export default class WebappUI extends PluginBase {
         });
       this.athena.emitEvent("ui/message-received", {
         content: obj.data.content,
-        files:
-          obj.data.files && obj.data.files.length > 0
-            ? obj.data.files
-            : undefined,
+        files: obj.data.files,
       });
     } else if (obj.type === "ping") {
       this.sendMessage({
