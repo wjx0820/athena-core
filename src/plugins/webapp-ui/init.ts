@@ -16,7 +16,7 @@ export default class WebappUI extends PluginBase {
   supabase!: SupabaseClient;
   userId: string = "";
   accessToken: string = "";
-  wss!: WebSocketServer;
+  wss?: WebSocketServer;
   connections: WebSocket[] = [];
   shutdownTimeout?: NodeJS.Timeout;
   logTransport!: WebappUITransport;
@@ -68,7 +68,6 @@ export default class WebappUI extends PluginBase {
         `Loaded context states: ${JSON.stringify(data[0].states)}`
       );
     }
-    this.wss = new WebSocketServer({ port: this.config.port });
     this.boundAthenaPrivateEventHandler =
       this.athenaPrivateEventHandler.bind(this);
     athena.on("private-event", this.boundAthenaPrivateEventHandler);
@@ -204,6 +203,7 @@ export default class WebappUI extends PluginBase {
       },
     });
     athena.once("plugins-loaded", async () => {
+      this.wss = new WebSocketServer({ port: this.config.port });
       this.wss.on("connection", (ws, req) => {
         this.disableShutdownTimeout();
         this.logger.info(
@@ -232,6 +232,10 @@ export default class WebappUI extends PluginBase {
       ws.terminate();
     }
     await new Promise<void>((resolve) => {
+      if (!this.wss) {
+        resolve();
+        return;
+      }
       this.wss.close(() => {
         resolve();
       });
