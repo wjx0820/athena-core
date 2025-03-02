@@ -216,6 +216,7 @@ export default class WebappUI extends PluginBase {
           } catch (e) {}
         });
         ws.on("close", () => {
+          ws.close();
           this.connections.splice(this.connections.indexOf(ws), 1);
           if (this.connections.length === 0) {
             this.enableShutdownTimeout();
