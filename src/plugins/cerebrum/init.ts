@@ -1,3 +1,5 @@
+import fs from "fs";
+
 import image2uri from "image2uri";
 import OpenAI from "openai";
 import {
@@ -98,6 +100,7 @@ export default class Cerebrum extends PluginBase {
   }
 
   pushEvent(event: IEvent) {
+    event.args = this.sanitizeEventArgs(event.args);
     this.logger.info(this.eventToPrompt(event), {
       type: "event",
     });
@@ -364,6 +367,35 @@ You will receive a series of events that represent things happening in the real 
 Remember, your primary goal is to behave as human-like as possible while interacting with the world through these events and tools. Always consider how a human would think, plan, and respond in each situation.
 
 ${descs.join("\n\n")}`;
+  }
+
+  sanitizeEventArgs<T>(args: T): T {
+    if (typeof args === "string") {
+      if (args.length > this.config.max_event_strlen) {
+        const filename = `./event-${Math.random()
+          .toString(36)
+          .substring(2, 15)}.txt`;
+        fs.writeFileSync(filename, args, "utf-8");
+        return `The result is too long (${args.length} bytes) and cannot be shown directly. It has been written to "${filename}". You can use other tools (Python, shell, etc.) to read the file and reveal part of the content.` as T;
+      }
+
+      return args;
+    }
+
+    if (typeof args === "object") {
+      if (Array.isArray(args)) {
+        return args.map((item) => this.sanitizeEventArgs(item)) as T;
+      }
+
+      return Object.fromEntries(
+        Object.entries(args as Dict<any>).map(([key, value]) => [
+          key,
+          this.sanitizeEventArgs(value),
+        ])
+      ) as T;
+    }
+
+    return args;
   }
 
   state() {

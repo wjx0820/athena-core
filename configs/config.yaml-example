@@ -20,6 +20,7 @@ plugins:
     temperature: 0.5
     image_supported: true
     max_prompts: 50
+    max_event_strlen: 65536
   telegram:
     bot_token: your-telegram-bot-token
     allowed_chat_ids:
