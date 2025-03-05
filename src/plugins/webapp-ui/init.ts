@@ -255,7 +255,9 @@ export default class WebappUI extends PluginBase {
       this.logger.info(`Updated context states: ${JSON.stringify(data)}`);
     }
     logger.remove(this.logTransport);
-    await this.supabase.auth.signOut();
+    await this.supabase.auth.signOut({
+      scope: "local",
+    });
     this.disableShutdownTimeout();
     athena.deregisterTool("ui/send-message");
     athena.deregisterEvent("ui/message-received");
