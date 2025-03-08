@@ -41,7 +41,7 @@ plugins:
     models:
       chat:
         - name: gpt-4o
-          desc: GPT-4o is good at general purpose tasks. Supports image input.
+          desc: GPT-4o is good at general purpose tasks. Supports image input. Whenever you receive an image and need to understand it, pass it to this model using the image arg and ask about it.
       image:
         - name: dall-e-3
           desc: DALL-E 3 is good at generating images. Whenever you are requested to generate images, use this model.

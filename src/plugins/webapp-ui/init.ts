@@ -111,7 +111,7 @@ export default class WebappUI extends PluginBase {
       args: {
         content: {
           type: "string",
-          desc: "The message to send to the user.",
+          desc: "The message to send to the user. This should be a valid Markdown message.",
           required: true,
         },
         files: {

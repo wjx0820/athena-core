@@ -9,7 +9,7 @@ export default class Python extends PluginBase {
   async load(athena: Athena) {
     athena.registerTool({
       name: "python/exec",
-      desc: "Executes Python code. Whenever you need to run Python code or do *any* kind of math calculations, or the user's request requires running Python code or doing math calculations, use this tool. You must print the final result to get it. Otherwise the stdout will be empty. Only use Python when it's necessary. If you already have all the information you need for some simple task, don't use Python.",
+      desc: "Executes Python code. Whenever you need to run Python code or do *any* kind of math calculations, or the user's request requires running Python code or doing math calculations, use this tool. You must print the final result to get it. Otherwise the stdout will be empty. Only use Python when it's necessary. If you already have all the information you need for some simple task, don't use Python. Whenever you need to get stock data, use Python with the yfinance package.",
       args: {
         code: {
           type: "string",
