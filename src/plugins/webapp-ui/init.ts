@@ -147,6 +147,18 @@ export default class WebappUI extends PluginBase {
       fn: async (args: Dict<any>) => {
         if (args.files) {
           for (const file of args.files) {
+            if (
+              file.location.startsWith(
+                "https://oaidalleapiprodscus.blob.core.windows.net"
+              )
+            ) {
+              // This is an image from DALL-E. Download it and upload it to Supabase to avoid expiration.
+              const response = await fetch(file.location);
+              const buffer = await response.arrayBuffer();
+              const tempPath = `./${Date.now()}-${file.name}`;
+              await fs.promises.writeFile(tempPath, Buffer.from(buffer));
+              file.location = tempPath;
+            }
             if (file.location.startsWith("http")) {
               continue;
             }
