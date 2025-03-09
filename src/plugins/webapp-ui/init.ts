@@ -218,9 +218,8 @@ export default class WebappUI extends PluginBase {
       this.wss = new WebSocketServer({ port: this.config.port });
       this.wss.on("connection", (ws, req) => {
         this.disableShutdownTimeout();
-        this.logger.info(
-          `Client connected: ${req.socket.remoteAddress}:${req.socket.remotePort}`
-        );
+        const ipPort = `${req.socket.remoteAddress}:${req.socket.remotePort}`;
+        this.logger.info(`Client connected: ${ipPort}`);
         this.connections.push(ws);
         ws.on("message", (message) => {
           try {
@@ -228,6 +227,7 @@ export default class WebappUI extends PluginBase {
           } catch (e) {}
         });
         ws.on("close", () => {
+          this.logger.info(`Client disconnected: ${ipPort}`);
           ws.close();
           this.connections.splice(this.connections.indexOf(ws), 1);
           if (this.connections.length === 0) {
@@ -277,6 +277,7 @@ export default class WebappUI extends PluginBase {
 
   enableShutdownTimeout() {
     this.disableShutdownTimeout();
+    this.logger.info("Enabling shutdown timeout");
     this.shutdownTimeout = setTimeout(async () => {
       this.logger.warn("Timeout reached. Shutting down...");
       await this.athena.unloadPlugins();
@@ -286,6 +287,7 @@ export default class WebappUI extends PluginBase {
 
   disableShutdownTimeout() {
     if (this.shutdownTimeout) {
+      this.logger.info("Disabling shutdown timeout");
       clearTimeout(this.shutdownTimeout);
       this.shutdownTimeout = undefined;
     }
