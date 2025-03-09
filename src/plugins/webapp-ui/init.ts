@@ -226,10 +226,31 @@ export default class WebappUI extends PluginBase {
             this.handleMessage(ws, message.toString());
           } catch (e) {}
         });
+        const pingInterval = setInterval(() => {
+          this.sendMessage({
+            type: "ping",
+            data: {},
+          });
+        }, 30000);
         ws.on("close", () => {
           this.logger.info(`Client disconnected: ${ipPort}`);
-          ws.close();
-          this.connections.splice(this.connections.indexOf(ws), 1);
+          clearInterval(pingInterval);
+          const index = this.connections.indexOf(ws);
+          if (index !== -1) {
+            this.connections.splice(index, 1);
+          }
+          if (this.connections.length === 0) {
+            this.enableShutdownTimeout();
+          }
+        });
+        ws.on("error", (error) => {
+          this.logger.error(`WebSocket error from ${ipPort}: ${error}`);
+          clearInterval(pingInterval);
+          ws.terminate();
+          const index = this.connections.indexOf(ws);
+          if (index !== -1) {
+            this.connections.splice(index, 1);
+          }
           if (this.connections.length === 0) {
             this.enableShutdownTimeout();
           }
