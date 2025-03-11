@@ -103,6 +103,11 @@ export default class WebappUI extends PluginBase {
             },
           },
         },
+        time: {
+          type: "string",
+          desc: "The time the message was sent.",
+          required: true,
+        },
       },
     });
     athena.registerTool({
@@ -345,6 +350,7 @@ export default class WebappUI extends PluginBase {
       this.athena.emitEvent("ui/message-received", {
         content: obj.data.content,
         files: obj.data.files,
+        time: new Date().toISOString(),
       });
     } else if (obj.type === "ping") {
       this.sendMessage({
