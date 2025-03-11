@@ -82,6 +82,11 @@ export interface IWebappUIMessageError {
   };
 }
 
+export interface IWebappUIMessageInsufficientBalance {
+  type: "insufficient_balance";
+  data: Record<string, never>;
+}
+
 export type IWebappUIMessage =
   | IWebappUIMessageMessage
   | IWebappUIMessageThinking
@@ -93,4 +98,5 @@ export type IWebappUIMessage =
   | IWebappUIMessagePong
   | IWebappUIMessageConnected
   | IWebappUIMessageDisconnected
-  | IWebappUIMessageError;
+  | IWebappUIMessageError
+  | IWebappUIMessageInsufficientBalance;
