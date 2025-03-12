@@ -76,6 +76,7 @@ export default class Python extends PluginBase {
       }),
       explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
         summary: `The Python file has finished.`,
+        details: retvals.stdout,
       }),
     });
     athena.registerTool({
