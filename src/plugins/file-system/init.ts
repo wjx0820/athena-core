@@ -281,6 +281,44 @@ export default class FileSystem extends PluginBase {
         summary: `Changing the current working directory to ${args.directory}...`,
       }),
     });
+    athena.registerTool({
+      name: "fs/find-replace",
+      desc: "Find and replace a string in a file. If you need to fix a bug in a file, you should use this tool instead of using fs/write to change the entire file.",
+      args: {
+        path: {
+          type: "string",
+          desc: "The path to the file",
+          required: true,
+        },
+        old: {
+          type: "string",
+          desc: "The string to find",
+          required: true,
+        },
+        new: {
+          type: "string",
+          desc: "The string to replace the old string with",
+          required: true,
+        },
+      },
+      retvals: {
+        status: {
+          type: "string",
+          desc: "The status of the find-replace operation",
+          required: true,
+        },
+      },
+      fn: async (args: Dict<any>) => {
+        const content = await fs.readFile(args.path, "utf8");
+        const newContent = content.replace(args.old, args.new);
+        await fs.writeFile(args.path, newContent, "utf8");
+        return { status: "success" };
+      },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Finding and replacing ${args.path}...`,
+        details: `The old string is ${args.old} and the new string is ${args.new}.`,
+      }),
+    });
   }
 
   async unload(athena: Athena) {
@@ -292,5 +330,6 @@ export default class FileSystem extends PluginBase {
     athena.deregisterTool("fs/move");
     athena.deregisterTool("fs/mkdir");
     athena.deregisterTool("fs/cd");
+    athena.deregisterTool("fs/find-replace");
   }
 }
