@@ -21,6 +21,7 @@ plugins:
     image_supported: true
     max_prompts: 50
     max_event_strlen: 65536
+    max_tokens: 16384
   telegram:
     bot_token: your-telegram-bot-token
     allowed_chat_ids:
