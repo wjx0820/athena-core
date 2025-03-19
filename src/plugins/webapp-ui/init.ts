@@ -121,7 +121,7 @@ export default class WebappUI extends PluginBase {
         },
         files: {
           type: "array",
-          desc: "Files to send to the user.",
+          desc: "Files to send to the user. Whenever the user requests a file or a download link to a file, you should use this argument to send the file to the user.",
           required: false,
           of: {
             type: "object",
