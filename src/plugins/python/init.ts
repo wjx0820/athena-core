@@ -99,7 +99,7 @@ export default class Python extends PluginBase {
       fn: (args: Dict<any>) => {
         return new Promise((resolve, reject) => {
           exec(
-            `python -m pip install ${args.package} --break-system-packages`,
+            `python -m pip install ${args.package} --break-system-packages --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple`,
             (error, stdout, stderr) => {
               if (error) {
                 reject(Error(stderr));
