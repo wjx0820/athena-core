@@ -372,6 +372,10 @@ ${descs.join("\n\n")}`;
   }
 
   sanitizeEventArgs<T>(args: T): T {
+    if (args === null || args === undefined) {
+      return args;
+    }
+
     if (typeof args === "string") {
       if (args.length > this.config.max_event_strlen) {
         const filename = `./event-${Math.random()
