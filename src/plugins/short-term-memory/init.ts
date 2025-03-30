@@ -1,26 +1,34 @@
 import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
 
+interface ITask {
+  content: string;
+  finished: boolean;
+}
+
 export default class ShortTermMemory extends PluginBase {
-  messages: string[] = [];
+  tasks: ITask[] = [];
 
   desc() {
-    return `You have a short-term memory. You must put whatever you think is the most important to remember in the current context in it. Try to put the task you are currently working on or will work on in the future, including any progress you have made in it. It is crucial because the context and prompts for you, and even your own thinking can disappear at any time. The short-term memory content should be very specific. Try to include as much detail as possible so you can recall even if the context disappears. You can have a maximum of ${this.config.max_messages
-      } messages in your short-term memory and each message can have a maximum of ${this.config.max_length
-      } characters. Here are your current short-term memory messages: ${JSON.stringify(
-        this.messages
-      )}`;
+    return `You have a short-term memory. You must use it to keep track of your tasks while you are working on them. When you receive a task from the user and it requires multiple steps to complete, you must think thoroughly about the steps and break them down into smaller tasks. Try to be as detailed as possible and include all necessary information and append these tasks to your short-term memory. Afterwards, you must follow the task list and work on your unfinished tasks, unless the user asks you to do something else. After you have completed a task or multiple tasks at once, you must mark them as finished. After you have finished all tasks, you must clear your short-term memory. Your current short-term memory is: ${JSON.stringify(
+      this.tasks
+    )}. If the results of a task to show to the user is textual and long, you should create a Markdown file and append to it gradually as you complete the task. At the end, you should prepare your response according to this file.`;
   }
 
   async load(athena: Athena) {
     athena.registerTool({
-      name: "stm/add",
-      desc: "Adds a message to your short-term memory.",
+      name: "stm/append-tasks",
+      desc: "Append an array of tasks to the short-term memory.",
       args: {
-        message: {
-          type: "string",
-          desc: "The message to add to your short-term memory.",
+        tasks: {
+          type: "array",
+          desc: "The array of tasks to append.",
           required: true,
+          of: {
+            type: "string",
+            desc: "The content of the task.",
+            required: true,
+          },
         },
       },
       retvals: {
@@ -31,28 +39,28 @@ export default class ShortTermMemory extends PluginBase {
         },
       },
       fn: async (args: Dict<any>) => {
-        if (this.messages.length >= this.config.max_messages) {
-          throw new Error(
-            `Short-term memory is full. You can have a maximum of ${this.config.max_messages} messages in your short-term memory. Try to remove or edit some messages first.`
-          );
-        }
-        if (args.message.length > this.config.max_length) {
-          throw new Error(
-            `Message is too long. Each message can have a maximum of ${this.config.max_length} characters.`
-          );
-        }
-        this.messages.push(args.message);
+        this.tasks.push(
+          ...args.tasks.map((task: string) => ({
+            content: task,
+            finished: false,
+          }))
+        );
         return { status: "success" };
       },
     });
     athena.registerTool({
-      name: "stm/remove",
-      desc: "Removes a message from your short-term memory.",
+      name: "stm/mark-task-finished",
+      desc: "Mark tasks as finished.",
       args: {
-        index: {
-          type: "number",
-          desc: "The index of the message to remove from your short-term memory.",
+        indices: {
+          type: "array",
+          desc: "The indices of the tasks to mark as finished.",
           required: true,
+          of: {
+            type: "number",
+            desc: "The index of the task to mark as finished.",
+            required: true,
+          },
         },
       },
       retvals: {
@@ -63,31 +71,16 @@ export default class ShortTermMemory extends PluginBase {
         },
       },
       fn: async (args: Dict<any>) => {
-        if (args.index < 0 || args.index >= this.messages.length) {
-          throw new Error(
-            `Invalid index. The index must be between 0 and ${this.messages.length - 1
-            }.`
-          );
-        }
-        this.messages.splice(args.index, 1);
+        args.indices.forEach((index: number) => {
+          this.tasks[index].finished = true;
+        });
         return { status: "success" };
       },
     });
     athena.registerTool({
-      name: "stm/edit",
-      desc: "Edits a message in your short-term memory.",
-      args: {
-        index: {
-          type: "number",
-          desc: "The index of the message to edit in your short-term memory.",
-          required: true,
-        },
-        message: {
-          type: "string",
-          desc: "The new message to replace the old message in your short-term memory.",
-          required: true,
-        },
-      },
+      name: "stm/clear-tasks",
+      desc: "Clear all tasks.",
+      args: {},
       retvals: {
         status: {
           type: "string",
@@ -95,35 +88,24 @@ export default class ShortTermMemory extends PluginBase {
           required: true,
         },
       },
-      fn: async (args: Dict<any>) => {
-        if (args.index < 0 || args.index >= this.messages.length) {
-          throw new Error(
-            `Invalid index. The index must be between 0 and ${this.messages.length - 1
-            }.`
-          );
-        }
-        if (args.message.length > this.config.max_length) {
-          throw new Error(
-            `Message is too long. Each message can have a maximum of ${this.config.max_length} characters.`
-          );
-        }
-        this.messages[args.index] = args.message;
+      fn: async () => {
+        this.tasks = [];
         return { status: "success" };
       },
     });
   }
 
   async unload(athena: Athena) {
-    athena.deregisterTool("stm/add");
-    athena.deregisterTool("stm/remove");
-    athena.deregisterTool("stm/edit");
+    athena.deregisterTool("stm/append-tasks");
+    athena.deregisterTool("stm/mark-task-finished");
+    athena.deregisterTool("stm/clear-tasks");
   }
 
   state() {
-    return { messages: this.messages };
+    return { tasks: this.tasks };
   }
 
   setState(state: Dict<any>) {
-    this.messages = state.messages;
+    this.tasks = state.tasks;
   }
 }

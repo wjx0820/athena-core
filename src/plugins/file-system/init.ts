@@ -319,6 +319,37 @@ export default class FileSystem extends PluginBase {
         details: `The old string is ${args.old} and the new string is ${args.new}.`,
       }),
     });
+    athena.registerTool({
+      name: "fs/append",
+      desc: "Append to a file",
+      args: {
+        path: {
+          type: "string",
+          desc: "The path to the file",
+          required: true,
+        },
+        content: {
+          type: "string",
+          desc: "The content to append",
+          required: true,
+        },
+      },
+      retvals: {
+        status: {
+          type: "string",
+          desc: "The status of the append operation",
+          required: true,
+        },
+      },
+      fn: async (args: Dict<any>) => {
+        await fs.appendFile(args.path, args.content, "utf8");
+        return { status: "success" };
+      },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Appending to the file ${args.path}...`,
+        details: args.content,
+      }),
+    });
   }
 
   async unload(athena: Athena) {
@@ -331,5 +362,6 @@ export default class FileSystem extends PluginBase {
     athena.deregisterTool("fs/mkdir");
     athena.deregisterTool("fs/cd");
     athena.deregisterTool("fs/find-replace");
+    athena.deregisterTool("fs/append");
   }
 }
