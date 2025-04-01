@@ -7,7 +7,8 @@ RUN apt-get install -y libpango1.0-dev && \
     rm -rf /root/.cache
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm i --frozen-lockfile --prod=false
+RUN pnpm i --frozen-lockfile --prod=false && \
+    pnpx playwright install --with-deps --only-shell chromium-headless-shell
 COPY . .
 RUN pnpm build && pnpm prune --prod && rm -rf src
 EXPOSE 3000

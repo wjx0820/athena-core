@@ -5,12 +5,13 @@ const { https } = follow_redirects;
 import { convert } from "html-to-text";
 
 import { Athena, Dict } from "../../core/athena.js";
+import { JinaSearch } from "./jina.js";
 import { PluginBase } from "../plugin-base.js";
 
 export default class Http extends PluginBase {
   readonly headers = {
     "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
     Accept:
       "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.5",
@@ -18,7 +19,19 @@ export default class Http extends PluginBase {
     "Upgrade-Insecure-Requests": "1",
   };
 
+  jina!: JinaSearch;
+  boundAthenaPrivateEventHandler!: (name: string, args: Dict<any>) => void;
+
   async load(athena: Athena) {
+    this.jina = new JinaSearch({
+      baseUrl: this.config.jina.base_url,
+      apiKey: this.config.jina.api_key,
+    });
+    this.boundAthenaPrivateEventHandler =
+      this.athenaPrivateEventHandler.bind(this);
+    athena.on("private-event", this.boundAthenaPrivateEventHandler);
+    athena.emitPrivateEvent("webapp-ui/request-token", {});
+
     athena.registerTool({
       name: "http/fetch",
       desc: "Fetches an HTTP/HTTPS URL.",
@@ -71,6 +84,57 @@ export default class Http extends PluginBase {
       explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
         summary: `The URL ${args.url} was fetched successfully.`,
         details: retvals.result,
+      }),
+    });
+    athena.registerTool({
+      name: "http/search",
+      desc: "Searches the web for information.",
+      args: {
+        query: {
+          type: "string",
+          desc: "The query to search for.",
+          required: true,
+        },
+      },
+      retvals: {
+        results: {
+          type: "array",
+          desc: "The results of the search.",
+          required: true,
+          of: {
+            type: "object",
+            desc: "The result of the search.",
+            of: {
+              title: {
+                type: "string",
+                desc: "The title of the result.",
+                required: true,
+              },
+              url: {
+                type: "string",
+                desc: "The URL of the result.",
+                required: true,
+              },
+              desc: {
+                type: "string",
+                desc: "The description of the result.",
+                required: true,
+              },
+            },
+            required: true,
+          },
+        },
+      },
+      fn: async (args: Dict<any>) => {
+        const results = await this.jina.search(args.query);
+        return { results };
+      },
+      explain_args: (args: Dict<any>) => ({
+        summary: `Searching the web for ${args.query}...`,
+      }),
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+        summary: `Found ${retvals.results.length} results for ${args.query}.`,
+        details: JSON.stringify(retvals.results),
       }),
     });
     athena.registerTool({
@@ -136,7 +200,18 @@ export default class Http extends PluginBase {
   }
 
   async unload(athena: Athena) {
+    athena.off("private-event", this.boundAthenaPrivateEventHandler);
     athena.deregisterTool("http/fetch");
+    athena.deregisterTool("http/search");
     athena.deregisterTool("http/download-file");
+  }
+
+  athenaPrivateEventHandler(name: string, args: Dict<any>) {
+    if (name === "webapp-ui/token-refreshed") {
+      this.jina = new JinaSearch({
+        baseUrl: this.config.jina.base_url,
+        apiKey: args.token,
+      });
+    }
   }
 }

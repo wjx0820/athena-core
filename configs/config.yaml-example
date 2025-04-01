@@ -33,6 +33,9 @@ plugins:
       - 1234567890
   clock:
   http:
+    jina:
+      base_url: https://s.jina.ai
+      api_key: your-jina-api-key
   short-term-memory:
   llm:
     base_url: https://api.openai.com/v1
@@ -61,3 +64,5 @@ plugins:
     client_id: your-amadeus-client-id
     client_secret: your-amadeus-client-secret
   athena:
+  browser:
+    headless: true
