@@ -67,11 +67,14 @@ const isImage = (element: Element): boolean => {
 };
 
 const isClickable = (element: Element, dom: JSDOM): boolean => {
-  const style = dom.window.getComputedStyle(element);
+  let style: CSSStyleDeclaration | null = null;
+  try {
+    style = dom.window.getComputedStyle(element);
+  } catch (e) {}
   return (
     element.matches(
       'a, button, [role="button"], input[type="button"], input[type="submit"], input[type="checkbox"], input[type="radio"], [onclick], label[for]'
-    ) || style.cursor === "pointer"
+    ) || style?.cursor === "pointer"
   );
 };
 
