@@ -5,7 +5,9 @@ import { PluginBase } from "../plugin-base.js";
 export default class Browser extends PluginBase {
   athena!: Athena;
   browserUse: BrowserUse = new BrowserUse();
-  boundPageCreatedHandler!: (index: number) => void;
+  boundPopupHandler!: (fromIndex: number, index: number) => void;
+  boundDownloadStartedHandler!: (pageIndex: number, filename: string) => void;
+  boundDownloadCompletedHandler!: (pageIndex: number, filename: string) => void;
   lock: boolean = false;
 
   desc() {
@@ -15,39 +17,89 @@ export default class Browser extends PluginBase {
   async load(athena: Athena) {
     this.athena = athena;
     await this.browserUse.init(this.config.headless);
-    this.boundPageCreatedHandler = this.pageCreatedHandler.bind(this);
+    this.boundPopupHandler = this.popupHandler.bind(this);
+    this.boundDownloadStartedHandler = this.downloadStartedHandler.bind(this);
+    this.boundDownloadCompletedHandler =
+      this.downloadCompletedHandler.bind(this);
 
     athena.registerEvent({
-      name: "browser/page-created",
-      desc: "Triggered when a new page is created.",
+      name: "browser/popup",
+      desc: "Triggered when a new page is popped up.",
       args: {
+        from_index: {
+          type: "number",
+          desc: "The index of the page that initiated the popup.",
+          required: true,
+        },
         index: {
           type: "number",
-          desc: "The index of the new page.",
+          desc: "The index of the popped up page.",
           required: true,
         },
         url: {
           type: "string",
-          desc: "The URL of the new page.",
+          desc: "The URL of the popped up page.",
           required: true,
         },
         title: {
           type: "string",
-          desc: "The title of the new page.",
+          desc: "The title of the popped up page.",
           required: true,
         },
         content: {
           type: "array",
-          desc: "The content of the new page.",
+          desc: "The content of the popped up page.",
           required: true,
         },
       },
       explain_args: (args: Dict<any>) => {
         return {
-          summary: `A new page is created at index ${args.index}.`,
+          summary: `A new page is popped up at index ${args.index} from index ${args.from_index}.`,
           details: `${args.url}\n${args.title}\n${JSON.stringify(
             args.content
           )}`,
+        };
+      },
+    });
+    athena.registerEvent({
+      name: "browser/download-started",
+      desc: "Triggered when a download starts. You must wait for browser/download-completed to be triggered before accessing the file.",
+      args: {
+        page_index: {
+          type: "number",
+          desc: "The index of the page.",
+          required: true,
+        },
+        filename: {
+          type: "string",
+          desc: "The filename of the downloaded file.",
+          required: true,
+        },
+      },
+      explain_args: (args: Dict<any>) => {
+        return {
+          summary: `A download starts at page ${args.page_index} with filename ${args.filename}.`,
+        };
+      },
+    });
+    athena.registerEvent({
+      name: "browser/download-completed",
+      desc: "Triggered when a download completes. You can now access the file.",
+      args: {
+        page_index: {
+          type: "number",
+          desc: "The index of the page.",
+          required: true,
+        },
+        filename: {
+          type: "string",
+          desc: "The filename of the downloaded file.",
+          required: true,
+        },
+      },
+      explain_args: (args: Dict<any>) => {
+        return {
+          summary: `A download completes at page ${args.page_index} with filename ${args.filename}.`,
         };
       },
     });
@@ -421,15 +473,35 @@ export default class Browser extends PluginBase {
         });
       },
     });
-    this.browserUse.on("page-created", this.boundPageCreatedHandler);
+    this.browserUse.on("popup", this.boundPopupHandler);
+    this.browserUse.on("download-started", this.boundDownloadStartedHandler);
+    this.browserUse.on(
+      "download-completed",
+      this.boundDownloadCompletedHandler
+    );
   }
 
-  async pageCreatedHandler(index: number) {
+  async popupHandler(fromIndex: number, index: number) {
     const metadata = await this.browserUse.getPageMetadata(index);
-    this.athena.emitEvent("browser/page-created", {
+    this.athena.emitEvent("browser/popup", {
+      from_index: fromIndex,
       index,
       ...metadata,
       content: await this.browserUse.getPageContent(index),
+    });
+  }
+
+  async downloadStartedHandler(pageIndex: number, filename: string) {
+    this.athena.emitEvent("browser/download-started", {
+      page_index: pageIndex,
+      filename,
+    });
+  }
+
+  async downloadCompletedHandler(pageIndex: number, filename: string) {
+    this.athena.emitEvent("browser/download-completed", {
+      page_index: pageIndex,
+      filename,
     });
   }
 
@@ -449,10 +521,7 @@ export default class Browser extends PluginBase {
   }
 
   async unload(athena: Athena) {
-    this.browserUse.removeListener(
-      "page-created",
-      this.boundPageCreatedHandler
-    );
+    this.browserUse.removeListener("popup", this.boundPopupHandler);
     await this.browserUse.close();
     athena.deregisterTool("browser/new-page");
     athena.deregisterTool("browser/click");

@@ -73,15 +73,6 @@ export class BrowserUse extends EventEmitter {
         ],
       });
     });
-
-    this.context.on("page", async (page) => {
-      if (page.url() === "about:blank") {
-        return;
-      }
-      await this.waitForLoading(page);
-      this.pages.push({ page, pageNodes: [] });
-      this.emit("page-created", this.pages.length - 1);
-    });
   }
 
   async newPage(url: string) {
@@ -89,7 +80,19 @@ export class BrowserUse extends EventEmitter {
     await page.goto(url, { waitUntil: "commit" });
     await this.waitForLoading(page);
     this.pages.push({ page, pageNodes: [] });
-    return this.pages.length - 1;
+    const pageIndex = this.pages.length - 1;
+    page.on("popup", async (popup) => {
+      await this.waitForLoading(popup);
+      this.pages.push({ page: popup, pageNodes: [] });
+      this.emit("popup", pageIndex, this.pages.length - 1);
+    });
+    page.on("download", async (download) => {
+      const filename = download.suggestedFilename();
+      this.emit("download-started", pageIndex, filename);
+      await download.saveAs(filename);
+      this.emit("download-completed", pageIndex, filename);
+    });
+    return pageIndex;
   }
 
   async getPageContent(pageIndex: number) {
@@ -178,6 +181,7 @@ export class BrowserUse extends EventEmitter {
       } catch (error) {}
     };
     await Promise.any([waitForLoad(), waitForLoad2()]);
+    await page.waitForTimeout(2000);
   }
 
   async screenshot(page: Page, path: string) {
