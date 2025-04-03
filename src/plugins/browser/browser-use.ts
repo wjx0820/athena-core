@@ -95,6 +95,11 @@ export class BrowserUse extends EventEmitter {
     return pageIndex;
   }
 
+  async closePage(pageIndex: number) {
+    const pageState = this.pages[pageIndex];
+    await pageState.page.close();
+  }
+
   async getPageContent(pageIndex: number) {
     const pageState = this.pages[pageIndex];
     const pageNodes = parseDom(

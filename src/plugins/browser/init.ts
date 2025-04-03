@@ -157,6 +157,42 @@ export default class Browser extends PluginBase {
       },
     });
     athena.registerTool({
+      name: "browser/close-page",
+      desc: "Closes the page. You must call this tool after you are done with the page to release the resources. This tool won't affect the index of any other pages. You won't be able to access the page after closing it.",
+      args: {
+        index: {
+          type: "number",
+          desc: "The index of the page.",
+          required: true,
+        },
+      },
+      retvals: {
+        status: {
+          type: "string",
+          desc: "The status of the operation.",
+          required: true,
+        },
+      },
+      explain_args: (args: Dict<any>) => {
+        return {
+          summary: `Closing the page at index ${args.index}...`,
+        };
+      },
+      explain_retvals: (args: Dict<any>, retvals: Dict<any>) => {
+        return {
+          summary: `The page at index ${args.index} is closed.`,
+        };
+      },
+      fn: async (args: Dict<any>) => {
+        return await this.withLock(async () => {
+          await this.browserUse.closePage(args.index);
+          return {
+            status: "success",
+          };
+        });
+      },
+    });
+    athena.registerTool({
       name: "browser/click",
       desc: "Clicks on an element.",
       args: {
