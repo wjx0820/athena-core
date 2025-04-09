@@ -23,7 +23,7 @@ export default class WebappUI extends PluginBase {
   boundAthenaPrivateEventHandler!: (event: string, args: Dict<any>) => void;
 
   desc() {
-    return "You can interact with the user using UI tools and events.";
+    return "You can interact with the user using UI tools and events. When the user asks you to do something, think about what information and/or details you need to do that. If you need something only the user can provide, you need to ask the user for that information. Ask the users about task details if the request is vague. Be proactive and update the user on your progress, milestones, and obstacles and how you are going to overcome them.";
   }
 
   async load(athena: Athena) {
