@@ -1,6 +1,7 @@
 import fs from "fs";
 
 import image2uri from "image2uri";
+import { jsonrepair } from "jsonrepair";
 import OpenAI from "openai";
 import {
   ChatCompletionContentPart,
@@ -225,7 +226,7 @@ export default class Cerebrum extends PluginBase {
           let toolName;
           let toolCallId;
           try {
-            const toolCall = JSON.parse(toolCallJson) as IToolCall;
+            const toolCall = JSON.parse(jsonrepair(toolCallJson)) as IToolCall;
             toolName = toolCall.name;
             toolCallId = toolCall.id;
             const result = await this.athena.callTool(

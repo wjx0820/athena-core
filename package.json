@@ -34,6 +34,7 @@
     "image2uri": "^2.1.2",
     "istextorbinary": "^9.5.0",
     "jsdom": "^26.0.0",
+    "jsonrepair": "^3.12.0",
     "mime-types": "^2.1.35",
     "node-telegram-bot-api": "^0.63.0",
     "openai": "^4.78.1",
