@@ -39,13 +39,13 @@ pnpm i
 pnpx playwright install
 ```
 
-Configure the agent:
+:
 
 ```bash
 cp configs/config.yaml-example configs/config.yaml
 ```
 
-A minimally working config file looks like this:
+Open `configs/config.yaml` and enter your own API key. A minimally working config file looks like this:
 
 ```yaml
 quiet: true
@@ -70,8 +70,6 @@ plugins:
     headless: false
   cli-ui:
 ```
-
-Remember to enter your own API keys in the config file.
 
 Start the agent:
 
