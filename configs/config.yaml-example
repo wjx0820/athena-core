@@ -1,6 +1,7 @@
 states_file: configs/states.yaml
 log_file: configs/athena-core.log
 workdir: /path/to/your/workdir
+quiet: false
 
 plugins:
   webapp-ui:
@@ -66,3 +67,4 @@ plugins:
   athena:
   browser:
     headless: true
+  cli-ui:

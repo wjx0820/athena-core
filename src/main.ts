@@ -15,6 +15,10 @@ const main = async () => {
   const configFile = process.argv[2];
   const config = yaml.parse(await fs.readFile(configFile, "utf8"));
 
+  if (config.quiet) {
+    logger.transports[0].silent = true;
+  }
+
   if (config.log_file) {
     logger.add(
       new transports.File({
