@@ -36,7 +36,7 @@ Install dependencies:
 ```bash
 cd athena-core
 pnpm i
-pnpx playwright install # if you want to enable browser
+pnpx playwright install
 ```
 
 Configure the agent:
