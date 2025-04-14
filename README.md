@@ -39,7 +39,7 @@ pnpm i
 pnpx playwright install
 ```
 
-:
+Copy the example config file:
 
 ```bash
 cp configs/config.yaml-example configs/config.yaml
