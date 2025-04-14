@@ -56,7 +56,7 @@ export class Athena extends EventEmitter {
       logger.warn("No plugins found in config");
     }
     for (const [name, args] of Object.entries(plugins)) {
-      await this.loadPlugin(name, args as Dict<any>);
+      await this.loadPlugin(name, args ?? {});
     }
     this.emit("plugins-loaded");
   }
