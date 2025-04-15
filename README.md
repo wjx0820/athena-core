@@ -3,49 +3,54 @@
 </p>
 
 <h1 align="center">Athena</h1>
-<h3 align="center">A fully autonomous AI agent 🤖</h3>
+<h3 align="center">Your Autonomous AI Assistant ✨</h3>
 
 <div align="center">
-<a href="https://discord.gg/X38GnhdTH8"><img src="https://img.shields.io/discord/1322861553137090560" alt="Discord"></a>
-<a href="https://x.com/AthenaAGI"><img src="https://img.shields.io/twitter/follow/AthenaAGI" alt="X (formerly Twitter) Follow"></a>
-<a href="https://athenalab.ai/"><img src="https://img.shields.io/badge/Website-AthenaLab.AI-blue" alt="Website"></a>
+  <a href="https://discord.gg/X38GnhdTH8"><img src="https://img.shields.io/discord/1322861553137090560" alt="Discord"></a>
+  <a href="https://x.com/AthenaAGI"><img src="https://img.shields.io/twitter/follow/AthenaAGI" alt="X (formerly Twitter) Follow"></a>
+  <a href="https://athenalab.ai/"><img src="https://img.shields.io/badge/Website-AthenaLab.AI-blue" alt="Website"></a>
 </div>
 
-Athena is a production-grade AI agent that can help you solve complex tasks.
+Athena is a production-ready AI agent designed to assist with complex tasks. It offers comprehensive capabilities including:
 
-Try Athena in your browser: [https://athenalab.ai/](https://athenalab.ai/)
+- 🖥️ Computer control through command line
+- 📂 File system access
+- 🐍 Python code execution
+- 🌐 Web browser automation
+- ⏰ Time awareness and scheduling
+- ✨ Chatting with other language models
+- 🧠 Short-term memory for context retention
+- 🤖 Bot functionality for Telegram and Discord
 
-Join our [Discord community](https://discord.gg/X38GnhdTH8) to get help and support, and see what others are building with Athena.
+Explore demos and experience Athena directly in your browser: [https://athenalab.ai/](https://athenalab.ai/).
 
-## Quick Start
+Join our community: [Discord](https://discord.gg/X38GnhdTH8) | [X](https://x.com/AthenaAGI)
 
-Clone the repository:
+## 🚀 Quick Start
 
+1. Clone the repository:
 ```bash
 git clone https://github.com/Athena-AI-Lab/athena-core.git
 ```
 
-Install pnpm if you don't have it already:
-
+2. Install pnpm (if not already installed):
 ```bash
 npm install -g pnpm
 ```
 
-Install dependencies:
-
+3. Install project dependencies:
 ```bash
 cd athena-core
 pnpm i
 pnpx playwright install
 ```
 
-Copy the example config file:
-
+4. Copy the example config file:
 ```bash
 cp configs/config.yaml-example configs/config.yaml
 ```
 
-Open `configs/config.yaml` and enter your own API key. A minimally working config file looks like this:
+5. Edit `configs/config.yaml` with your API key. Here's a minimal working configuration:
 
 ```yaml
 quiet: true
@@ -71,8 +76,15 @@ plugins:
   cli-ui:
 ```
 
-Start the agent:
+For additional plugins and detailed configuration options, refer to the [Wiki](https://github.com/Athena-AI-Lab/athena-core/wiki).
 
+6. Launch Athena:
 ```bash
 pnpm start
 ```
+
+7. Now you can talk to Athena in your terminal!
+
+## 📄 License
+
+This project is licensed under the BSD 3-Clause License. See the [LICENSE](LICENSE) file for details.
