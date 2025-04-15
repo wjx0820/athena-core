@@ -116,10 +116,8 @@ Enable `discord` for Athena to send and receive messages from Discord.
     allowed_channel_ids:
       - "1234567890"
       - "9876543210"
-    admin_channel_ids:
-      - "1234567890"
-    log_channel_ids:
-      - "1234567890"
+    admin_channel_ids: []
+    log_channel_ids: []
 ```
 
 - `bot_token`: The Discord bot token.
@@ -171,7 +169,7 @@ Since only a single OpenAI endpoint can be configured currently, it's recommende
         - name: perplexity/sonar
           desc: Perplexity can access the Internet. Whenever you need to search the Internet, use this model.
       image:
-        - name: dall-e-3 # OpenRouter doesn't support image generation
+        - name: openai/dall-e-3 # OpenRouter doesn't support image generation
           desc: DALL-E 3 is good at generating images. Whenever you are requested to generate images, use this model.
 ```
 
@@ -219,10 +217,8 @@ Enable `telegram` for Athena to send and receive messages from Telegram.
     allowed_chat_ids:
       - 1234567890
       - 9876543210
-    admin_chat_ids:
-      - 1234567890
-    log_chat_ids:
-      - 1234567890
+    admin_chat_ids: []
+    log_chat_ids: []
 ```
 
 - `bot_token`: The Telegram bot token.
