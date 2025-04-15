@@ -10,6 +10,7 @@ import {
 
 import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
+import { openaiDefaultHeaders } from "../../utils/constants.js";
 
 interface IToolCall {
   name: string;
@@ -40,6 +41,7 @@ export default class Cerebrum extends PluginBase {
     this.openai = new OpenAI({
       baseURL: this.config.base_url,
       apiKey: this.config.api_key,
+      defaultHeaders: openaiDefaultHeaders,
     });
     this.boundAthenaEventHandler = this.athenaEventHandler.bind(this);
     this.boundAthenaPrivateEventHandler =
@@ -121,6 +123,7 @@ export default class Cerebrum extends PluginBase {
       this.openai = new OpenAI({
         baseURL: this.config.base_url,
         apiKey: args.token,
+        defaultHeaders: openaiDefaultHeaders,
       });
     }
   }

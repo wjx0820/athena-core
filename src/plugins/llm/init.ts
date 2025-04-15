@@ -4,6 +4,7 @@ import { ChatCompletionContentPart } from "openai/resources/index.js";
 
 import { Athena, Dict } from "../../core/athena.js";
 import { PluginBase } from "../plugin-base.js";
+import { openaiDefaultHeaders } from "../../utils/constants.js";
 
 export default class Llm extends PluginBase {
   openai!: OpenAI;
@@ -13,6 +14,7 @@ export default class Llm extends PluginBase {
     this.openai = new OpenAI({
       baseURL: this.config.base_url,
       apiKey: this.config.api_key,
+      defaultHeaders: openaiDefaultHeaders,
     });
     this.boundAthenaPrivateEventHandler =
       this.athenaPrivateEventHandler.bind(this);
@@ -170,6 +172,7 @@ export default class Llm extends PluginBase {
       this.openai = new OpenAI({
         baseURL: this.config.base_url,
         apiKey: args.token,
+        defaultHeaders: openaiDefaultHeaders,
       });
     }
   }
