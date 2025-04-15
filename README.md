@@ -20,7 +20,7 @@ Athena is a production-ready AI agent designed to assist with complex tasks. It 
 - ⏰ Time awareness and scheduling
 - ✨ Chatting with other language models
 - 🧠 Short-term memory for context retention
-- 🤖 Bot functionality for Telegram and Discord
+- 🤖 Bot functionality for [Telegram](docs/configuration.md#telegram) and [Discord](docs/configuration.md#discord)
 
 Explore demos and experience Athena directly in your browser: [https://athenalab.ai/](https://athenalab.ai/).
 
