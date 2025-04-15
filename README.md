@@ -76,7 +76,7 @@ plugins:
   cli-ui:
 ```
 
-For additional plugins and detailed configuration options, refer to the [Wiki](https://github.com/Athena-AI-Lab/athena-core/wiki).
+For additional plugins and detailed configuration options, refer to the [Configuration Guide](docs/configuration.md).
 
 6. Launch Athena:
 ```bash
