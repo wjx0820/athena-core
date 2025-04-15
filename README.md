@@ -17,6 +17,7 @@ Athena is a production-ready AI agent designed to assist with complex tasks. It 
 - 📂 File system access
 - 🐍 Python code execution
 - 🌐 Web browser automation
+- 🔍 Web search via [Jina](docs/configuration.md#http)
 - ⏰ Time awareness and scheduling
 - ✨ Chatting with other language models
 - 🧠 Short-term memory for context retention

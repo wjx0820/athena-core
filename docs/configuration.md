@@ -144,7 +144,7 @@ Enable `http` for Athena to send HTTP requests, search the web via Jina Search, 
       api_key: your-jina-api-key
 ```
 
-- `jina`: Configuration for Jina Search. (Optional)
+- `jina`: Configuration for [Jina Search](https://jina.ai/). (Optional)
   - `base_url`: The base URL of the Jina Search API endpoint.
   - `api_key`: The API key for the Jina Search API endpoint.
 
