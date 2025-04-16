@@ -77,7 +77,7 @@ plugins:
   cli-ui:
 ```
 
-For additional plugins and detailed configuration options, refer to the [Configuration Guide](docs/configuration.md).
+Note: This is a minimal working configuration. Advanced features such as Jina web search, multiple language model support, Telegram and Discord integration are not included here, though some may be essential for production use and require additional API keys. For a complete list of plugins and detailed configuration options, please refer to the [Configuration Guide](docs/configuration.md).
 
 6. Launch Athena:
 ```bash
