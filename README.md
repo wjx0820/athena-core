@@ -105,6 +105,65 @@ pnpm start
 
 7. Now you can talk to Athena in your terminal!
 
+## 📝 Roadmap
+
+Our mission is to realize **human-level intelligence**, or *AGI*, by evolving Athena into a truly autonomous and capable agent. Here's a more detailed roadmap of what we're working on:
+
+- [ ] **Autonomous Code Writing**
+  - Enable Athena to iteratively write and improve its own plugins
+
+- [ ] **Robust Browser Automation**
+  - Improve reliability and fault tolerance in headless and headful modes
+  - Add advanced DOM element parsing and interaction strategies
+
+- [ ] **Context Management Improvements**
+  - Adjust prompt context windows for different LLMs
+  - Implement context summarization for out-of-window context
+
+- [ ] **Long-Term Memory with RAG**
+  - Set up vector database integration for persistent knowledge
+  - Enable memory recall across sessions and tasks
+  - Support user-specific long-term context embedding and retrieval
+
+- [ ] **Image and Video Model Expansion**
+  - Integrate support for more image and video generation models
+  - Enable multimodal workflows that combine text, image, and video reasoning
+
+- [ ] **Video Understanding Capabilities**
+  - Implement advanced video content analysis and understanding capabilities
+  - Develop temporal reasoning for video sequences and events
+  - Enable extraction of key information and insights from video sources
+
+## 🤝 Contributing
+
+We welcome contributions from everyone — whether you're fixing a typo, suggesting a feature, or building a whole new plugin!
+
+Athena is a community-driven project, and we believe in building great tools *together*. Here's how you can help:
+
+### 💡 Got an Idea?
+
+Open a [GitHub Issue](https://github.com/Athena-AI-Lab/athena-core/issues) and let's discuss it! Whether it's a feature request, a bug report, or a wild idea — we're all ears.
+
+### 🛠 Want to Contribute Code?
+
+1. Fork the repo and create your branch:
+   ```bash
+   git checkout -b your-feature
+   ```
+2. Make your changes and commit them with a clear message.
+3. Push to your fork and open a Pull Request.
+
+### 🧪 Suggest Tests or Improvements
+
+Not into code? You can still help by:
+- Testing features and reporting issues
+- Improving documentation
+- Sharing Athena with others and providing feedback
+
+### 🌟 Join the Community
+
+Chat with us on [Discord](https://discord.gg/X38GnhdTH8) and follow [@AthenaAGI on X](https://x.com/AthenaAGI) for updates, tips, and more.
+
 ## 📄 License
 
 This project is licensed under the BSD 3-Clause License. See the [LICENSE](LICENSE) file for details.
