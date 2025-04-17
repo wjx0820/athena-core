@@ -96,7 +96,7 @@ plugins:
 
 > **Note:** This is a minimal working configuration. Advanced features such as [Jina web search](docs/configuration.md#http), [multiple language model support](docs/configuration.md#llm), [Telegram](docs/configuration.md#telegram) and [Discord](docs/configuration.md#discord) integration are not included here, though some may be essential for production use and require additional API keys.
 >
-> For a complete list of plugins and detailed configuration options, please refer to the [Configuration Guide](docs/configuration.md).
+> For a complete list of plugins and detailed configuration options, please refer to the [Configuration Guide](docs/configuration.md). See [Cerebrum](docs/configuration.md#cerebrum) section for best practices on selecting the right model for your use case.
 
 6. Launch Athena:
 ```bash
