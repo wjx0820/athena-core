@@ -11,20 +11,18 @@
   <a href="https://athenalab.ai/"><img src="https://img.shields.io/badge/Website-AthenaLab.AI-blue" alt="Website"></a>
 </div>
 
-**Athena** is a production-ready general AI agent built to *do*, not just *think*. It bridges insight with execution, helping you move from idea to reality effortlessly.
+**Athena** is a production-ready general AI agent built to *do*, not just *think*. It bridges insight with execution, helping you move from idea to results effortlessly.
 
 Some examples of what Athena can do:
 
-- "🧠 Train a digit recognition model on the MNIST dataset using PyTorch"
-- "🕹️ Launch a local Flask app and expose it using localtunnel"
 - "📥 Find the top 3 most-starred Python repositories on GitHub this week and summarize what each does"
 - "🔎 Search Hacker News for posts about 'LangChain' and summarize the top 3 discussions"
+- "✈️ Check for flight prices every day and visualize price trends over time"
 - "📊 Plot the MACD and RSI for TSLA over the last week"
-- "🌐 Go to TechCrunch and extract the latest 5 tech news headlines"
-- "📚 Scrape the top 10 books from the New York Times Best Sellers list and generate a reading list"
-- "🗺️ Get the current weather in Tokyo and tell me the best time to visit this week"
-- "📁 Find all PDF files in the Downloads folder and move them to Documents/Reading"
+- "🗺️ Get the past year's weather in Tokyo and tell me the best time to visit"
 - "💬 Translate this Word document from Spanish to English and preserve formatting"
+- "📚 Scrape the top 10 books from the New York Times Best Sellers list and generate a reading list"
+- "🧠 Train a digit recognition model on the MNIST dataset using PyTorch"
 
 Explore demos and experience Athena directly in your browser: [https://athenalab.ai/](https://athenalab.ai/).
 
@@ -34,15 +32,17 @@ Join our community: [Discord](https://discord.gg/X38GnhdTH8) | [X](https://x.com
 
 With all the tools it has, Athena is capable of:
 
-- 🖥️ Computer control through command line
-- 📂 Accessing files and folders
-- 🐍 Python code execution
-- 🌐 Web browser automation
-- 🔍 Web search via [Jina](docs/configuration.md#http)
-- ⏰ Time awareness and scheduling
-- ✨ Chatting with other language models
-- 🧠 Short-term memory for context retention
-- 🤖 Bot functionality for [Telegram](docs/configuration.md#telegram) and [Discord](docs/configuration.md#discord)
+- Computer control through command line
+- Accessing files and folders
+- Python code execution
+- Web browser automation
+- Web search via [Jina](docs/configuration.md#http)
+- Time awareness and scheduling
+- Chatting with other language models
+- Short-term memory for context retention
+- Bot functionality for [Telegram](docs/configuration.md#telegram) and [Discord](docs/configuration.md#discord)
+
+......
 
 ## 🚀 Quick Start
 
