@@ -109,9 +109,9 @@ pnpm start
 
 Other projects have docs. We have **Vibe Docs**.
 
-Yes, there’s a [Configuration Guide](docs/configuration.md) if you’re into that sort of thing. But if you really want to understand Athena, we recommend a more modern approach: feed the entire codebase to your favorite AI — Cursor, Windsurf, Athena herself, or even your toaster if it runs GPT — and just ask it how things work.
+Yes, there's a [Configuration Guide](docs/configuration.md) if you're into that sort of thing. But if you really want to understand Athena, we recommend a more modern approach: feed the entire codebase to your favorite AI — Cursor, Windsurf, Athena herself, or even your toaster if it runs GPT — and just ask it how things work.
 
-Trust us: the AI will probably do a better job explaining it than we ever could. It’s like documentation, but smarter, more interactive, and doesn’t judge your typos.
+Trust us: the AI will probably do a better job explaining it than we ever could. It's like documentation, but smarter, more interactive, and doesn't judge your typos.
 
 > **Note:** This is not a joke. We are serious. The above is also vibe documented.
 
