@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">Athena</h1>
-<h3 align="center">Your Autonomous AI Assistant ✨</h3>
+<h3 align="center">A General-Purpose AI Agent ✨</h3>
 
 <div align="center">
   <a href="https://discord.gg/X38GnhdTH8"><img src="https://img.shields.io/discord/1322861553137090560" alt="Discord"></a>
@@ -11,10 +11,31 @@
   <a href="https://athenalab.ai/"><img src="https://img.shields.io/badge/Website-AthenaLab.AI-blue" alt="Website"></a>
 </div>
 
-Athena is a production-ready AI agent designed to assist with complex tasks. It offers comprehensive capabilities including:
+**Athena** is a production-ready general AI agent built to *do*, not just *think*. It bridges insight with execution, helping you move from idea to reality effortlessly.
+
+Some examples of what Athena can do:
+
+- "🧠 Train a digit recognition model on the MNIST dataset using PyTorch"
+- "🕹️ Launch a local Flask app and expose it using localtunnel"
+- "📥 Find the top 3 most-starred Python repositories on GitHub this week and summarize what each does"
+- "🔎 Search Hacker News for posts about 'LangChain' and summarize the top 3 discussions"
+- "📊 Plot the MACD and RSI for TSLA over the last week"
+- "🌐 Go to TechCrunch and extract the latest 5 tech news headlines"
+- "📚 Scrape the top 10 books from the New York Times Best Sellers list and generate a reading list"
+- "🗺️ Get the current weather in Tokyo and tell me the best time to visit this week"
+- "📁 Find all PDF files in the Downloads folder and move them to Documents/Reading"
+- "💬 Translate this Word document from Spanish to English and preserve formatting"
+
+Explore demos and experience Athena directly in your browser: [https://athenalab.ai/](https://athenalab.ai/).
+
+Join our community: [Discord](https://discord.gg/X38GnhdTH8) | [X](https://x.com/AthenaAGI)
+
+## Features
+
+With all the tools it has, Athena is capable of:
 
 - 🖥️ Computer control through command line
-- 📂 File system access
+- 📂 Accessing files and folders
 - 🐍 Python code execution
 - 🌐 Web browser automation
 - 🔍 Web search via [Jina](docs/configuration.md#http)
@@ -23,10 +44,6 @@ Athena is a production-ready AI agent designed to assist with complex tasks. It 
 - 🧠 Short-term memory for context retention
 - 🤖 Bot functionality for [Telegram](docs/configuration.md#telegram) and [Discord](docs/configuration.md#discord)
 
-Explore demos and experience Athena directly in your browser: [https://athenalab.ai/](https://athenalab.ai/).
-
-Join our community: [Discord](https://discord.gg/X38GnhdTH8) | [X](https://x.com/AthenaAGI)
-
 ## 🚀 Quick Start
 
 1. Clone the repository:
@@ -34,7 +51,7 @@ Join our community: [Discord](https://discord.gg/X38GnhdTH8) | [X](https://x.com
 git clone https://github.com/Athena-AI-Lab/athena-core.git
 ```
 
-2. Install pnpm (if not already installed):
+2. [Install pnpm](https://pnpm.io/installation) (if not already installed):
 ```bash
 npm install -g pnpm
 ```
@@ -77,7 +94,9 @@ plugins:
   cli-ui:
 ```
 
-Note: This is a minimal working configuration. Advanced features such as Jina web search, multiple language model support, Telegram and Discord integration are not included here, though some may be essential for production use and require additional API keys. For a complete list of plugins and detailed configuration options, please refer to the [Configuration Guide](docs/configuration.md).
+###### Note: This is a minimal working configuration. Advanced features such as Jina web search, multiple language model support, Telegram and Discord integration are not included here, though some may be essential for production use and require additional API keys.
+
+###### For a complete list of plugins and detailed configuration options, please refer to the [Configuration Guide](docs/configuration.md).
 
 6. Launch Athena:
 ```bash
