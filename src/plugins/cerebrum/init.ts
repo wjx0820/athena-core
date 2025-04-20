@@ -47,36 +47,40 @@ export default class Cerebrum extends PluginBase {
     this.boundAthenaPrivateEventHandler =
       this.athenaPrivateEventHandler.bind(this);
     if (this.config.image_supported) {
-      athena.registerTool({
-        name: "image/check-out",
-        desc: "Check out an image. Whenever you want to see an image, or the user asks you to see an image, use this tool.",
-        args: {
-          image: {
-            type: "string",
-            desc: "The URL or local path of the image to check out.",
-            required: true,
+      athena.registerTool(
+        {
+          name: "image/check-out",
+          desc: "Check out an image. Whenever you want to see an image, or the user asks you to see an image, use this tool.",
+          args: {
+            image: {
+              type: "string",
+              desc: "The URL or local path of the image to check out.",
+              required: true,
+            },
+          },
+          retvals: {
+            result: {
+              type: "string",
+              desc: "The result of checking out the image.",
+              required: true,
+            },
           },
         },
-        retvals: {
-          result: {
-            type: "string",
-            desc: "The result of checking out the image.",
-            required: true,
+        {
+          fn: async (args) => {
+            let image = args.image;
+            if (!image.startsWith("http")) {
+              image = await image2uri(image);
+            }
+            this.imageUrls.push(image);
+            return { result: "success" };
           },
+          explain_args: (args: Dict<any>) => ({
+            summary: "Checking out the image...",
+            details: args.image,
+          }),
         },
-        fn: async (args: Dict<any>) => {
-          let image = args.image;
-          if (!image.startsWith("http")) {
-            image = await image2uri(image);
-          }
-          this.imageUrls.push(image);
-          return { result: "success" };
-        },
-        explain_args: (args: Dict<any>) => ({
-          summary: "Checking out the image...",
-          details: args.image,
-        }),
-      });
+      );
     }
     athena.on("event", this.boundAthenaEventHandler);
     athena.on("private-event", this.boundAthenaPrivateEventHandler);
@@ -134,7 +138,7 @@ export default class Cerebrum extends PluginBase {
     }
     this.processEventQueueTimer = setTimeout(
       () => this.processEventQueue(),
-      500
+      500,
     );
   }
 
@@ -148,7 +152,7 @@ export default class Cerebrum extends PluginBase {
     let promptsSnapshot = this.prompts.slice();
     try {
       const events = eventQueueSnapshot.map((event) =>
-        this.eventToPrompt(event)
+        this.eventToPrompt(event),
       );
       this.ensureInitialPrompt(promptsSnapshot);
       promptsSnapshot.push({
@@ -234,7 +238,7 @@ export default class Cerebrum extends PluginBase {
             toolCallId = toolCall.id;
             const result = await this.athena.callTool(
               toolCall.name,
-              toolCall.args
+              toolCall.args,
             );
             this.pushEvent({
               tool_result: true,
@@ -401,7 +405,7 @@ ${descs.join("\n\n")}`;
         Object.entries(args as Dict<any>).map(([key, value]) => [
           key,
           this.sanitizeEventArgs(value),
-        ])
+        ]),
       ) as T;
     }
 

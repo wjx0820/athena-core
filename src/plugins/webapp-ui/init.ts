@@ -30,7 +30,7 @@ export default class WebappUI extends PluginBase {
     this.athena = athena;
     this.supabase = createClient(
       this.config.supabase.url,
-      this.config.supabase.anon_key
+      this.config.supabase.anon_key,
     );
     this.supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
@@ -53,7 +53,7 @@ export default class WebappUI extends PluginBase {
     }
     this.logTransport = new WebappUITransport(
       this.supabase,
-      this.config.context_id
+      this.config.context_id,
     );
     logger.add(this.logTransport);
     const { data, error: error2 } = await this.supabase
@@ -65,7 +65,7 @@ export default class WebappUI extends PluginBase {
     } else if (data && data[0].states !== null) {
       this.athena.states = data[0].states;
       this.logger.info(
-        `Loaded context states: ${JSON.stringify(data[0].states)}`
+        `Loaded context states: ${JSON.stringify(data[0].states)}`,
       );
     }
     this.boundAthenaPrivateEventHandler =
@@ -110,115 +110,119 @@ export default class WebappUI extends PluginBase {
         },
       },
     });
-    athena.registerTool({
-      name: "ui/send-message",
-      desc: "Sends a message to the user.",
-      args: {
-        content: {
-          type: "string",
-          desc: "The message to send to the user. This should be a valid Markdown message.",
-          required: true,
-        },
-        files: {
-          type: "array",
-          desc: "Files to send to the user. Whenever the user requests a file or a download link to a file, you should use this argument to send the file to the user.",
-          required: false,
-          of: {
-            type: "object",
-            desc: "A file to send to the user.",
+    athena.registerTool(
+      {
+        name: "ui/send-message",
+        desc: "Sends a message to the user.",
+        args: {
+          content: {
+            type: "string",
+            desc: "The message to send to the user. This should be a valid Markdown message.",
             required: true,
+          },
+          files: {
+            type: "array",
+            desc: "Files to send to the user. Whenever the user requests a file or a download link to a file, you should use this argument to send the file to the user.",
+            required: false,
             of: {
-              name: {
-                type: "string",
-                desc: "The name of the file.",
-                required: true,
-              },
-              location: {
-                type: "string",
-                desc: "The location of the file. Send URL or absolute path. Don't send relative paths.",
-                required: true,
+              type: "object",
+              desc: "A file to send to the user.",
+              required: true,
+              of: {
+                name: {
+                  type: "string",
+                  desc: "The name of the file.",
+                  required: true,
+                },
+                location: {
+                  type: "string",
+                  desc: "The location of the file. Send URL or absolute path. Don't send relative paths.",
+                  required: true,
+                },
               },
             },
           },
         },
-      },
-      retvals: {
-        status: {
-          type: "string",
-          desc: "Status of the operation.",
-          required: true,
+        retvals: {
+          status: {
+            type: "string",
+            desc: "Status of the operation.",
+            required: true,
+          },
         },
       },
-      fn: async (args: Dict<any>) => {
-        if (args.files) {
-          for (const file of args.files) {
-            if (
-              file.location.startsWith(
-                "https://oaidalleapiprodscus.blob.core.windows.net"
-              )
-            ) {
-              // This is an image from DALL-E. Download it and upload it to Supabase to avoid expiration.
-              const response = await fetch(file.location);
-              const buffer = await response.arrayBuffer();
-              const tempPath = `./${Date.now()}-${file.name}`;
-              await fs.promises.writeFile(tempPath, Buffer.from(buffer));
-              file.location = tempPath;
+      {
+        fn: async (args: Dict<any>) => {
+          if (args.files) {
+            for (const file of args.files) {
+              if (
+                file.location.startsWith(
+                  "https://oaidalleapiprodscus.blob.core.windows.net",
+                )
+              ) {
+                // This is an image from DALL-E. Download it and upload it to Supabase to avoid expiration.
+                const response = await fetch(file.location);
+                const buffer = await response.arrayBuffer();
+                const tempPath = `./${Date.now()}-${file.name}`;
+                await fs.promises.writeFile(tempPath, Buffer.from(buffer));
+                file.location = tempPath;
+              }
+              if (file.location.startsWith("http")) {
+                continue;
+              }
+              const digest = await fileDigest(file.location);
+              const storagePath = `${this.userId}/${digest.slice(
+                0,
+                2,
+              )}/${digest.slice(2, 12)}/${encodeURIComponent(file.name).replace(
+                /%/g,
+                "_",
+              )}`;
+              const contentType = mime.lookup(file.location);
+              const { error } = await this.supabase.storage
+                .from(this.config.supabase.files_bucket)
+                .upload(storagePath, fs.createReadStream(file.location), {
+                  upsert: true,
+                  contentType: contentType
+                    ? contentType
+                    : "application/octet-stream",
+                  duplex: "half",
+                });
+              if (error) {
+                throw new Error(
+                  `Error uploading file ${file.name}: ${error.message}`,
+                );
+              }
+              file.location = this.supabase.storage
+                .from(this.config.supabase.files_bucket)
+                .getPublicUrl(storagePath).data.publicUrl;
             }
-            if (file.location.startsWith("http")) {
-              continue;
-            }
-            const digest = await fileDigest(file.location);
-            const storagePath = `${this.userId}/${digest.slice(
-              0,
-              2
-            )}/${digest.slice(2, 12)}/${encodeURIComponent(file.name).replace(
-              /%/g,
-              "_"
-            )}`;
-            const contentType = mime.lookup(file.location);
-            const { error } = await this.supabase.storage
-              .from(this.config.supabase.files_bucket)
-              .upload(storagePath, fs.createReadStream(file.location), {
-                upsert: true,
-                contentType: contentType
-                  ? contentType
-                  : "application/octet-stream",
-                duplex: "half",
-              });
-            if (error) {
-              throw new Error(
-                `Error uploading file ${file.name}: ${error.message}`
-              );
-            }
-            file.location = this.supabase.storage
-              .from(this.config.supabase.files_bucket)
-              .getPublicUrl(storagePath).data.publicUrl;
           }
-        }
-        const message: IWebappUIMessage = {
-          type: "message",
-          data: {
-            role: "assistant",
-            content: args.content,
-            files: args.files,
-            timestamp: Date.now(),
-          },
-        };
-        this.supabase
-          .from("messages")
-          .insert({
-            context_id: this.config.context_id,
-            message,
-          })
-          .then(({ error }) => {
-            if (error) {
-              this.logger.error(error);
-            }
-          });
-        await this.sendMessage(message);
-        return { status: "success" };
+          const message: IWebappUIMessage = {
+            type: "message",
+            data: {
+              role: "assistant",
+              content: args.content,
+              files: args.files,
+              timestamp: Date.now(),
+            },
+          };
+          this.supabase
+            .from("messages")
+            .insert({
+              context_id: this.config.context_id,
+              message,
+            })
+            .then(({ error }) => {
+              if (error) {
+                this.logger.error(error);
+              }
+            });
+          await this.sendMessage(message);
+          return { status: "success" };
+        },
       },
-    });
+    );
     athena.once("plugins-loaded", async () => {
       this.wss = new WebSocketServer({ port: this.config.port });
       this.wss.on("connection", (ws, req) => {
@@ -372,7 +376,7 @@ export default class WebappUI extends PluginBase {
               resolve();
             }
           });
-        })
+        }),
       );
     }
     await Promise.all(promises);

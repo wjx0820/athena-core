@@ -9,10 +9,10 @@ interface IPageState {
   pageNodes: IPageNode[];
 }
 
-interface IPageMetadata {
+type IBrowserUsePageMetadata = {
   url: string;
   title: string;
-}
+};
 
 interface IElementData {
   tagName: string;
@@ -107,7 +107,7 @@ export class BrowserUse extends EventEmitter {
         url: pageState.page.url(),
         resources: "usable",
         pretendToBeVisual: true,
-      })
+      }),
     );
     pageState.pageNodes = pageNodes.allNodes;
     return toExternalNodes(pageNodes.topLevelNodes);
@@ -141,7 +141,7 @@ export class BrowserUse extends EventEmitter {
     await this.waitForLoading(page);
   }
 
-  async getPageMetadata(pageIndex: number): Promise<IPageMetadata> {
+  async getPageMetadata(pageIndex: number): Promise<IBrowserUsePageMetadata> {
     const pageState = this.pages[pageIndex];
     const page = pageState.page;
     return {
@@ -159,7 +159,7 @@ export class BrowserUse extends EventEmitter {
         Array.from((pageNode.node as Element).attributes).map((attr) => [
           attr.name,
           attr.value,
-        ])
+        ]),
       ),
     };
   }
