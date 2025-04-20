@@ -40,13 +40,12 @@ export class TavilySearch {
     const json = await response.json();
 
     // Map the response structure to ITavilySearchResult
-    // Adjust based on actual Tavily response format if different
-    return json.results.map((result: any) => ({
+    const formattedResults = json.results.map((result: any) => ({
       title: result.title || "No Title",
       url: result.url,
       content: result.content || "No content",
-      score: result.score || 0,
-      published_date: result.published_date,
     }));
+
+    return formattedResults;
   }
 }

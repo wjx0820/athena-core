@@ -222,72 +222,78 @@ export default class Http extends PluginBase {
         },
       );
     }
-    if (this.config.tavily) {
-      athena.registerTool({
-        name: "http/tavily-search",
-        desc: "Search the web for information using Tavily API.",
-        args: {
-          query: {
-            type: "string",
-            desc: "The query to search for.",
-            required: true,
-          },
-        },
-        retvals: {
-          results: {
-            type: "array",
-            desc: "The results of the search.",
-            required: true,
-            of: {
-              type: "object",
-              desc: "A single search result.",
-              of: {
-                title: {
-                  type: "string",
-                  desc: "The title of the result.",
-                  required: true,
-                },
-                url: {
-                  type: "string",
-                  desc: "The URL of the result.",
-                  required: true,
-                },
-                content: {
-                  type: "string",
-                  desc: "Text content snippet.",
-                  required: true,
-                },
-              },
+   if (this.config.tavily) {
+      athena.registerTool(
+        {
+          name: "http/tavily-search",
+          desc: "Searches the web for information using Tavily API.",
+          args: {
+            query: {
+              type: "string",
+              desc: "The query to search for.",
               required: true,
             },
           },
+          retvals: {
+            results: {
+              type: "array",
+              desc: "The results of the search.",
+              required: true,
+              of: {
+                type: "object",
+                desc: "A single search result.",
+                of: {
+                  title: {
+                    type: "string",
+                    desc: "The title of the result.",
+                    required: true,
+                  },
+                  url: {
+                    type: "string",
+                    desc: "The URL of the result.",
+                    required: true,
+                  },
+                  content: {
+                    type: "string",
+                    desc: "Text content snippet.",
+                    required: true,
+                  },
+                },
+                required: true,
+              },
+            },
+          },
         },
-        fn: async (args: Dict<any>) => {
-          const results = await this.tavily.search(args.query);
-          return { results };
+        {
+          fn: async (args: Dict<any>) => {
+            const results = await this.tavily.search(args.query);
+            return { results };
+          },
+          explain_args: (args: Dict<any>) => ({
+            summary: `Searching the web with Tavily for ${args.query}...`,
+          }),
+          explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
+            summary: `Found ${retvals.results.length} results with Tavily for ${args.query}.`,
+            details: JSON.stringify(retvals.results),
+          }),
         },
-        explain_args: (args: Dict<any>) => ({
-          summary: `Searching with Tavily for ${args.query}...`,
-        }),
-        explain_retvals: (args: Dict<any>, retvals: Dict<any>) => ({
-          summary: `Found ${retvals.results.length} results with Tavily for ${args.query}.`,
-          details: JSON.stringify(retvals.results),
-        }),
-      });
+      );
     }
-    athena.registerTool({
-      name: "http/download-file",
-      desc: "Downloads a file from an HTTP/HTTPS URL.",
-      args: {
-        url: {
-          type: "string",
-          desc: "The URL to download the file from.",
-          required: true,
-        },
-        filename: {
-          type: "string",
-          desc: "The filename to save the file as.",
-          required: true,
+    athena.registerTool(
+      {
+        name: "http/download-file",
+        desc: "Downloads a file from an HTTP/HTTPS URL.",
+        args: {
+          url: {
+            type: "string",
+            desc: "The URL to download the file from.",
+            required: true,
+          },
+          filename: {
+            type: "string",
+            desc: "The filename to save the file as.",
+            required: true,
+          },
         },
         retvals: {
           result: {
@@ -371,7 +377,7 @@ export default class Http extends PluginBase {
       if (this.config.tavily) {
         this.tavily = new TavilySearch({
           baseUrl: this.config.tavily.base_url,
-          apiKey: this.config.tavily.api_key || args.token,
+          apiKey: args.token,
         });
       }
     }
