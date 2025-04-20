@@ -222,7 +222,7 @@ export default class Http extends PluginBase {
         },
       );
     }
-   if (this.config.tavily) {
+    if (this.config.tavily) {
       athena.registerTool(
         {
           name: "http/tavily-search",

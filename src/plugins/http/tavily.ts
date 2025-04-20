@@ -23,7 +23,7 @@ export class TavilySearch {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
         query: query,
@@ -34,7 +34,9 @@ export class TavilySearch {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error("Tavily API Error:", response.status, errorBody);
-      throw new Error(`Failed to search with Tavily API: ${response.statusText}`);
+      throw new Error(
+        `Failed to search with Tavily API: ${response.statusText}`,
+      );
     }
 
     const json = await response.json();
